@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>英文智慧選課測驗系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.2s ease-in-out;
+        }
+        .glass-btn:hover, .glass-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            transform: translateY(-1px);
+        }
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.5); border-radius: 3px; }
+    </style>
+</head>
+<body class="p-2 sm:p-4 w-full max-w-5xl mx-auto">
+
+    <!-- 自訂彈出視窗 (Modal System) -->
+    <div id="modalContainer" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+        <div class="glass-panel rounded-2xl p-6 max-w-sm w-full border border-purple-500/30 text-center space-y-4">
+            <h3 id="modalTitle" class="text-xl font-bold text-purple-300">系統提示</h3>
+            <p id="modalMessage" class="text-gray-200 text-sm whitespace-pre-line"></p>
+            <div id="modalButtons" class="flex justify-center gap-3 pt-2">
+                <button onclick="closeModal()" class="glass-btn px-6 py-2 rounded-xl text-sm font-semibold">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頂部使用者資訊與導覽列 -->
+    <header id="topHeader" class="w-full glass-panel rounded-2xl p-4 mb-4 flex flex-wrap justify-between items-center gap-3 hidden">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base sm:text-lg text-purple-200">英文智慧選課測驗系統</h1>
+                <p id="userRoleBadge" class="text-xs text-gray-400">載入身分中...</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="showSection('courseSelect')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-book-open mr-1"></i>智慧選課</button>
+            <button onclick="showSection('wordBank')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-brain mr-1"></i>單字館</button>
+            <button onclick="showSection('dashboard')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-chart-line mr-1"></i>成績與後台</button>
+            <button onclick="showSection('settings')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-gear mr-1"></i>帳號設定</button>
+            <button onclick="handleLogout()" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium text-rose-300 hover:text-rose-100"><i class="fa-solid fa-right-from-bracket mr-1"></i>登出</button>
+        </div>
+    </header>
+
+    <!-- 主要內容區域 -->
+    <main class="w-full flex-1">
+
+        <!-- 1. 登入/註冊區塊 -->
+        <section id="authSection" class="w-full max-w-md mx-auto my-8 glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-block p-4 rounded-full bg-purple-500/20 border border-purple-400/30 mb-2">
+                    <i class="fa-solid fa-user-graduate text-4xl text-purple-300"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">會員安全登入</h2>
+                <p class="text-xs text-gray-400">帳號將永久儲存並支援跨裝置使用</p>
+            </div>
+
+            <div class="flex rounded-xl bg-slate-900/60 p-1 border border-white/10">
+                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow">登入帳號</button>
+                <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white">註冊新帳號</button>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號</label>
+                    <input type="text" id="authUsername" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入帳號">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">密碼</label>
+                    <input type="password" id="authPassword" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入密碼">
+                </div>
+
+                <div id="registerFields" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">真實姓名</label>
+                        <input type="text" id="authRealName" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：張小明">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">選擇您的身分類別</label>
+                        <select id="authRole" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm bg-slate-900">
+                            <option value="1">第一個：教職員 / 人事室 / 處室</option>
+                            <option value="2">第二個：老師 / 導師</option>
+                            <option value="3">第三個：家長</option>
+                            <option value="4" selected>第四個：學生</option>
+                            <option value="5">第五個：以上都沒有符合我的條件</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full glass-btn py-3 rounded-xl font-bold text-sm text-purple-200 mt-2 shadow-lg">立即登入</button>
+            </form>
+        </section>
+
+        <!-- 2. 智慧選課區塊 -->
+        <section id="courseSelectSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <h2 class="text-xl font-bold text-purple-300 border-b border-white/10 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-sliders"></i> 兩階段智慧選課與範圍設定
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 1 & Step 2 個人身分與學歷</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">學生姓名</label>
+                        <input type="text" id="stepName" class="w-full glass-input rounded-xl px-3 py-2 text-sm" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">① 個人學歷</label>
+                        <select id="stepEduDegree" onchange="updateGradeDropdown()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="幼稚園">幼稚園</option>
+                            <option value="國小">國小</option>
+                            <option value="國中">國中</option>
+                            <option value="高中">高中</option>
+                            <option value="大學">大學</option>
+                            <option value="大學畢業(不是老師)">大學畢業(不是老師)</option>
+                            <option value="老師">老師</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">② 年級 / 身分動態選單</label>
+                        <select id="stepEduGrade" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 3 & Step 4 做題學歷與科目</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 3 做題目標學歷</label>
+                        <select id="targetEdu" onchange="updatePublisherOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="國小">國小</option>
+                            <option value="國中">國中</option>
+                            <option value="高中">高中</option>
+                            <option value="大學">大學/檢定模組</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 4 測驗科目</label>
+                        <select id="targetSubject" onchange="updatePublisherOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="英文單字">英文單字</option>
+                            <option value="英文文法">英文文法</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 5 & Step 6 版本與學年度</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 5 版本選擇</label>
+                        <select id="targetPublisher" onchange="updateUnitOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 6 版本學年度選擇</label>
+                        <select id="targetYear" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="115上">115上學年度</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 7 課程範圍與題數模式</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">課程 / 單元 / 段考範圍</label>
+                        <select id="targetUnit" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">題數選擇（預設或手動打字輸入）</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="customQuestionCount" min="1" max="100" value="10" class="w-24 glass-input rounded-xl px-3 py-2 text-sm text-center">
+                            <button onclick="setQuickQuestionCount(10)" class="glass-btn px-3 py-2 rounded-xl text-xs">10題</button>
+                            <button onclick="setQuickQuestionCount('all')" class="glass-btn px-3 py-2 rounded-xl text-xs">全部</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-xs text-gray-300">即時顯示答案切換</span>
+                        <input type="checkbox" id="instantAnswerToggle" class="w-5 h-5 accent-purple-500 rounded">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4 pt-4">
+                <button onclick="startStudyMode()" class="glass-btn px-6 py-3 rounded-2xl font-bold text-sm text-indigo-200"><i class="fa-solid fa-book-reader mr-2"></i>進入單字學習館</button>
+                <button onclick="startQuizMode()" class="glass-btn px-8 py-3 rounded-2xl font-bold text-sm text-purple-200 shadow-lg"><i class="fa-solid fa-pen-to-square mr-2"></i>開始測驗挑戰區</button>
+            </div>
+        </section>
+
+        <!-- 3. 單字學習館區塊 -->
+        <section id="wordBankSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <div class="flex flex-wrap justify-between items-center gap-4 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-brain mr-2"></i>單字學習館</h2>
+                    <p id="studyScopeTitle" class="text-xs text-gray-400 mt-1">目前學習範圍：載入中...</p>
+                </div>
+                <input type="text" id="wordSearchInput" oninput="renderWordCards()" class="glass-input rounded-xl px-4 py-2 text-sm w-full sm:w-64" placeholder="搜尋英文或中文...">
+            </div>
+            <div id="wordCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- 4. 測驗挑戰區塊 -->
+        <section id="quizSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div>
+                    <span id="quizProgress" class="text-xs font-bold text-purple-400 uppercase">第 1 / 10 題</span>
+                    <h3 id="quizScopeHeader" class="text-sm font-semibold text-gray-300">測驗中...</h3>
+                </div>
+                <div id="quizTimer" class="text-sm font-mono bg-purple-950/60 border border-purple-500/30 px-3 py-1 rounded-xl text-purple-300">
+                    <i class="fa-regular fa-clock mr-1"></i>00:00
+                </div>
+            </div>
+
+            <div id="quizCard" class="space-y-6">
+                <div class="p-6 rounded-2xl bg-slate-900/60 border border-white/10 text-center space-y-3">
+                    <div id="questionText" class="text-2xl font-extrabold text-purple-100">Question</div>
+                    <button onclick="speakCurrentQuestion()" class="glass-btn px-3 py-1 rounded-full text-xs text-purple-300"><i class="fa-solid fa-volume-high mr-1"></i>朗讀題目</button>
+                </div>
+
+                <div id="optionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div id="instantFeedback" class="p-4 rounded-xl text-sm font-bold text-center hidden"></div>
+
+                <div class="flex justify-end pt-2">
+                    <button id="nextQuestionBtn" onclick="nextQuestion()" class="glass-btn px-6 py-2.5 rounded-xl font-bold text-sm hidden">下一題 <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                </div>
+            </div>
+
+            <div id="quizResultCard" class="space-y-6 text-center hidden">
+                <div class="p-8 rounded-3xl bg-slate-900/80 border border-purple-500/30 space-y-4">
+                    <div id="honorBadge" class="hidden">
+                        <div class="text-6xl text-amber-400 mb-2 animate-bounce"><i class="fa-solid fa-trophy"></i></div>
+                        <h3 class="text-2xl font-black text-amber-300">滿分榮譽成就！100 分！</h3>
+                    </div>
+                    <h3 class="text-3xl font-extrabold text-purple-200">測驗完成！</h3>
+                    <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" id="finalScoreText">0 分</div>
+                    <p id="scoreDetailText" class="text-sm text-gray-300"></p>
+                    <div class="text-xs font-semibold px-4 py-2 rounded-xl bg-purple-900/40 border border-purple-500/20 text-purple-300 inline-block">
+                        ☁️ 成績已即時寫入儲存庫
+                    </div>
+                </div>
+
+                <div id="wrongQuestionsContainer" class="text-left glass-panel rounded-2xl p-5 space-y-3 hidden">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                        <h4 class="font-bold text-rose-300 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>錯題複習與導出</h4>
+                        <button onclick="copyWrongQuestions()" class="glass-btn px-3 py-1 rounded-xl text-xs text-purple-200"><i class="fa-regular fa-copy mr-1"></i>一鍵複製錯題內容</button>
+                    </div>
+                    <div id="wrongQuestionsList" class="space-y-3 text-xs text-gray-200"></div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button onclick="showSection('courseSelect')" class="glass-btn px-6 py-3 rounded-xl font-bold text-sm">返回智慧選課</button>
+                    <button onclick="startQuizMode()" class="glass-btn px-6 py-3 rounded-xl font-bold text-sm text-purple-200">再測驗一次</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 成績與後台區塊 -->
+        <section id="dashboardSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <div class="flex flex-wrap justify-between items-center gap-4 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-purple-300"><i class="fa-solid fa-chart-pie mr-2"></i>成績與帳號管理後台</h2>
+                    <p class="text-xs text-gray-400 mt-1">依據身分權限顯示相對應成績與成員名冊</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportScoresToCSV()" class="glass-btn px-3 py-2 rounded-xl text-xs text-emerald-300"><i class="fa-solid fa-file-excel mr-1"></i>匯出 UTF-8 CSV</button>
+                    <button onclick="clearUserScoresRoleBased()" class="glass-btn px-3 py-2 rounded-xl text-xs text-rose-300"><i class="fa-solid fa-trash-can mr-1"></i>清空目前名冊</button>
+                </div>
+            </div>
+
+            <div id="bindingPanel" class="glass-panel rounded-2xl p-4 space-y-3">
+                <h3 class="text-sm font-bold text-indigo-300"><i class="fa-solid fa-user-plus mr-1"></i>學生與老師/家長 綁定邀請中心</h3>
+                <div id="bindingActionArea" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-white/10">
+                <table class="w-full text-left text-xs text-gray-200">
+                    <thead class="bg-slate-900/80 text-purple-300 uppercase border-b border-white/10">
+                        <tr>
+                            <th class="p-3">測驗時間</th>
+                            <th class="p-3">學生/用戶帳號</th>
+                            <th class="p-3">身分類別</th>
+                            <th class="p-3">課程與版本單元</th>
+                            <th class="p-3">得分</th>
+                            <th class="p-3">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoresTableBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. 帳號設定區塊 -->
+        <section id="settingsSection" class="w-full max-w-md mx-auto glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <h2 class="text-xl font-bold text-purple-300 border-b border-white/10 pb-3"><i class="fa-solid fa-gear mr-2"></i>帳號設定與權限管理</h2>
+
+            <div id="adminRoleManager" class="space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-300">👑 總管理員專屬：變更任何帳號身分權限</h3>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">目標帳號</label>
+                    <input type="text" id="targetAdminUsername" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入目標帳號">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">變更權限為</label>
+                    <select id="targetAdminRole" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                        <option value="1">第一個：教職員 / 人事室 / 處室</option>
+                        <option value="2">第二個：老師 / 導師</option>
+                        <option value="3">第三個：家長</option>
+                        <option value="4">第四個：學生</option>
+                        <option value="5">第五個：以上都沒有符合我的條件</option>
+                    </select>
+                </div>
+                <button onclick="executeAdminRoleChange()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-amber-200">修改身分權限</button>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-indigo-300">修改個人密碼</h3>
+                <input type="password" id="newPasswordInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入新密碼">
+                <button onclick="handleChangePassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-indigo-200">確認修改密碼</button>
+            </div>
+
+            <div class="border-t border-rose-500/20 pt-4 space-y-3">
+                <h3 class="text-sm font-bold text-rose-400">永久注銷帳號</h3>
+                <p class="text-xs text-gray-400">注銷後，此帳號將從本機與雲端徹底清除。</p>
+                <button onclick="handleDeleteAccount()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-rose-300 border-rose-500/30">確定注銷並註銷本帳號</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 完整題庫與邏輯腳本引擎 -->
+    <script>
+        /* --- 全題庫資料庫引擎 --- */
+        const QUESTION_DATABASE = {
+            "國小": {
+                "英文單字": {
+                    "翰林版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "hi", zh: "嗨"}, {en: "I", zh: "我"}, {en: "am", zh: "是"}, {en: "fine", zh: "好的"}, {en: "goodbye", zh: "再見"}, {en: "bye", zh: "再見"}],
+                            "第2課 (Unit 2)": [{en: "what", zh: "什麼"}, {en: "is", zh: "是"}, {en: "your", zh: "你的"}, {en: "name", zh: "名字"}, {en: "my", zh: "我的"}, {en: "cat", zh: "貓"}, {en: "dog", zh: "狗"}],
+                            "第3課 (Unit 3)": [{en: "red", zh: "紅色"}, {en: "yellow", zh: "黃色"}, {en: "blue", zh: "藍色"}, {en: "green", zh: "綠色"}, {en: "color", zh: "顏色"}, {en: "it", zh: "它"}],
+                            "第4課 (Unit 4)": [{en: "one", zh: "一"}, {en: "two", zh: "二"}, {en: "three", zh: "三"}, {en: "four", zh: "四"}, {en: "five", zh: "五"}, {en: "how", zh: "如何"}, {en: "old", zh: "歲"}]
+                        },
+                        "四年級 (4上)": {
+                            "第1課 (Unit 1)": [{en: "ruler", zh: "尺"}, {en: "marker", zh: "彩色筆"}, {en: "eraser", zh: "橡皮擦"}, {en: "pencil", zh: "鉛筆"}, {en: "pen", zh: "原子筆"}, {en: "book", zh: "書本"}],
+                            "第2課 (Unit 2)": [{en: "hungry", zh: "飢餓的"}, {en: "thirsty", zh: "口渴的"}, {en: "full", zh: "飽的"}, {en: "tired", zh: "疲累的"}, {en: "happy", zh: "快樂的"}, {en: "sad", zh: "悲傷的"}],
+                            "第3課 (Unit 3)": [{en: "apple", zh: "蘋果"}, {en: "banana", zh: "香蕉"}, {en: "orange", zh: "柳橙"}, {en: "ice cream", zh: "冰淇淋"}, {en: "want", zh: "想要"}, {en: "some", zh: "一些"}],
+                            "第4課 (Unit 4)": [{en: "desk", zh: "書桌"}, {en: "chair", zh: "椅子"}, {en: "bag", zh: "書包"}, {en: "box", zh: "盒子"}, {en: "in", zh: "在裡面"}, {en: "on", zh: "在上面"}, {en: "under", zh: "在下面"}]
+                        },
+                        "五年級 (5上)": {
+                            "第1課 (Unit 1)": [{en: "doctor", zh: "醫生"}, {en: "teacher", zh: "老師"}, {en: "student", zh: "學生"}, {en: "nurse", zh: "護理師"}, {en: "cook", zh: "廚師"}, {en: "driver", zh: "司機"}],
+                            "第2課 (Unit 2)": [{en: "Sunday", zh: "星期日"}, {en: "Monday", zh: "星期一"}, {en: "Tuesday", zh: "星期二"}, {en: "Wednesday", zh: "星期三"}, {en: "Thursday", zh: "星期四"}, {en: "Friday", zh: "星期五"}, {en: "Saturday", zh: "星期六"}],
+                            "第3課 (Unit 3)": [{en: "art", zh: "美術"}, {en: "English", zh: "英文"}, {en: "math", zh: "數學"}, {en: "music", zh: "音樂"}, {en: "PE", zh: "體育"}, {en: "science", zh: "自然科學"}],
+                            "第4課 (Unit 4)": [{en: "do", zh: "做"}, {en: "does", zh: "做(單數)"}, {en: "like", zh: "喜歡"}, {en: "study", zh: "研讀"}, {en: "play", zh: "遊玩"}, {en: "watch", zh: "觀看"}]
+                        },
+                        "六年級 (6上)": {
+                            "第1課 (Unit 1)": [{en: "library", zh: "圖書館"}, {en: "park", zh: "公園"}, {en: "hospital", zh: "醫院"}, {en: "zoo", zh: "動物園"}, {en: "school", zh: "學校"}, {en: "supermarket", zh: "超市"}],
+                            "第2課 (Unit 2)": [{en: "by bus", zh: "搭公車"}, {en: "by car", zh: "搭汽車"}, {en: "by train", zh: "搭火車"}, {en: "on foot", zh: "步行"}, {en: "go", zh: "去"}, {en: "turn right", zh: "右轉"}, {en: "turn left", zh: "左轉"}],
+                            "第3課 (Unit 3)": [{en: "breakfast", zh: "早餐"}, {en: "lunch", zh: "午餐"}, {en: "dinner", zh: "晚餐"}, {en: "eat", zh: "吃"}, {en: "drink", zh: "喝"}, {en: "time", zh: "時間"}],
+                            "第4課 (Unit 4)": [{en: "wake up", zh: "醒來"}, {en: "get up", zh: "起床"}, {en: "go to bed", zh: "上床睡覺"}, {en: "brush teeth", zh: "刷牙"}, {en: "wash face", zh: "洗臉"}]
+                        }
+                    },
+                    "康軒版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [{en: "good morning", zh: "早安"}, {en: "good afternoon", zh: "午安"}, {en: "I", zh: "我"}, {en: "you", zh: "你"}, {en: "teacher", zh: "老師"}],
+                            "第2課 (Unit 2)": [{en: "boy", zh: "男孩"}, {en: "girl", zh: "女孩"}, {en: "friend", zh: "朋友"}, {en: "tall", zh: "高的"}, {en: "short", zh: "矮的"}],
+                            "第3課 (Unit 3)": [{en: "pink", zh: "粉紅色"}, {en: "orange", zh: "橘色"}, {en: "purple", zh: "紫色"}, {en: "black", zh: "黑色"}, {en: "white", zh: "白色"}],
+                            "第4課 (Unit 4)": [{en: "six", zh: "六"}, {en: "seven", zh: "七"}, {en: "eight", zh: "八"}, {en: "nine", zh: "九"}, {en: "ten", zh: "十"}]
+                        }
+                    },
+                    "南一版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "nice to meet you", zh: "很高興認識你"}, {en: "name", zh: "名字"}, {en: "am", zh: "是"}, {en: "is", zh: "是"}, {en: "are", zh: "是"}],
+                            "第2課 (Unit 2)": [{en: "bear", zh: "熊"}, {en: "bird", zh: "鳥"}, {en: "fish", zh: "魚"}, {en: "rabbit", zh: "兔子"}, {en: "turtle", zh: "烏龜"}]
+                        }
+                    }
+                },
+                "英文文法": {
+                    "翰林版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [
+                                {sent: "How ____ you?", ans: "are", options: ["are", "am", "is", "be"]},
+                                {sent: "I ____ Fine, thank you.", ans: "am", options: ["am", "is", "are", "be"]},
+                                {sent: "What is ____ name?", ans: "your", options: ["your", "you", "my", "he"]}
+                            ]
+                        }
+                    }
+                }
+            },
+            "國中": {
+                "英文單字": {
+                    "翰林版": {
+                        "七年級 (7上)": {
+                            "第1課 (Unit 1)": [{en: "student", zh: "學生"}, {en: "teacher", zh: "老師"}, {en: "friend", zh: "朋友"}, {en: "classmate", zh: "同班同學"}],
+                            "第2課 (Unit 2)": [{en: "father", zh: "父親"}, {en: "mother", zh: "母親"}, {en: "family", zh: "家庭"}, {en: "doctor", zh: "醫生"}]
+                        }
+                    }
+                }
+            },
+            "高中": {
+                "英文單字": {
+                    "龍騰版": {
+                        "高一 (10上)": {
+                            "第1課 (Lesson 1)": [{en: "attitude", zh: "態度"}, {en: "challenge", zh: "挑戰"}, {en: "opportunity", zh: "機會"}, {en: "confidence", zh: "信心"}]
+                        }
+                    }
+                }
+            },
+            "大學": {
+                "英文單字": {
+                    "多益模組 (TOEIC)": {
+                        "大一 (Year 1)": {
+                            "第1課 (Unit 1: Workplace Basics)": [{en: "applicant", zh: "應徵者"}, {en: "contract", zh: "合約"}, {en: "colleague", zh: "同事"}, {en: "resume", zh: "履歷"}]
+                        }
+                    }
+                }
+            }
+        };
+
+        const STORAGE_USERS_KEY = "EN_QUIZ_USERS_DB";
+        const STORAGE_SCORES_KEY = "EN_QUIZ_SCORES_DB";
+        const STORAGE_CURRENT_USER = "EN_QUIZ_LOGGED_USER";
+
+        let currentUser = null;
+        let currentQuizQuestions = [];
+        let currentQuestionIdx = 0;
+        let currentQuizScore = 0;
+        let quizTimerInterval = null;
+        let quizSeconds = 0;
+        let wrongQuestions = [];
+
+        function safeStorageGet(k, d) { try { const i = localStorage.getItem(k); return i ? JSON.parse(i) : d; } catch(e) { return d; } }
+        function safeStorageSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+
+        function showModal(m, t = "系統提示") {
+            document.getElementById('modalTitle').innerText = t;
+            document.getElementById('modalMessage').innerText = m;
+            document.getElementById('modalContainer').classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('modalContainer').classList.add('hidden'); }
+
+        let isRegisterTab = false;
+        function switchAuthTab(t) {
+            isRegisterTab = (t === 'register');
+            document.getElementById('registerFields').classList.toggle('hidden', !isRegisterTab);
+            document.getElementById('tabLoginBtn').className = isRegisterTab ? "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white" : "flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow";
+            document.getElementById('tabRegisterBtn').className = isRegisterTab ? "flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow" : "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white";
+            document.getElementById('authSubmitBtn').innerText = isRegisterTab ? "註冊並登入" : "立即登入";
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const u = document.getElementById('authUsername').value.trim();
+            const p = document.getElementById('authPassword').value.trim();
+            if (!u || !p) return showModal("請填寫帳號與密碼！");
+
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+
+            if (u === "tw202501tw") {
+                if (p !== "Ch12345678") return showModal("總管理員密碼錯誤！");
+                currentUser = { username: "tw202501tw", realName: "總系統管理員", role: "admin", boundUsers: [] };
+                loginSuccess();
+                return;
+            }
+
+            if (isRegisterTab) {
+                if (users.find(x => x.username === u)) return showModal("此帳號已被註冊！");
+                const rName = document.getElementById('authRealName').value.trim() || u;
+                const role = document.getElementById('authRole').value;
+                const newUser = { username: u, password: p, realName: rName, role: role, boundUsers: [] };
+                users.push(newUser);
+                safeStorageSet(STORAGE_USERS_KEY, users);
+                currentUser = newUser;
+                showModal("註冊成功！已自動登入系統");
+                loginSuccess();
+            } else {
+                const found = users.find(x => x.username === u && x.password === p);
+                if (!found) return showModal("帳號或密碼錯誤！");
+                currentUser = found;
+                loginSuccess();
+            }
+        }
+
+        function loginSuccess() {
+            safeStorageSet(STORAGE_CURRENT_USER, currentUser);
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('topHeader').classList.remove('hidden');
+            
+            const rNames = { "admin": "👑 總系統管理員", "1": "教職員", "2": "老師", "3": "家長", "4": "學生", "5": "其他身分" };
+            document.getElementById('userRoleBadge').innerText = `${currentUser.realName || currentUser.username} (${rNames[currentUser.role] || '使用者'})`;
+            document.getElementById('stepName').value = currentUser.realName || currentUser.username;
+
+            updateGradeDropdown();
+            updatePublisherOptions();
+            showSection('courseSelect');
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            safeStorageSet(STORAGE_CURRENT_USER, null);
+            document.getElementById('topHeader').classList.add('hidden');
+            showSection('auth');
+        }
+
+        function showSection(s) {
+            ['authSection', 'courseSelectSection', 'wordBankSection', 'quizSection', 'dashboardSection', 'settingsSection'].forEach(x => document.getElementById(x).classList.add('hidden'));
+            if (s === 'auth') document.getElementById('authSection').classList.remove('hidden');
+            if (s === 'courseSelect') document.getElementById('courseSelectSection').classList.remove('hidden');
+            if (s === 'wordBank') { document.getElementById('wordBankSection').classList.remove('hidden'); renderWordCards(); }
+            if (s === 'quiz') document.getElementById('quizSection').classList.remove('hidden');
+            if (s === 'dashboard') { document.getElementById('dashboardSection').classList.remove('hidden'); renderDashboard(); }
+            if (s === 'settings') { document.getElementById('settingsSection').classList.remove('hidden'); document.getElementById('adminRoleManager').classList.toggle('hidden', currentUser.role !== 'admin'); }
+        }
+
+        function updateGradeDropdown() {
+            const edu = document.getElementById('stepEduDegree').value;
+            const gSel = document.getElementById('stepEduGrade');
+            gSel.innerHTML = "";
+            const m = {
+                "幼稚園": ["幼幼班", "小班", "中班", "大班"],
+                "國小": ["1年級", "2年級", "3年級", "4年級", "5年級", "6年級"],
+                "國中": ["國1", "國2", "國3"],
+                "高中": ["高1", "高2", "高3"],
+                "大學": ["大1", "大2", "大3"],
+                "大學畢業(不是老師)": ["大學畢業(不是老師)"],
+                "老師": ["老師"]
+            };
+            (m[edu] || [edu]).forEach(g => gSel.appendChild(new Option(g, g)));
+        }
+
+        function updatePublisherOptions() {
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pSel = document.getElementById('targetPublisher');
+            pSel.innerHTML = "";
+            const availablePubs = Object.keys(QUESTION_DATABASE[edu]?.[subj] || {"翰林版": {}});
+            availablePubs.forEach(p => pSel.appendChild(new Option(p, p)));
+            updateUnitOptions();
+        }
+
+        function updateUnitOptions() {
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pub = document.getElementById('targetPublisher').value;
+            const uSel = document.getElementById('targetUnit');
+            uSel.innerHTML = "";
+
+            const pubData = QUESTION_DATABASE[edu]?.[subj]?.[pub] || {};
+            for (let grade in pubData) {
+                for (let unit in pubData[grade]) {
+                    uSel.appendChild(new Option(`${grade} - ${unit}`, `${grade} - ${unit}`));
+                }
+            }
+
+            if (edu === "國小") {
+                uSel.appendChild(new Option("第一次段考範圍", "第一次段考"));
+                uSel.appendChild(new Option("第二次段考範圍", "第二次段考"));
+            } else {
+                uSel.appendChild(new Option("第一次段考範圍", "第一次段考"));
+                uSel.appendChild(new Option("第二次段考範圍", "第二次段考"));
+                uSel.appendChild(new Option("第三次段考範圍", "第三次段考"));
+            }
+            uSel.appendChild(new Option("全冊總複習", "全冊"));
+        }
+
+        function setQuickQuestionCount(c) { document.getElementById('customQuestionCount').value = c === 'all' ? 999 : c; }
+
+        function getQuestionsForScope(edu, subj, pub, unitStr) {
+            const pubData = QUESTION_DATABASE[edu]?.[subj]?.[pub] || {};
+            let pool = [];
+
+            if (unitStr.includes(" - ")) {
+                const [grade, unit] = unitStr.split(" - ");
+                pool = pubData[grade]?.[unit] || [];
+            } else {
+                for (let g in pubData) {
+                    for (let u in pubData[g]) {
+                        pool = pool.concat(pubData[g][u] || []);
+                    }
+                }
+            }
+            return pool;
+        }
+
+        function renderWordCards() {
+            const grid = document.getElementById('wordCardsGrid');
+            const search = document.getElementById('wordSearchInput').value.toLowerCase();
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pub = document.getElementById('targetPublisher').value;
+            const unitStr = document.getElementById('targetUnit').value;
+
+            document.getElementById('studyScopeTitle').innerText = `目前學習範圍：${edu} > ${subj} > ${pub} > ${unitStr}`;
+            grid.innerHTML = "";
+
+            let words = getQuestionsForScope(edu, subj, pub, unitStr);
+            let filtered = words.filter(w => (w.en && w.en.toLowerCase().includes(search)) || (w.zh && w.zh.includes(search)));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="col-span-2 text-center text-gray-400 py-8">目前範圍尚無單字資料。</p>`;
+                return;
+            }
+
+            filtered.forEach(w => {
+                const card = document.createElement('div');
+                card.className = "glass-panel rounded-2xl p-4 space-y-2 border border-white/10";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-black text-purple-200">${w.en || '單字'}</span>
+                        <button onclick="speakText('${w.en}')" class="glass-btn px-3 py-1 rounded-full text-xs text-purple-300"><i class="fa-solid fa-volume-high"></i> 發音</button>
+                    </div>
+                    <p class="text-sm text-gray-300">${w.zh || ''}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function speakText(txt) {
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance(txt);
+                u.lang = 'en-US';
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        function speakCurrentQuestion() {
+            const q = currentQuizQuestions[currentQuestionIdx];
+            if (q) speakText(q.en || q.sent);
+        }
+
+        function startQuizMode() {
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pub = document.getElementById('targetPublisher').value;
+            const unitStr = document.getElementById('targetUnit').value;
+            let requestedCount = parseInt(document.getElementById('customQuestionCount').value) || 10;
+
+            let pool = getQuestionsForScope(edu, subj, pub, unitStr);
+            if (pool.length === 0) return showModal("該範圍目前暫無測驗題目！");
+
+            pool = pool.sort(() => 0.5 - Math.random());
+            currentQuizQuestions = pool.slice(0, Math.min(requestedCount, pool.length));
+
+            currentQuestionIdx = 0;
+            currentQuizScore = 0;
+            wrongQuestions = [];
+            quizSeconds = 0;
+
+            document.getElementById('quizCard').classList.remove('hidden');
+            document.getElementById('quizResultCard').classList.add('hidden');
+            showSection('quiz');
+
+            startQuizTimer();
+            renderCurrentQuestion();
+        }
+
+        function startQuizTimer() {
+            clearInterval(quizTimerInterval);
+            quizTimerInterval = setInterval(() => {
+                quizSeconds++;
+                const m = String(Math.floor(quizSeconds / 60)).padStart(2, '0');
+                const s = String(quizSeconds % 60).padStart(2, '0');
+                document.getElementById('quizTimer').innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${m}:${s}`;
+            }, 1000);
+        }
+
+        function renderCurrentQuestion() {
+            const q = currentQuizQuestions[currentQuestionIdx];
+            document.getElementById('quizProgress').innerText = `第 ${currentQuestionIdx + 1} / ${currentQuizQuestions.length} 題`;
+            document.getElementById('quizScopeHeader').innerText = document.getElementById('targetUnit').value;
+
+            const qText = q.sent ? q.sent : q.en;
+            document.getElementById('questionText').innerText = qText;
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = "";
+            document.getElementById('instantFeedback').classList.add('hidden');
+            document.getElementById('nextQuestionBtn').classList.add('hidden');
+
+            let options = [];
+            if (q.options) {
+                options = [...q.options].sort(() => 0.5 - Math.random());
+            } else {
+                let correctAns = q.zh;
+                let wrongPool = ["蘋果", "香蕉", "學校", "學生", "老師", "快樂", "朋友", "顏色", "狗狗", "貓咪"].filter(x => x !== correctAns);
+                wrongPool = wrongPool.sort(() => 0.5 - Math.random()).slice(0, 3);
+                options = [correctAns, ...wrongPool].sort(() => 0.5 - Math.random());
+            }
+
+            options.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = "glass-btn p-4 rounded-2xl text-sm font-semibold text-left text-gray-200 transition-all";
+                b.innerText = opt;
+                b.onclick = () => handleAnswerSelect(opt, q, b);
+                grid.appendChild(b);
+            });
+        }
+
+        function handleAnswerSelect(selected, q, btn) {
+            for (let b of document.getElementById('optionsGrid').children) b.disabled = true;
+            const correctAns = q.ans || q.zh;
+            const isCorrect = (selected === correctAns);
+
+            if (isCorrect) {
+                currentQuizScore += Math.round(100 / currentQuizQuestions.length);
+                btn.classList.add('bg-emerald-600/60', 'border-emerald-400');
+            } else {
+                btn.classList.add('bg-rose-600/60', 'border-rose-400');
+                wrongQuestions.push({ question: q.sent || q.en, wrong: selected, correct: correctAns });
+            }
+
+            if (document.getElementById('instantAnswerToggle').checked) {
+                const fb = document.getElementById('instantFeedback');
+                fb.classList.remove('hidden');
+                fb.className = `p-4 rounded-xl text-sm font-bold text-center ${isCorrect ? 'bg-emerald-900/60 text-emerald-300' : 'bg-rose-900/60 text-rose-300'}`;
+                fb.innerText = isCorrect ? "答對了！🎉" : `答錯了！正確答案是：${correctAns}`;
+            }
+            document.getElementById('nextQuestionBtn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < currentQuizQuestions.length) renderCurrentQuestion();
+            else finishQuiz();
+        }
+
+        function finishQuiz() {
+            clearInterval(quizTimerInterval);
+            document.getElementById('quizCard').classList.add('hidden');
+            document.getElementById('quizResultCard').classList.remove('hidden');
+
+            document.getElementById('finalScoreText').innerText = `${currentQuizScore} 分`;
+            document.getElementById('scoreDetailText').innerText = `答對 ${currentQuizQuestions.length - wrongQuestions.length} 題 / 共 ${currentQuizQuestions.length} 題`;
+
+            const is100 = (currentQuizScore === 100);
+            document.getElementById('honorBadge').classList.toggle('hidden', !is100);
+            if (is100) speakText("Congratulations! Perfect score of 100 points!");
+
+            saveScoreRecord(currentQuizScore);
+        }
+
+        function saveScoreRecord(score) {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            scores.unshift({
+                id: Date.now(),
+                username: currentUser.username,
+                realName: currentUser.realName || currentUser.username,
+                role: currentUser.role,
+                unit: document.getElementById('targetUnit').value,
+                score: score,
+                date: new Date().toLocaleString(),
+                deletedBy: []
+            });
+            safeStorageSet(STORAGE_SCORES_KEY, scores);
+        }
+
+        function renderDashboard() {
+            const tbody = document.getElementById('scoresTableBody');
+            tbody.innerHTML = "";
+
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            let visible = scores.filter(s => {
+                if (s.deletedBy && s.deletedBy.includes(currentUser.username)) return false;
+                if (currentUser.role === 'admin') return true;
+                if (s.role === 'admin') return false;
+                if (currentUser.role === '1') return true;
+                if (currentUser.role === '2' || currentUser.role === '3') return s.username === currentUser.username || (currentUser.boundUsers || []).includes(s.username);
+                return s.username === currentUser.username;
+            });
+
+            visible.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3">${s.date}</td>
+                    <td class="p-3 font-bold text-purple-200">${s.realName} (${s.username})</td>
+                    <td class="p-3">${s.role}</td>
+                    <td class="p-3">${s.unit}</td>
+                    <td class="p-3 font-black ${s.score >= 60 ? 'text-emerald-400' : 'text-rose-400'}">${s.score} 分</td>
+                    <td class="p-3"><button onclick="deleteSingleScore(${s.id})" class="text-rose-400 hover:text-rose-200"><i class="fa-solid fa-trash"></i> 刪除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteSingleScore(id) {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            const idx = scores.findIndex(s => s.id === id);
+            if (idx !== -1) {
+                if (!scores[idx].deletedBy) scores[idx].deletedBy = [];
+                scores[idx].deletedBy.push(currentUser.username);
+                safeStorageSet(STORAGE_SCORES_KEY, scores);
+                renderDashboard();
+            }
+        }
+
+        function clearUserScoresRoleBased() {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            scores.forEach(s => {
+                if (!s.deletedBy) s.deletedBy = [];
+                if (!s.deletedBy.includes(currentUser.username)) s.deletedBy.push(currentUser.username);
+            });
+            safeStorageSet(STORAGE_SCORES_KEY, scores);
+            showModal("名冊已清空！（上層權限依然保留備份）");
+            renderDashboard();
+        }
+
+        function copyWrongQuestions() {
+            let text = "=== 錯題複習庫 ===\n";
+            wrongQuestions.forEach((wq, i) => {
+                text += `${i + 1}. 題目: ${wq.question}\n   錯誤答案: ${wq.wrong}\n   正確答案: ${wq.correct}\n`;
+            });
+            navigator.clipboard.writeText(text);
+            showModal("錯題已成功複製到剪貼簿！");
+        }
+
+        function exportScoresToCSV() {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            let csv = "\uFEFF時間,帳號,姓名,身分,單元,得分\n";
+            scores.forEach(s => { csv += `"${s.date}","${s.username}","${s.realName}","${s.role}","${s.unit}","${s.score}"\n`; });
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `英文測驗成績表_${Date.now()}.csv`;
+            a.click();
+        }
+
+        function executeAdminRoleChange() {
+            if (currentUser.role !== 'admin') return;
+            const u = document.getElementById('targetAdminUsername').value.trim();
+            const r = document.getElementById('targetAdminRole').value;
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            const idx = users.findIndex(x => x.username === u);
+            if (idx === -1) return showModal("找不到該目標帳號！");
+            users[idx].role = r;
+            safeStorageSet(STORAGE_USERS_KEY, users);
+            showModal(`帳號 ${u} 權限已修改為 ${r}！`);
+        }
+
+        function handleChangePassword() {
+            const pwd = document.getElementById('newPasswordInput').value.trim();
+            if (!pwd) return showModal("請輸入新密碼！");
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            const idx = users.findIndex(x => x.username === currentUser.username);
+            if (idx !== -1) {
+                users[idx].password = pwd;
+                safeStorageSet(STORAGE_USERS_KEY, users);
+                showModal("密碼修改成功！");
+            }
+        }
+
+        function handleDeleteAccount() {
+            if (currentUser.role === 'admin') return showModal("總管理員帳號無法注銷！");
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            users = users.filter(x => x.username !== currentUser.username);
+            safeStorageSet(STORAGE_USERS_KEY, users);
+            handleLogout();
+            showModal("您的帳號已成功注銷！");
+        }
+
+        window.onload = function() {
+            const saved = safeStorageGet(STORAGE_CURRENT_USER, null);
+            if (saved) { currentUser = saved; loginSuccess(); }
+            else { showSection('auth'); }
+        };
+    </script>
+</body>
+</html>
