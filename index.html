@@ -94,7 +94,7 @@
                     <i class="fa-solid fa-user-graduate text-4xl text-purple-300"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">會員安全登入</h2>
-                <p class="text-xs text-gray-400">跨裝置即時同步儲存帳號與成績</p>
+                <p class="text-xs text-gray-400">連動 GitHub DB 跨裝置即時同步</p>
             </div>
 
             <div class="flex rounded-xl bg-slate-900/60 p-1 border border-white/10">
@@ -274,10 +274,11 @@
                     <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" id="finalScoreText">0 分</div>
                     <p id="scoreDetailText" class="text-sm text-gray-300"></p>
                     <div class="text-xs font-semibold px-4 py-2 rounded-xl bg-purple-900/40 border border-purple-500/20 text-purple-300 inline-block">
-                        ☁️ 成績已即時寫入跨裝置儲存庫
+                        ☁️ 成績已即時寫入 GitHub 雲端資料庫
                     </div>
                 </div>
 
+                <!-- 錯題複習與導出容器 -->
                 <div id="wrongQuestionsContainer" class="text-left glass-panel rounded-2xl p-5 space-y-3 hidden">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
                         <h4 class="font-bold text-rose-300 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>錯題複習與導出</h4>
@@ -349,6 +350,20 @@
                     </select>
                 </div>
                 <button onclick="executeAdminRoleChange()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-amber-200">修改身分權限</button>
+            </div>
+
+            <!-- GitHub 資料庫連結設定區 -->
+            <div class="space-y-3 glass-panel p-4 rounded-2xl border border-indigo-500/30">
+                <h3 class="text-sm font-bold text-indigo-300"><i class="fa-brands fa-github mr-1"></i>GitHub 雲端儲存庫連線設定</h3>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">GitHub 帳號/儲存庫名稱 (Owner/Repo)</label>
+                    <input type="text" id="ghRepoInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="例如：yourname/quiz-system">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">GitHub Token (PAT)</label>
+                    <input type="password" id="ghTokenInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="ghp_xxxxxxxxxxxx">
+                </div>
+                <button onclick="saveGitHubConfig()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-indigo-200">儲存 GitHub 連線設定</button>
             </div>
 
             <div class="space-y-3">
@@ -458,6 +473,7 @@
         const STORAGE_USERS_KEY = "EN_QUIZ_USERS_DB";
         const STORAGE_SCORES_KEY = "EN_QUIZ_SCORES_DB";
         const STORAGE_CURRENT_USER = "EN_QUIZ_LOGGED_USER";
+        const STORAGE_GH_CONFIG = "EN_QUIZ_GH_CONFIG";
 
         let currentUser = null;
         let currentQuizQuestions = [];
@@ -469,6 +485,74 @@
 
         function safeStorageGet(k, d) { try { const i = localStorage.getItem(k); return i ? JSON.parse(i) : d; } catch(e) { return d; } }
         function safeStorageSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+
+        /* --- GitHub API 雲端資料庫模組 --- */
+        async function syncFromGitHubDB() {
+            const config = safeStorageGet(STORAGE_GH_CONFIG, null);
+            if (!config || !config.repo || !config.token) return;
+
+            try {
+                const url = `https://api.github.com/repos/${config.repo}/contents/database.json`;
+                const res = await fetch(url, { headers: { "Authorization": `token ${config.token}` } });
+                if (res.ok) {
+                    const data = await res.json();
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    const db = JSON.parse(content);
+                    if (db.users) safeStorageSet(STORAGE_USERS_KEY, db.users);
+                    if (db.scores) safeStorageSet(STORAGE_SCORES_KEY, db.scores);
+                }
+            } catch (e) {
+                console.warn("GitHub DB 同步失敗，改用本機快取資料：", e);
+            }
+        }
+
+        async function syncToGitHubDB() {
+            const config = safeStorageGet(STORAGE_GH_CONFIG, null);
+            if (!config || !config.repo || !config.token) return;
+
+            try {
+                const url = `https://api.github.com/repos/${config.repo}/contents/database.json`;
+                
+                // 取得當前檔案 SHA
+                let sha = "";
+                const getRes = await fetch(url, { headers: { "Authorization": `token ${config.token}` } });
+                if (getRes.ok) {
+                    const getData = await getRes.json();
+                    sha = getData.sha;
+                }
+
+                const db = {
+                    users: safeStorageGet(STORAGE_USERS_KEY, []),
+                    scores: safeStorageGet(STORAGE_SCORES_KEY, [])
+                };
+
+                const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+                
+                await fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `token ${config.token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: "自動更新測驗與帳號資料庫",
+                        content: contentEncoded,
+                        sha: sha || undefined
+                    })
+                });
+            } catch (e) {
+                console.error("同步至 GitHub 失敗：", e);
+            }
+        }
+
+        function saveGitHubConfig() {
+            const repo = document.getElementById('ghRepoInput').value.trim();
+            const token = document.getElementById('ghTokenInput').value.trim();
+            if (!repo || !token) return showModal("請填寫完整的 GitHub 儲存庫與 Token！");
+            safeStorageSet(STORAGE_GH_CONFIG, { repo, token });
+            showModal("GitHub 儲存庫設定已儲存！將自動開始同步資料。");
+            syncFromGitHubDB();
+        }
 
         function showModal(m, t = "系統提示") {
             document.getElementById('modalTitle').innerText = t;
@@ -486,8 +570,10 @@
             document.getElementById('authSubmitBtn').innerText = isRegisterTab ? "註冊並登入" : "立即登入";
         }
 
-        function handleAuthSubmit(e) {
+        async function handleAuthSubmit(e) {
             e.preventDefault();
+            await syncFromGitHubDB();
+
             const u = document.getElementById('authUsername').value.trim();
             const p = document.getElementById('authPassword').value.trim();
             if (!u || !p) return showModal("請填寫帳號與密碼！");
@@ -508,6 +594,7 @@
                 const newUser = { username: u, password: p, realName: rName, role: role, boundUsers: [] };
                 users.push(newUser);
                 safeStorageSet(STORAGE_USERS_KEY, users);
+                await syncToGitHubDB();
                 currentUser = newUser;
                 showModal("註冊成功！已自動登入系統");
                 loginSuccess();
@@ -547,7 +634,13 @@
             if (s === 'wordBank') { document.getElementById('wordBankSection').classList.remove('hidden'); renderWordCards(); }
             if (s === 'quiz') document.getElementById('quizSection').classList.remove('hidden');
             if (s === 'dashboard') { document.getElementById('dashboardSection').classList.remove('hidden'); renderDashboard(); }
-            if (s === 'settings') { document.getElementById('settingsSection').classList.remove('hidden'); document.getElementById('adminRoleManager').classList.toggle('hidden', currentUser.role !== 'admin'); }
+            if (s === 'settings') { 
+                document.getElementById('settingsSection').classList.remove('hidden'); 
+                document.getElementById('adminRoleManager').classList.toggle('hidden', currentUser.role !== 'admin'); 
+                const config = safeStorageGet(STORAGE_GH_CONFIG, {});
+                if (config.repo) document.getElementById('ghRepoInput').value = config.repo;
+                if (config.token) document.getElementById('ghTokenInput').value = config.token;
+            }
         }
 
         function updateGradeDropdown() {
@@ -603,7 +696,6 @@
 
         function setQuickQuestionCount(c) { document.getElementById('customQuestionCount').value = c === 'all' ? 999 : c; }
 
-        /* --- 修正版：跨課別自動補足題數防錯邏輯 --- */
         function getQuestionsForScope(edu, subj, pub, unitStr) {
             const pubData = QUESTION_DATABASE[edu]?.[subj]?.[pub] || {};
             let targetPool = [];
@@ -613,7 +705,6 @@
                 const [grade, unit] = unitStr.split(" - ");
                 targetPool = pubData[grade]?.[unit] || [];
 
-                // 收集同冊其他單元的題目作為備用補充包
                 for (let u in pubData[grade]) {
                     if (u !== unit) {
                         fallbackPool = fallbackPool.concat(pubData[grade][u] || []);
@@ -696,11 +787,9 @@
                 return showModal("該範圍目前暫無測驗題目！");
             }
 
-            // 打散主要題目
             let shuffledTarget = [...targetPool].sort(() => 0.5 - Math.random());
             let finalQuestions = shuffledTarget.slice(0, requestedCount);
 
-            // 若數量不足自訂題數，自動由備用池補足
             if (finalQuestions.length < requestedCount && fallbackPool.length > 0) {
                 let shuffledFallback = [...fallbackPool].sort(() => 0.5 - Math.random());
                 let needed = requestedCount - finalQuestions.length;
@@ -803,10 +892,30 @@
             document.getElementById('honorBadge').classList.toggle('hidden', !is100);
             if (is100) speakText("Congratulations! Perfect score of 100 points!");
 
+            // 渲染錯題清單
+            const wContainer = document.getElementById('wrongQuestionsContainer');
+            const wList = document.getElementById('wrongQuestionsList');
+            if (wrongQuestions.length > 0) {
+                wContainer.classList.remove('hidden');
+                wList.innerHTML = "";
+                wrongQuestions.forEach((wq, idx) => {
+                    const item = document.createElement('div');
+                    item.className = "p-3 rounded-xl bg-slate-900/40 border border-white/5 space-y-1";
+                    item.innerHTML = `
+                        <p class="font-bold text-gray-200">${idx + 1}. 題目：${wq.question}</p>
+                        <p class="text-rose-400">你的回答：${wq.wrong}</p>
+                        <p class="text-emerald-400">正確答案：${wq.correct}</p>
+                    `;
+                    wList.appendChild(item);
+                });
+            } else {
+                wContainer.classList.add('hidden');
+            }
+
             saveScoreRecord(currentQuizScore);
         }
 
-        function saveScoreRecord(score) {
+        async function saveScoreRecord(score) {
             let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
             scores.unshift({
                 id: Date.now(),
@@ -819,6 +928,7 @@
                 deletedBy: []
             });
             safeStorageSet(STORAGE_SCORES_KEY, scores);
+            await syncToGitHubDB();
         }
 
         function renderDashboard() {
@@ -849,24 +959,26 @@
             });
         }
 
-        function deleteSingleScore(id) {
+        async function deleteSingleScore(id) {
             let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
             const idx = scores.findIndex(s => s.id === id);
             if (idx !== -1) {
                 if (!scores[idx].deletedBy) scores[idx].deletedBy = [];
                 scores[idx].deletedBy.push(currentUser.username);
                 safeStorageSet(STORAGE_SCORES_KEY, scores);
+                await syncToGitHubDB();
                 renderDashboard();
             }
         }
 
-        function clearUserScoresRoleBased() {
+        async function clearUserScoresRoleBased() {
             let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
             scores.forEach(s => {
                 if (!s.deletedBy) s.deletedBy = [];
                 if (!s.deletedBy.includes(currentUser.username)) s.deletedBy.push(currentUser.username);
             });
             safeStorageSet(STORAGE_SCORES_KEY, scores);
+            await syncToGitHubDB();
             showModal("名冊已清空！（上層權限依然保留備份）");
             renderDashboard();
         }
@@ -891,7 +1003,7 @@
             a.click();
         }
 
-        function executeAdminRoleChange() {
+        async function executeAdminRoleChange() {
             if (currentUser.role !== 'admin') return;
             const u = document.getElementById('targetAdminUsername').value.trim();
             const r = document.getElementById('targetAdminRole').value;
@@ -900,10 +1012,11 @@
             if (idx === -1) return showModal("找不到該目標帳號！");
             users[idx].role = r;
             safeStorageSet(STORAGE_USERS_KEY, users);
+            await syncToGitHubDB();
             showModal(`帳號 ${u} 權限已修改為 ${r}！`);
         }
 
-        function handleChangePassword() {
+        async function handleChangePassword() {
             const pwd = document.getElementById('newPasswordInput').value.trim();
             if (!pwd) return showModal("請輸入新密碼！");
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
@@ -911,20 +1024,23 @@
             if (idx !== -1) {
                 users[idx].password = pwd;
                 safeStorageSet(STORAGE_USERS_KEY, users);
+                await syncToGitHubDB();
                 showModal("密碼修改成功！");
             }
         }
 
-        function handleDeleteAccount() {
+        async function handleDeleteAccount() {
             if (currentUser.role === 'admin') return showModal("總管理員帳號無法注銷！");
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
             users = users.filter(x => x.username !== currentUser.username);
             safeStorageSet(STORAGE_USERS_KEY, users);
+            await syncToGitHubDB();
             handleLogout();
             showModal("您的帳號已成功注銷！");
         }
 
-        window.onload = function() {
+        window.onload = async function() {
+            await syncFromGitHubDB();
             const saved = safeStorageGet(STORAGE_CURRENT_USER, null);
             if (saved) { currentUser = saved; loginSuccess(); }
             else { showSection('auth'); }
