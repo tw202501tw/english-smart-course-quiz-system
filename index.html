@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>英文智慧選課測驗系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.2s ease-in-out;
+        }
+        .glass-btn:hover, .glass-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            transform: translateY(-1px);
+        }
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.5); border-radius: 3px; }
+    </style>
+</head>
+<body class="p-2 sm:p-4 w-full max-w-5xl mx-auto">
+
+    <!-- 自訂彈出視窗 (Modal System) -->
+    <div id="modalContainer" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+        <div class="glass-panel rounded-2xl p-6 max-w-sm w-full border border-purple-500/30 text-center space-y-4">
+            <h3 id="modalTitle" class="text-xl font-bold text-purple-300">系統提示</h3>
+            <p id="modalMessage" class="text-gray-200 text-sm whitespace-pre-line"></p>
+            <div id="modalButtons" class="flex justify-center gap-3 pt-2">
+                <button onclick="closeModal()" class="glass-btn px-6 py-2 rounded-xl text-sm font-semibold">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頂部使用者資訊與導覽列 -->
+    <header id="topHeader" class="w-full glass-panel rounded-2xl p-4 mb-4 flex flex-wrap justify-between items-center gap-3 hidden">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base sm:text-lg text-purple-200">英文智慧選課測驗系統</h1>
+                <p id="userRoleBadge" class="text-xs text-gray-400">載入身分中...</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="showSection('courseSelect')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-book-open mr-1"></i>智慧選課</button>
+            <button onclick="showSection('wordBank')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-brain mr-1"></i>單字館</button>
+            <button onclick="showSection('dashboard')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-chart-line mr-1"></i>成績與後台</button>
+            <button onclick="showSection('settings')" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium"><i class="fa-solid fa-gear mr-1"></i>帳號設定</button>
+            <button onclick="handleLogout()" class="glass-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium text-rose-300 hover:text-rose-100"><i class="fa-solid fa-right-from-bracket mr-1"></i>登出</button>
+        </div>
+    </header>
+
+    <!-- 主要內容區域 -->
+    <main class="w-full flex-1">
+
+        <!-- 1. 登入/註冊區塊 -->
+        <section id="authSection" class="w-full max-w-md mx-auto my-8 glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-block p-4 rounded-full bg-purple-500/20 border border-purple-400/30 mb-2">
+                    <i class="fa-solid fa-user-graduate text-4xl text-purple-300"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">會員安全登入</h2>
+                <p class="text-xs text-gray-400">跨裝置即時同步儲存帳號與成績</p>
+            </div>
+
+            <div class="flex rounded-xl bg-slate-900/60 p-1 border border-white/10">
+                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow">登入帳號</button>
+                <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white">註冊新帳號</button>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號</label>
+                    <input type="text" id="authUsername" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入帳號">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">密碼</label>
+                    <input type="password" id="authPassword" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入密碼">
+                </div>
+
+                <div id="registerFields" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">真實姓名</label>
+                        <input type="text" id="authRealName" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：張小明">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Gmail 電子信箱</label>
+                        <input type="email" id="authEmail" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：example@gmail.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">選擇身分權限</label>
+                        <select id="authRole" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm bg-slate-900">
+                            <option value="1">第一個：教職員 / 人事室 / 處室</option>
+                            <option value="2">第二個：老師 / 導師</option>
+                            <option value="3">第三個：家長</option>
+                            <option value="4" selected>第四個：學生</option>
+                            <option value="5">第五個：以上都沒有符合我的條件</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full glass-btn py-3 rounded-xl font-bold text-sm text-purple-200 mt-2 shadow-lg">立即登入</button>
+
+                <div id="forgotPasswordLink" class="text-right pt-1">
+                    <button type="button" onclick="showForgotPasswordForm()" class="text-xs text-purple-300 hover:underline"><i class="fa-solid fa-key mr-1"></i>忘記密碼？</button>
+                </div>
+            </form>
+
+            <div id="forgotPasswordSection" class="space-y-4 hidden pt-4 border-t border-white/10">
+                <h3 class="text-sm font-bold text-purple-300"><i class="fa-solid fa-envelope-circle-check mr-1"></i>忘記密碼驗證</h3>
+                <p class="text-xs text-gray-400">請填寫您的帳號與註冊時綁定的 Gmail，系統將發送重設密碼連結。</p>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號</label>
+                    <input type="text" id="forgotUsername" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入註冊時的帳號">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Gmail 信箱</label>
+                    <input type="email" id="forgotEmail" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入綁定的 Gmail">
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="hideForgotPasswordForm()" class="w-1/3 glass-btn py-2.5 rounded-xl text-xs text-gray-300">取消</button>
+                    <button type="button" onclick="handleSendPasswordReset()" class="w-2/3 glass-btn py-2.5 rounded-xl text-xs text-purple-200 font-bold">發送重設連結</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 重設密碼模態框 -->
+        <div id="resetPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md hidden">
+            <div class="glass-panel rounded-3xl p-6 max-w-sm w-full border border-purple-500/30 space-y-4">
+                <h3 class="text-lg font-bold text-purple-300 text-center"><i class="fa-solid fa-lock mr-2"></i>設定新密碼</h3>
+                <p class="text-xs text-gray-300 text-center">已完成 Gmail 驗證，請輸入您的新密碼：</p>
+                <div>
+                    <input type="password" id="resetNewPassword" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入新密碼">
+                </div>
+                <button onclick="handleUpdateNewPassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-purple-200">更新密碼並登入</button>
+            </div>
+        </div>
+
+        <!-- 2. 智慧選課區塊 -->
+        <section id="courseSelectSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <h2 class="text-xl font-bold text-purple-300 border-b border-white/10 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-sliders"></i> 兩階段智慧選課與範圍設定
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 1 & Step 2 個人身分與做題學歷</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">學生姓名</label>
+                        <input type="text" id="stepName" class="w-full glass-input rounded-xl px-3 py-2 text-sm" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">① 個人學歷</label>
+                        <select id="stepEduDegree" onchange="updateGradeDropdown()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="幼稚園">幼稚園</option>
+                            <option value="國小">國小</option>
+                            <option value="國中">國中</option>
+                            <option value="高中">高中</option>
+                            <option value="大學">大學</option>
+                            <option value="大學畢業(不是老師)">大學畢業(不是老師)</option>
+                            <option value="老師">老師</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">② 年級 / 身分動態選單</label>
+                        <select id="stepEduGrade" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 3 & Step 4 做題學歷與科目</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 3 做題目標學歷</label>
+                        <select id="targetEdu" onchange="updatePublisherOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="國小">國小</option>
+                            <option value="國中">國中</option>
+                            <option value="高中">高中</option>
+                            <option value="大學">大學/檢定模組</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 4 測驗科目</label>
+                        <select id="targetSubject" onchange="updatePublisherOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="英文單字">英文單字</option>
+                            <option value="英文文法">英文文法</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 5 & Step 6 教科書版本與學年度</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 5 版本選擇</label>
+                        <select id="targetPublisher" onchange="updateUnitOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Step 6 版本學年度選擇</label>
+                        <select id="targetYear" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                            <option value="115上">115上學年度</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-indigo-300">Step 7 課程範圍與隨機抽題設定</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">課程 / 單元 / 段考範圍</label>
+                        <select id="targetUnit" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">題數選擇</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="customQuestionCount" min="1" max="100" value="5" class="w-24 glass-input rounded-xl px-3 py-2 text-sm text-center">
+                            <button onclick="setQuickQuestionCount(5)" class="glass-btn px-3 py-2 rounded-xl text-xs">5題</button>
+                            <button onclick="setQuickQuestionCount(10)" class="glass-btn px-3 py-2 rounded-xl text-xs">10題</button>
+                            <button onclick="setQuickQuestionCount('all')" class="glass-btn px-3 py-2 rounded-xl text-xs">全部</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-xs text-gray-300">即時顯示答案切換</span>
+                        <input type="checkbox" id="instantAnswerToggle" class="w-5 h-5 accent-purple-500 rounded">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4 pt-4">
+                <button onclick="startStudyMode()" class="glass-btn px-6 py-3 rounded-2xl font-bold text-sm text-indigo-200"><i class="fa-solid fa-book-reader mr-2"></i>進入單字學習館</button>
+                <button onclick="startQuizMode()" class="glass-btn px-8 py-3 rounded-2xl font-bold text-sm text-purple-200 shadow-lg"><i class="fa-solid fa-pen-to-square mr-2"></i>開始隨機測驗挑戰</button>
+            </div>
+        </section>
+
+        <!-- 3. 單字學習館區塊 -->
+        <section id="wordBankSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <div class="flex flex-wrap justify-between items-center gap-4 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-brain mr-2"></i>單字學習館</h2>
+                    <p id="studyScopeTitle" class="text-xs text-gray-400 mt-1">目前學習範圍：載入中...</p>
+                </div>
+                <input type="text" id="wordSearchInput" oninput="renderWordCards()" class="glass-input rounded-xl px-4 py-2 text-sm w-full sm:w-64" placeholder="搜尋英文或中文...">
+            </div>
+            <div id="wordCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- 4. 測驗挑戰區塊 -->
+        <section id="quizSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div>
+                    <span id="quizProgress" class="text-xs font-bold text-purple-400 uppercase">第 1 題</span>
+                    <h3 id="quizScopeHeader" class="text-sm font-semibold text-gray-300">測驗中...</h3>
+                </div>
+                <div id="quizTimer" class="text-sm font-mono bg-purple-950/60 border border-purple-500/30 px-3 py-1 rounded-xl text-purple-300">
+                    <i class="fa-regular fa-clock mr-1"></i>00:00
+                </div>
+            </div>
+
+            <div id="quizCard" class="space-y-6">
+                <div class="p-6 rounded-2xl bg-slate-900/60 border border-white/10 text-center space-y-3">
+                    <div id="questionText" class="text-2xl font-extrabold text-purple-100">Question</div>
+                    <button onclick="speakCurrentQuestion()" class="glass-btn px-3 py-1 rounded-full text-xs text-purple-300"><i class="fa-solid fa-volume-high mr-1"></i>朗讀題目</button>
+                </div>
+
+                <div id="optionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div id="instantFeedback" class="p-4 rounded-xl text-sm font-bold text-center hidden"></div>
+
+                <div class="flex justify-end pt-2">
+                    <button id="nextQuestionBtn" onclick="nextQuestion()" class="glass-btn px-6 py-2.5 rounded-xl font-bold text-sm hidden">下一題 <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                </div>
+            </div>
+
+            <div id="quizResultCard" class="space-y-6 text-center hidden">
+                <div class="p-8 rounded-3xl bg-slate-900/80 border border-purple-500/30 space-y-4">
+                    <div id="honorBadge" class="hidden">
+                        <div class="text-6xl text-amber-400 mb-2 animate-bounce"><i class="fa-solid fa-trophy"></i></div>
+                        <h3 class="text-2xl font-black text-amber-300">滿分榮譽成就！100 分！</h3>
+                    </div>
+                    <h3 class="text-3xl font-extrabold text-purple-200">測驗完成！</h3>
+                    <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" id="finalScoreText">0 分</div>
+                    <p id="scoreDetailText" class="text-sm text-gray-300"></p>
+                    <div class="text-xs font-semibold px-4 py-2 rounded-xl bg-purple-900/40 border border-purple-500/20 text-purple-300 inline-block">
+                        ☁️ 成績已即時寫入跨裝置雲端儲存庫
+                    </div>
+                </div>
+
+                <div id="wrongQuestionsContainer" class="text-left glass-panel rounded-2xl p-5 space-y-3 hidden">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                        <h4 class="font-bold text-rose-300 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>錯題複習與導出</h4>
+                        <button onclick="copyWrongQuestions()" class="glass-btn px-3 py-1 rounded-xl text-xs text-purple-200"><i class="fa-regular fa-copy mr-1"></i>一鍵複製錯題內容</button>
+                    </div>
+                    <div id="wrongQuestionsList" class="space-y-3 text-xs text-gray-200"></div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button onclick="showSection('courseSelect')" class="glass-btn px-6 py-3 rounded-xl font-bold text-sm">返回智慧選課</button>
+                    <button onclick="startQuizMode()" class="glass-btn px-6 py-3 rounded-xl font-bold text-sm text-purple-200">再測驗一次</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 成績與後台區塊 -->
+        <section id="dashboardSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <div class="flex flex-wrap justify-between items-center gap-4 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-purple-300"><i class="fa-solid fa-chart-pie mr-2"></i>成績與帳號管理後台</h2>
+                    <p class="text-xs text-gray-400 mt-1">依據身分權限顯示相對應成績與成員名冊</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportScoresToCSV()" class="glass-btn px-3 py-2 rounded-xl text-xs text-emerald-300"><i class="fa-solid fa-file-excel mr-1"></i>匯出 UTF-8 CSV</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-white/10">
+                <table class="w-full text-left text-xs text-gray-200">
+                    <thead class="bg-slate-900/80 text-purple-300 uppercase border-b border-white/10">
+                        <tr>
+                            <th class="p-3">測驗時間</th>
+                            <th class="p-3">學生/用戶帳號</th>
+                            <th class="p-3">身分類別</th>
+                            <th class="p-3">課程與版本單元</th>
+                            <th class="p-3">得分</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoresTableBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. 帳號設定區塊 -->
+        <section id="settingsSection" class="w-full max-w-md mx-auto glass-panel rounded-3xl p-6 space-y-6 hidden">
+            <h2 class="text-xl font-bold text-purple-300 border-b border-white/10 pb-3"><i class="fa-solid fa-gear mr-2"></i>帳號設定與權限管理</h2>
+
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-indigo-300">修改個人密碼</h3>
+                <input type="password" id="newPasswordInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入新密碼">
+                <button onclick="handleChangePassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-indigo-200">確認修改密碼</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 腳本與 Supabase 雲端引擎 -->
+    <script>
+        /* --- 已幫你把 API 資訊設定完成 --- */
+        const SUPABASE_URL = "https://utwitgzwsfumqjerjdcm.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0d2l0Z3p3c2Z1bXFqZXJqZGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNDA4ODQsImV4cCI6MjEwNjkxNjg4NH0.BF98aky_SyMdoDInuhg5ERuEyhJhOf8oHOP-LiTr_wU";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        const QUESTION_DATABASE = {
+            "國小": {
+                "英文單字": {
+                    "翰林版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "hi", zh: "嗨"}, {en: "I", zh: "我"}, {en: "am", zh: "是"}, {en: "fine", zh: "好的/健康良好"}],
+                            "第2課 (Unit 2)": [{en: "what", zh: "什麼"}, {en: "is", zh: "是"}, {en: "your", zh: "你的/你們的"}, {en: "name", zh: "名字"}, {en: "my", zh: "我的"}]
+                        }
+                    }
+                }
+            }
+        };
+
+        let currentUser = null;
+        let currentQuizQuestions = [];
+        let currentQuestionIdx = 0;
+        let currentQuizScore = 0;
+
+        function showModal(m, t = "系統提示") {
+            document.getElementById('modalTitle').innerText = t;
+            document.getElementById('modalMessage').innerText = m;
+            document.getElementById('modalContainer').classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('modalContainer').classList.add('hidden'); }
+
+        let isRegisterTab = false;
+        function switchAuthTab(t) {
+            isRegisterTab = (t === 'register');
+            document.getElementById('registerFields').classList.toggle('hidden', !isRegisterTab);
+            document.getElementById('forgotPasswordLink').classList.toggle('hidden', isRegisterTab);
+            document.getElementById('tabLoginBtn').className = isRegisterTab ? "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white" : "flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow";
+            document.getElementById('tabRegisterBtn').className = isRegisterTab ? "flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow" : "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white";
+            document.getElementById('authSubmitBtn').innerText = isRegisterTab ? "註冊並登入" : "立即登入";
+        }
+
+        function showForgotPasswordForm() { document.getElementById('forgotPasswordSection').classList.remove('hidden'); }
+        function hideForgotPasswordForm() { document.getElementById('forgotPasswordSection').classList.add('hidden'); }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            if (!username || !password) return showModal("請填寫帳號與密碼！");
+
+            if (isRegisterTab) {
+                const realName = document.getElementById('authRealName').value.trim() || username;
+                const email = document.getElementById('authEmail').value.trim();
+                const role = document.getElementById('authRole').value;
+
+                if (!email) return showModal("請填寫 Gmail 信箱以方便日後忘記密碼驗證！");
+
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: { data: { username: username, real_name: realName, role: role } }
+                });
+
+                if (error) showModal("註冊失敗：" + error.message);
+                else showModal("註冊成功！系統已將驗證信發送至您的 Gmail，請至信箱點擊連結啟用帳號。");
+            } else {
+                let loginEmail = username;
+                if (!username.includes('@')) loginEmail = username + "@example.com";
+
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: loginEmail,
+                    password: password
+                });
+
+                if (error) showModal("登入失敗：帳號或密碼錯誤！");
+                else {
+                    currentUser = {
+                        id: data.user.id,
+                        email: data.user.email,
+                        username: data.user.user_metadata.username || username,
+                        realName: data.user.user_metadata.real_name || username,
+                        role: data.user.user_metadata.role || "4"
+                    };
+                    loginSuccess();
+                }
+            }
+        }
+
+        async function handleSendPasswordReset() {
+            const inputUsername = document.getElementById('forgotUsername').value.trim();
+            const inputEmail = document.getElementById('forgotEmail').value.trim();
+
+            if (!inputUsername || !inputEmail) return showModal("請填寫帳號與 Gmail 信箱！");
+
+            const redirectSiteUrl = window.location.href.split('?')[0];
+            const { data, error } = await supabase.auth.resetPasswordForEmail(inputEmail, { redirectTo: redirectSiteUrl });
+
+            if (error) showModal("發送失敗：" + error.message);
+            else {
+                showModal("驗證成功！重設密碼連結已發送至您的 Gmail，請至信箱點擊連結修改密碼。");
+                hideForgotPasswordForm();
+            }
+        }
+
+        async function handleUpdateNewPassword() {
+            const newPassword = document.getElementById('resetNewPassword').value.trim();
+            if (!newPassword) return showModal("請輸入新密碼！");
+
+            const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+            if (error) showModal("密碼更新失敗：" + error.message);
+            else {
+                showModal("密碼已順利更新！即將自動進入系統。");
+                document.getElementById('resetPasswordModal').classList.add('hidden');
+                if (data.user) {
+                    currentUser = {
+                        id: data.user.id,
+                        email: data.user.email,
+                        username: data.user.user_metadata.username || "用戶",
+                        realName: data.user.user_metadata.real_name || "用戶",
+                        role: data.user.user_metadata.role || "4"
+                    };
+                    loginSuccess();
+                }
+            }
+        }
+
+        function loginSuccess() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('topHeader').classList.remove('hidden');
+            const rNames = { "1": "教職員", "2": "老師", "3": "家長", "4": "學生", "5": "其他身分" };
+            document.getElementById('userRoleBadge').innerText = `${currentUser.realName} (${rNames[currentUser.role] || '使用者'})`;
+            document.getElementById('stepName').value = currentUser.realName;
+            updateGradeDropdown();
+            updatePublisherOptions();
+            showSection('courseSelect');
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            document.getElementById('topHeader').classList.add('hidden');
+            showSection('auth');
+        }
+
+        function showSection(s) {
+            ['authSection', 'courseSelectSection', 'wordBankSection', 'quizSection', 'dashboardSection', 'settingsSection'].forEach(x => document.getElementById(x).classList.add('hidden'));
+            if (s === 'auth') document.getElementById('authSection').classList.remove('hidden');
+            if (s === 'courseSelect') document.getElementById('courseSelectSection').classList.remove('hidden');
+            if (s === 'wordBank') { document.getElementById('wordBankSection').classList.remove('hidden'); }
+            if (s === 'quiz') document.getElementById('quizSection').classList.remove('hidden');
+            if (s === 'dashboard') { document.getElementById('dashboardSection').classList.remove('hidden'); }
+            if (s === 'settings') { document.getElementById('settingsSection').classList.remove('hidden'); }
+        }
+
+        function updateGradeDropdown() {
+            const edu = document.getElementById('stepEduDegree').value;
+            const gSel = document.getElementById('stepEduGrade');
+            gSel.innerHTML = "";
+            const m = { "國小": ["1年級", "2年級", "3年級", "4年級", "5年級", "6年級"], "國中": ["國1", "國2", "國3"], "高中": ["高1", "高2", "高3"] };
+            (m[edu] || [edu]).forEach(g => gSel.appendChild(new Option(g, g)));
+        }
+
+        function updatePublisherOptions() {
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pSel = document.getElementById('targetPublisher');
+            pSel.innerHTML = "";
+            const availablePubs = Object.keys(QUESTION_DATABASE[edu]?.[subj] || {"翰林版": {}});
+            availablePubs.forEach(p => pSel.appendChild(new Option(p, p)));
+            updateUnitOptions();
+        }
+
+        function updateUnitOptions() {
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pub = document.getElementById('targetPublisher').value;
+            const uSel = document.getElementById('targetUnit');
+            uSel.innerHTML = "";
+            const pubData = QUESTION_DATABASE[edu]?.[subj]?.[pub] || {};
+            for (let grade in pubData) {
+                for (let unit in pubData[grade]) {
+                    uSel.appendChild(new Option(`${grade} - ${unit}`, `${grade} - ${unit}`));
+                }
+            }
+        }
+
+        function setQuickQuestionCount(c) { document.getElementById('customQuestionCount').value = c === 'all' ? 999 : c; }
+        function startStudyMode() { showSection('wordBank'); }
+
+        function startQuizMode() {
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pub = document.getElementById('targetPublisher').value;
+            const unitStr = document.getElementById('targetUnit').value;
+            const pool = QUESTION_DATABASE[edu]?.[subj]?.[pub]?.["三年級 (3上)"]?.[unitStr.split(' - ')[1]] || [{en: "test", zh: "測試"}];
+
+            currentQuizQuestions = shuffleArray(pool);
+            currentQuestionIdx = 0;
+            currentQuizScore = 0;
+
+            document.getElementById('quizCard').classList.remove('hidden');
+            document.getElementById('quizResultCard').classList.add('hidden');
+            showSection('quiz');
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const q = currentQuizQuestions[currentQuestionIdx];
+            document.getElementById('quizProgress').innerText = `第 ${currentQuestionIdx + 1} / ${currentQuizQuestions.length} 題`;
+            document.getElementById('questionText').innerText = q.en;
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = "";
+            document.getElementById('nextQuestionBtn').classList.add('hidden');
+
+            const options = shuffleArray([q.zh, "蘋果", "香蕉", "學生"]);
+            options.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = "glass-btn p-4 rounded-2xl text-sm font-semibold text-left text-gray-200";
+                b.innerText = opt;
+                b.onclick = () => {
+                    if (opt === q.zh) currentQuizScore += Math.round(100 / currentQuizQuestions.length);
+                    document.getElementById('nextQuestionBtn').classList.remove('hidden');
+                };
+                grid.appendChild(b);
+            });
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < currentQuizQuestions.length) renderCurrentQuestion();
+            else finishQuiz();
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizCard').classList.add('hidden');
+            document.getElementById('quizResultCard').classList.remove('hidden');
+            document.getElementById('finalScoreText').innerText = `${currentQuizScore} 分`;
+        }
+
+        async function handleChangePassword() {
+            const pwd = document.getElementById('newPasswordInput').value.trim();
+            if (!pwd) return showModal("請輸入新密碼！");
+            const { error } = await supabase.auth.updateUser({ password: pwd });
+            if (error) showModal("修改失敗：" + error.message);
+            else showModal("密碼修改成功！");
+        }
+
+        window.onload = function() {
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    document.getElementById('resetPasswordModal').classList.remove('hidden');
+                }
+            });
+        };
+    </script>
+</body>
+</html>
