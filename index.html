@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
@@ -105,24 +103,20 @@
             </div>
 
             <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號</label>
-                    <input type="text" id="authUsername" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入帳號">
+                <div id="registerNameField" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">姓名</label>
+                    <input type="text" id="authRealName" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入姓名">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">密碼</label>
-                    <input type="password" id="authPassword" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入密碼">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號 (只能用英文)</label>
+                    <input type="text" id="authUsername" required pattern="[a-zA-Z]+" title="只能輸入英文字母" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入英文帳號">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">密碼 (只能用英文)</label>
+                    <input type="password" id="authPassword" required pattern="[a-zA-Z]+" title="只能輸入英文字母" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入英文密碼">
                 </div>
 
                 <div id="registerFields" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">真實姓名</label>
-                        <input type="text" id="authRealName" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：張小明">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Gmail 電子信箱</label>
-                        <input type="email" id="authEmail" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：example@gmail.com">
-                    </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 mb-1">選擇身分權限</label>
                         <select id="authRole" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm bg-slate-900">
@@ -136,41 +130,8 @@
                 </div>
 
                 <button type="submit" id="authSubmitBtn" class="w-full glass-btn py-3 rounded-xl font-bold text-sm text-purple-200 mt-2 shadow-lg">立即登入</button>
-
-                <div id="forgotPasswordLink" class="text-right pt-1">
-                    <button type="button" onclick="showForgotPasswordForm()" class="text-xs text-purple-300 hover:underline"><i class="fa-solid fa-key mr-1"></i>忘記密碼？</button>
-                </div>
             </form>
-
-            <div id="forgotPasswordSection" class="space-y-4 hidden pt-4 border-t border-white/10">
-                <h3 class="text-sm font-bold text-purple-300"><i class="fa-solid fa-envelope-circle-check mr-1"></i>忘記密碼驗證</h3>
-                <p class="text-xs text-gray-400">請填寫您的帳號與註冊時綁定的 Gmail，系統將發送重設密碼連結。</p>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號</label>
-                    <input type="text" id="forgotUsername" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入註冊時的帳號">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Gmail 信箱</label>
-                    <input type="email" id="forgotEmail" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入綁定的 Gmail">
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" onclick="hideForgotPasswordForm()" class="w-1/3 glass-btn py-2.5 rounded-xl text-xs text-gray-300">取消</button>
-                    <button type="button" onclick="handleSendPasswordReset()" class="w-2/3 glass-btn py-2.5 rounded-xl text-xs text-purple-200 font-bold">發送重設連結</button>
-                </div>
-            </div>
         </section>
-
-        <!-- 重設密碼模態框 -->
-        <div id="resetPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md hidden">
-            <div class="glass-panel rounded-3xl p-6 max-w-sm w-full border border-purple-500/30 space-y-4">
-                <h3 class="text-lg font-bold text-purple-300 text-center"><i class="fa-solid fa-lock mr-2"></i>設定新密碼</h3>
-                <p class="text-xs text-gray-300 text-center">已完成 Gmail 驗證，請輸入您的新密碼：</p>
-                <div>
-                    <input type="password" id="resetNewPassword" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入新密碼">
-                </div>
-                <button onclick="handleUpdateNewPassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-purple-200">更新密碼並登入</button>
-            </div>
-        </div>
 
         <!-- 2. 智慧選課區塊 -->
         <section id="courseSelectSection" class="w-full glass-panel rounded-3xl p-6 space-y-6 hidden">
@@ -244,7 +205,7 @@
                         <select id="targetUnit" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900"></select>
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">題數選擇</label>
+                        <label class="block text-xs text-gray-400 mb-1">題數選擇（打字輸入數值，題目選項雙重隨機）</label>
                         <div class="flex gap-2">
                             <input type="number" id="customQuestionCount" min="1" max="100" value="5" class="w-24 glass-input rounded-xl px-3 py-2 text-sm text-center">
                             <button onclick="setQuickQuestionCount(5)" class="glass-btn px-3 py-2 rounded-xl text-xs">5題</button>
@@ -313,7 +274,7 @@
                     <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" id="finalScoreText">0 分</div>
                     <p id="scoreDetailText" class="text-sm text-gray-300"></p>
                     <div class="text-xs font-semibold px-4 py-2 rounded-xl bg-purple-900/40 border border-purple-500/20 text-purple-300 inline-block">
-                        ☁️ 成績已即時寫入跨裝置雲端儲存庫
+                        ☁️ 成績已即時寫入跨裝置儲存庫
                     </div>
                 </div>
 
@@ -341,7 +302,13 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="exportScoresToCSV()" class="glass-btn px-3 py-2 rounded-xl text-xs text-emerald-300"><i class="fa-solid fa-file-excel mr-1"></i>匯出 UTF-8 CSV</button>
+                    <button onclick="clearUserScoresRoleBased()" class="glass-btn px-3 py-2 rounded-xl text-xs text-rose-300"><i class="fa-solid fa-trash-can mr-1"></i>清空目前名冊</button>
                 </div>
+            </div>
+
+            <div id="bindingPanel" class="glass-panel rounded-2xl p-4 space-y-3">
+                <h3 class="text-sm font-bold text-indigo-300"><i class="fa-solid fa-user-plus mr-1"></i>學生與老師/家長 綁定邀請中心</h3>
+                <div id="bindingActionArea" class="flex flex-wrap gap-2"></div>
             </div>
 
             <div class="overflow-x-auto rounded-2xl border border-white/10">
@@ -353,6 +320,7 @@
                             <th class="p-3">身分類別</th>
                             <th class="p-3">課程與版本單元</th>
                             <th class="p-3">得分</th>
+                            <th class="p-3">操作</th>
                         </tr>
                     </thead>
                     <tbody id="scoresTableBody" class="divide-y divide-white/5"></tbody>
@@ -364,22 +332,43 @@
         <section id="settingsSection" class="w-full max-w-md mx-auto glass-panel rounded-3xl p-6 space-y-6 hidden">
             <h2 class="text-xl font-bold text-purple-300 border-b border-white/10 pb-3"><i class="fa-solid fa-gear mr-2"></i>帳號設定與權限管理</h2>
 
+            <div id="adminRoleManager" class="space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-300">👑 總管理員專屬：變更任何帳號身分權限</h3>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">目標帳號</label>
+                    <input type="text" id="targetAdminUsername" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入目標帳號">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">變更權限為</label>
+                    <select id="targetAdminRole" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900">
+                        <option value="1">第一個：教職員 / 人事室 / 處室</option>
+                        <option value="2">第二個：老師 / 導師</option>
+                        <option value="3">第三個：家長</option>
+                        <option value="4">第四個：學生</option>
+                        <option value="5">第五個：以上都沒有符合我的條件</option>
+                    </select>
+                </div>
+                <button onclick="executeAdminRoleChange()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-amber-200">修改身分權限</button>
+            </div>
+
             <div class="space-y-3">
-                <h3 class="text-sm font-bold text-indigo-300">修改個人密碼</h3>
-                <input type="password" id="newPasswordInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入新密碼">
+                <h3 class="text-sm font-bold text-indigo-300">修改個人密碼 (只能用英文)</h3>
+                <input type="password" id="newPasswordInput" pattern="[a-zA-Z]+" title="只能輸入英文字母" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入英文新密碼">
                 <button onclick="handleChangePassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-indigo-200">確認修改密碼</button>
+            </div>
+
+            <div class="border-t border-rose-500/20 pt-4 space-y-3">
+                <h3 class="text-sm font-bold text-rose-400">永久注銷帳號</h3>
+                <p class="text-xs text-gray-400">注銷後，此帳號與所有個人資料及成績紀錄將從儲存庫徹底清除。</p>
+                <button onclick="handleDeleteAccount()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-rose-300 border-rose-500/30">確定注銷並註銷本帳號</button>
             </div>
         </section>
 
     </main>
 
-    <!-- 腳本與 Supabase 雲端引擎 -->
+    <!-- 腳本與題庫邏輯引擎 -->
     <script>
-        /* --- 已幫你把 API 資訊設定完成 --- */
-        const SUPABASE_URL = "https://utwitgzwsfumqjerjdcm.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0d2l0Z3p3c2Z1bXFqZXJqZGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNDA4ODQsImV4cCI6MjEwNjkxNjg4NH0.BF98aky_SyMdoDInuhg5ERuEyhJhOf8oHOP-LiTr_wU";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        /* --- Fisher-Yates 純洗牌隨機演算法 --- */
         function shuffleArray(array) {
             let arr = [...array];
             for (let i = arr.length - 1; i > 0; i--) {
@@ -389,23 +378,468 @@
             return arr;
         }
 
+        /* --- 全題庫引擎（已替換為完整文字檔資料） --- */
         const QUESTION_DATABASE = {
             "國小": {
                 "英文單字": {
                     "翰林版": {
                         "三年級 (3上)": {
-                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "hi", zh: "嗨"}, {en: "I", zh: "我"}, {en: "am", zh: "是"}, {en: "fine", zh: "好的/健康良好"}],
-                            "第2課 (Unit 2)": [{en: "what", zh: "什麼"}, {en: "is", zh: "是"}, {en: "your", zh: "你的/你們的"}, {en: "name", zh: "名字"}, {en: "my", zh: "我的"}]
+                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "hi", zh: "嗨"}, {en: "I", zh: "我"}, {en: "am", zh: "是"}, {en: "fine", zh: "好的/健康良好"}, {en: "goodbye", zh: "再見"}, {en: "bye", zh: "再見"}],
+                            "第2課 (Unit 2)": [{en: "what", zh: "什麼"}, {en: "is", zh: "是"}, {en: "your", zh: "你的/你們的"}, {en: "name", zh: "名字"}, {en: "my", zh: "我的"}, {en: "cat", zh: "貓"}, {en: "dog", zh: "狗"}],
+                            "第3課 (Unit 3)": [{en: "red", zh: "紅色"}, {en: "yellow", zh: "黃色"}, {en: "blue", zh: "藍色"}, {en: "green", zh: "綠色"}, {en: "color", zh: "顏色"}, {en: "it", zh: "它/牠"}],
+                            "第4課 (Unit 4)": [{en: "one", zh: "一"}, {en: "two", zh: "二"}, {en: "three", zh: "三"}, {en: "four", zh: "四"}, {en: "five", zh: "五"}, {en: "how", zh: "如何/多少"}, {en: "old", zh: "歲/老的"}]
+                        },
+                        "四年級 (4上)": {
+                            "第1課 (Unit 1)": [{en: "ruler", zh: "尺"}, {en: "marker", zh: "彩色筆/螢光筆"}, {en: "eraser", zh: "橡皮擦"}, {en: "pencil", zh: "鉛筆"}, {en: "pen", zh: "原子筆"}, {en: "book", zh: "書本"}],
+                            "第2課 (Unit 2)": [{en: "hungry", zh: "飢餓的"}, {en: "thirsty", zh: "口渴的"}, {en: "full", zh: "飽的"}, {en: "tired", zh: "疲累的"}, {en: "happy", zh: "快樂的"}, {en: "sad", zh: "悲傷的"}],
+                            "第3課 (Unit 3)": [{en: "apple", zh: "蘋果"}, {en: "banana", zh: "香蕉"}, {en: "orange", zh: "柳橙"}, {en: "ice cream", zh: "冰淇淋"}, {en: "want", zh: "想要"}, {en: "some", zh: "一些"}],
+                            "第4課 (Unit 4)": [{en: "desk", zh: "書桌"}, {en: "chair", zh: "椅子"}, {en: "bag", zh: "書包/提袋"}, {en: "box", zh: "盒子"}, {en: "in", zh: "在……裡面"}, {en: "on", zh: "在……上面"}, {en: "under", zh: "在……下面"}]
+                        },
+                        "五年級 (5上)": {
+                            "第1課 (Unit 1)": [{en: "doctor", zh: "醫生"}, {en: "teacher", zh: "老師"}, {en: "student", zh: "學生"}, {en: "nurse", zh: "護理師"}, {en: "cook", zh: "廚師"}, {en: "driver", zh: "司機"}],
+                            "第2課 (Unit 2)": [{en: "Sunday", zh: "星期日"}, {en: "Monday", zh: "星期一"}, {en: "Tuesday", zh: "星期二"}, {en: "Wednesday", zh: "星期三"}, {en: "Thursday", zh: "星期四"}, {en: "Friday", zh: "星期五"}, {en: "Saturday", zh: "星期六"}],
+                            "第3課 (Unit 3)": [{en: "art", zh: "美術"}, {en: "English", zh: "英文"}, {en: "math", zh: "數學"}, {en: "music", zh: "音樂"}, {en: "PE", zh: "體育"}, {en: "science", zh: "自然科學"}],
+                            "第4課 (Unit 4)": [{en: "do", zh: "做（助動詞）"}, {en: "does", zh: "做（單數助動詞）"}, {en: "like", zh: "喜歡"}, {en: "study", zh: "研讀/學習"}, {en: "play", zh: "玩/遊玩"}, {en: "watch", zh: "觀看"}]
+                        },
+                        "六年級 (6上)": {
+                            "第1課 (Unit 1)": [{en: "library", zh: "圖書館"}, {en: "park", zh: "公園"}, {en: "hospital", zh: "醫院"}, {en: "zoo", zh: "動物園"}, {en: "school", zh: "學校"}, {en: "supermarket", zh: "超市"}],
+                            "第2課 (Unit 2)": [{en: "by bus", zh: "搭公車"}, {en: "by car", zh: "搭汽車"}, {en: "by train", zh: "搭火車"}, {en: "on foot", zh: "步行"}, {en: "how", zh: "如何"}, {en: "go", zh: "去"}, {en: "turn right", zh: "右轉"}, {en: "turn left", zh: "左轉"}],
+                            "第3課 (Unit 3)": [{en: "breakfast", zh: "早餐"}, {en: "lunch", zh: "午餐"}, {en: "dinner", zh: "晚餐"}, {en: "eat", zh: "吃"}, {en: "drink", zh: "喝"}, {en: "time", zh: "時間"}],
+                            "第4課 (Unit 4)": [{en: "wake up", zh: "醒來"}, {en: "get up", zh: "起床"}, {en: "go to bed", zh: "上床睡覺"}, {en: "brush teeth", zh: "刷牙"}, {en: "wash face", zh: "洗臉"}]
+                        }
+                    },
+                    "康軒版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [{en: "good morning", zh: "早安"}, {en: "good afternoon", zh: "午安"}, {en: "I", zh: "我"}, {en: "you", zh: "你/你們"}, {en: "teacher", zh: "老師"}],
+                            "第2課 (Unit 2)": [{en: "boy", zh: "男孩"}, {en: "girl", zh: "女孩"}, {en: "friend", zh: "朋友"}, {en: "tall", zh: "高的"}, {en: "short", zh: "矮的"}],
+                            "第3課 (Unit 3)": [{en: "pink", zh: "粉紅色"}, {en: "orange", zh: "橘色"}, {en: "purple", zh: "紫色"}, {en: "black", zh: "黑色"}, {en: "white", zh: "白色"}],
+                            "第4課 (Unit 4)": [{en: "six", zh: "六"}, {en: "seven", zh: "七"}, {en: "eight", zh: "八"}, {en: "nine", zh: "九"}, {en: "ten", zh: "十"}]
+                        },
+                        "四年級 (4上)": {
+                            "第1課 (Unit 1)": [{en: "father", zh: "父親"}, {en: "mother", zh: "母親"}, {en: "brother", zh: "兄弟"}, {en: "sister", zh: "姊妹"}, {en: "grandfather", zh: "祖父/外祖父"}, {en: "grandmother", zh: "祖母/外祖母"}],
+                            "第2課 (Unit 2)": [{en: "big", zh: "大的"}, {en: "small", zh: "小的"}, {en: "long", zh: "長的"}, {en: "short", zh: "短的"}, {en: "cute", zh: "可愛的"}],
+                            "第3課 (Unit 3)": [{en: "head", zh: "頭"}, {en: "eyes", zh: "眼睛"}, {en: "ears", zh: "耳朵"}, {en: "nose", zh: "鼻子"}, {en: "mouth", zh: "嘴巴"}, {en: "hands", zh: "手"}],
+                            "第4課 (Unit 4)": [{en: "cap", zh: "帽子"}, {en: "coat", zh: "外套/大衣"}, {en: "shoes", zh: "鞋子"}, {en: "socks", zh: "襪子"}, {en: "wear", zh: "穿/戴"}]
+                        },
+                        "五年級 (5上)": {
+                            "第1課 (Unit 1)": [{en: "what time", zh: "幾點"}, {en: "o'clock", zh: "點鐘"}, {en: "thirty", zh: "三十"}, {en: "fifteen", zh: "十五"}, {en: "late", zh: "遲到的"}],
+                            "第2課 (Unit 2)": [{en: "morning", zh: "早上"}, {en: "afternoon", zh: "下午"}, {en: "evening", zh: "晚上"}, {en: "night", zh: "夜晚"}, {en: "today", zh: "今天"}],
+                            "第3課 (Unit 3)": [{en: "basketball", zh: "籃球"}, {en: "baseball", zh: "棒球"}, {en: "soccer", zh: "足球"}, {en: "dodgeball", zh: "躲避球"}, {en: "play", zh: "打/玩"}],
+                            "第4課 (Unit 4)": [{en: "swim", zh: "游泳"}, {en: "dance", zh: "跳舞"}, {en: "sing", zh: "唱歌"}, {en: "draw", zh: "繪畫"}, {en: "ride a bike", zh: "騎腳踏車"}]
+                        },
+                        "六年級 (6上)": {
+                            "第1課 (Unit 1)": [{en: "bookstore", zh: "書店"}, {en: "post office", zh: "郵局"}, {en: "bank", zh: "銀行"}, {en: "restaurant", zh: "餐廳"}, {en: "movie theater", zh: "電影院"}],
+                            "第2課 (Unit 2)": [{en: "straight", zh: "直直地"}, {en: "left", zh: "左邊"}, {en: "right", zh: "右邊"}, {en: "block", zh: "街區"}, {en: "corner", zh: "轉角"}, {en: "next to", zh: "在……旁邊"}],
+                            "第3課 (Unit 3)": [{en: "weather", zh: "天氣"}, {en: "sunny", zh: "晴朗的"}, {en: "rainy", zh: "下雨的"}, {en: "cloudy", zh: "多雲的"}, {en: "windy", zh: "風大的"}, {en: "snowy", zh: "下雪的"}],
+                            "第4課 (Unit 4)": [{en: "hot", zh: "熱的"}, {en: "cold", zh: "冷的"}, {en: "warm", zh: "溫暖的"}, {en: "cool", zh: "涼爽的"}, {en: "season", zh: "季節"}]
+                        }
+                    },
+                    "南一版": {
+                        "三年級 (3上)": {
+                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "nice to meet you", zh: "很高興認識你"}, {en: "name", zh: "名字"}, {en: "am", zh: "是"}, {en: "is", zh: "是"}, {en: "are", zh: "是"}],
+                            "第2課 (Unit 2)": [{en: "bear", zh: "熊"}, {en: "bird", zh: "鳥"}, {en: "fish", zh: "魚"}, {en: "rabbit", zh: "兔子"}, {en: "turtle", zh: "烏龜"}],
+                            "第3課 (Unit 3)": [{en: "red", zh: "紅色"}, {en: "green", zh: "綠色"}, {en: "yellow", zh: "黃色"}, {en: "blue", zh: "藍色"}, {en: "white", zh: "白色"}, {en: "black", zh: "黑色"}],
+                            "第4課 (Unit 4)": [{en: "one", zh: "一"}, {en: "two", zh: "二"}, {en: "three", zh: "三"}, {en: "four", zh: "四"}, {en: "five", zh: "五"}, {en: "number", zh: "數字"}, {en: "count", zh: "數數"}]
+                        },
+                        "四年級 (4上)": {
+                            "第1課 (Unit 1)": [{en: "pen", zh: "原子筆"}, {en: "pencil", zh: "鉛筆"}, {en: "ruler", zh: "尺"}, {en: "eraser", zh: "橡皮擦"}, {en: "bag", zh: "包包"}, {en: "desk", zh: "書桌"}],
+                            "第2課 (Unit 2)": [{en: "hot", zh: "熱的"}, {en: "cold", zh: "冷的"}, {en: "hungry", zh: "餓的"}, {en: "thirsty", zh: "渴的"}, {en: "tired", zh: "累的"}],
+                            "第3課 (Unit 3)": [{en: "cake", zh: "蛋糕"}, {en: "milk", zh: "牛奶"}, {en: "tea", zh: "茶"}, {en: "juice", zh: "果汁"}, {en: "water", zh: "水"}, {en: "please", zh: "請"}],
+                            "第4課 (Unit 4)": [{en: "in", zh: "在……裡面"}, {en: "on", zh: "在……上面"}, {en: "under", zh: "在……下面"}, {en: "by", zh: "在……旁邊"}, {en: "where", zh: "在哪裡"}, {en: "here", zh: "這裡"}, {en: "there", zh: "那裡"}]
+                        },
+                        "五年級 (5上)": {
+                            "第1課 (Unit 1)": [{en: "days of the week", zh: "一星期中的幾天"}, {en: "today", zh: "今天"}, {en: "tomorrow", zh: "明天"}, {en: "yesterday", zh: "昨天"}],
+                            "第2課 (Unit 2)": [{en: "subject", zh: "科目"}, {en: "English", zh: "英文"}, {en: "math", zh: "數學"}, {en: "science", zh: "科學"}, {en: "Chinese", zh: "中文"}, {en: "social studies", zh: "社會"}],
+                            "第3課 (Unit 3)": [{en: "do homework", zh: "寫作業"}, {en: "watch TV", zh: "看電視"}, {en: "play games", zh: "玩遊戲"}, {en: "listen to music", zh: "聽音樂"}],
+                            "第4課 (Unit 4)": [{en: "always", zh: "總是"}, {en: "usually", zh: "通常"}, {en: "sometimes", zh: "有時"}, {en: "never", zh: "從不"}]
+                        },
+                        "六年級 (6上)": {
+                            "第1課 (Unit 1)": [{en: "place", zh: "地點"}, {en: "hospital", zh: "醫院"}, {en: "park", zh: "公園"}, {en: "school", zh: "學校"}, {en: "station", zh: "車站"}, {en: "market", zh: "市場"}],
+                            "第2課 (Unit 2)": [{en: "transportation", zh: "交通工具"}, {en: "bus", zh: "公車"}, {en: "MRT", zh: "捷運"}, {en: "train", zh: "火車"}, {en: "car", zh: "汽車"}, {en: "bicycle", zh: "腳踏車"}, {en: "walk", zh: "走路"}],
+                            "第3課 (Unit 3)": [{en: "spring", zh: "春天"}, {en: "summer", zh: "夏天"}, {en: "fall", zh: "秋天"}, {en: "winter", zh: "冬天"}, {en: "season", zh: "季節"}],
+                            "第4課 (Unit 4)": [{en: "temperature", zh: "溫度"}, {en: "degree", zh: "度數"}, {en: "weather", zh: "天氣"}, {en: "forecast", zh: "預報"}]
+                        }
+                    }
+                },
+                "英文文法": {
+                    "翰林版": {
+                        "3 年級 (Grade 3)": {
+                            "全冊語法精選": [
+                                {sent: "What is _______ name? My name is Dino.", ans: "your", options: ["your", "my", "his", "her"]},
+                                {sent: "I _______ a student.", ans: "am", options: ["am", "is", "are", "be"]},
+                                {sent: "She _______ my sister, Tina.", ans: "is", options: ["is", "am", "are", "be"]},
+                                {sent: "_______ you happy? Yes, I am.", ans: "Are", options: ["Are", "Is", "Am", "Do"]},
+                                {sent: "Look! It is a big _______. (狗)", ans: "dog", options: ["dog", "cat", "bird", "pig"]},
+                                {sent: "My father is a _______. He works in a hospital. (醫生)", ans: "doctor", options: ["doctor", "teacher", "cook", "driver"]},
+                                {sent: "How _______ are you? I am eight years old.", ans: "old", options: ["old", "many", "much", "color"]},
+                                {sent: "This is _______ apple.", ans: "an", options: ["an", "a", "the", "two"]},
+                                {sent: "_______ is that? That is a marker.", ans: "What", options: ["What", "Who", "Where", "How"]},
+                                {sent: "Is he your brother? No, he _______. ", ans: "isn't", options: ["isn't", "is", "aren't", "don't"]}
+                            ]
+                        }
+                    },
+                    "南一版": {
+                        "3 年級 (Grade 3)": {
+                            "全冊語法精選": [
+                                {sent: "Hello, I _______ Ben.", ans: "am", options: ["am", "is", "are", "be"]},
+                                {sent: "Is it _______ marker?", ans: "a", options: ["a", "an", "two", "the"]},
+                                {sent: "What is this? _______ is a chair.", ans: "It", options: ["It", "This", "That", "They"]},
+                                {sent: "My mother is a _______. (老師)", ans: "teacher", options: ["teacher", "doctor", "nurse", "cook"]},
+                                {sent: "How _______ are you? I'm nine.", ans: "old", options: ["old", "many", "much", "tall"]}
+                            ]
+                        }
+                    },
+                    "康軒版": {
+                        "3 年級 (Grade 3)": {
+                            "全冊語法精選": [
+                                {sent: "I _______ a student.", ans: "am", options: ["am", "is", "are", "be"]},
+                                {sent: "What _______ your name?", ans: "is", options: ["is", "am", "are", "be"]},
+                                {sent: "Is it _______ cap?", ans: "a", options: ["a", "an", "the", "two"]},
+                                {sent: "_______ is he? He is my brother.", ans: "Who", options: ["Who", "What", "Where", "How"]}
+                            ]
+                        }
+                    }
+                }
+            },
+            "國中": {
+                "英文單字": {
+                    "翰林版": {
+                        "七年級 (7上)": {
+                            "第1課 (Unit 1)": [{en: "hello", zh: "你好"}, {en: "student", zh: "學生"}, {en: "teacher", zh: "老師"}, {en: "friend", zh: "朋友"}, {en: "nice", zh: "好的/令人愉快的"}, {en: "meet", zh: "遇見/認識"}, {en: "classmate", zh: "同班同學"}],
+                            "第2課 (Unit 2)": [{en: "father", zh: "父親"}, {en: "mother", zh: "母親"}, {en: "brother", zh: "兄弟"}, {en: "sister", zh: "姊妹"}, {en: "family", zh: "家庭"}, {en: "doctor", zh: "醫生"}, {en: "nurse", zh: "護理師"}],
+                            "第3課 (Unit 3)": [{en: "desk", zh: "書桌"}, {en: "chair", zh: "椅子"}, {en: "book", zh: "書本"}, {en: "pencil", zh: "鉛筆"}, {en: "box", zh: "盒子"}, {en: "under", zh: "在……下面"}, {en: "behind", zh: "在……後面"}],
+                            "第4課 (Unit 4)": [{en: "hungry", zh: "飢餓的"}, {en: "thirsty", zh: "口渴的"}, {en: "smart", zh: "聰明的"}, {en: "cute", zh: "可愛的"}, {en: "happy", zh: "快樂的"}, {en: "tired", zh: "累的"}],
+                            "第5課 (Unit 5)": [{en: "sing", zh: "唱歌"}, {en: "dance", zh: "跳舞"}, {en: "draw", zh: "繪畫"}, {en: "cook", zh: "煮飯"}, {en: "play", zh: "演奏/打球"}, {en: "swim", zh: "游泳"}],
+                            "第6課 (Unit 6)": [{en: "what time", zh: "幾點"}, {en: "o'clock", zh: "點鐘"}, {en: "morning", zh: "早上"}, {en: "afternoon", zh: "下午"}, {en: "evening", zh: "晚上"}, {en: "night", zh: "夜晚"}]
+                        },
+                        "八年級 (8上)": {
+                            "第1課 (Unit 1)": [{en: "visit", zh: "造訪/看望"}, {en: "summer", zh: "夏天"}, {en: "camp", zh: "露營/營隊"}, {en: "vacation", zh: "假期"}, {en: "fun", zh: "樂趣/有趣的"}, {en: "beach", zh: "海灘"}],
+                            "第2課 (Unit 2)": [{en: "bought", zh: "買（buy 的過去式）"}, {en: "saw", zh: "看見（see 的過去式）"}, {en: "went", zh: "去（go 的過去式）"}, {en: "ate", zh: "吃（eat 的過去式）"}, {en: "had", zh: "有/吃（have 的過去式）"}, {en: "took", zh: "拿/搭乘（take 的過去式）"}],
+                            "第3課 (Unit 3)": [{en: "always", zh: "總是"}, {en: "usually", zh: "通常"}, {en: "often", zh: "經常"}, {en: "sometimes", zh: "有時"}, {en: "seldom", zh: "很少"}, {en: "never", zh: "從不"}],
+                            "第4課 (Unit 4)": [{en: "health", zh: "健康"}, {en: "fever", zh: "發燒"}, {en: "cough", zh: "咳嗽"}, {en: "headache", zh: "頭痛"}, {en: "cold", zh: "感冒"}, {en: "medicine", zh: "藥物"}],
+                            "第5課 (Unit 5)": [{en: "delicious", zh: "美味的"}, {en: "menu", zh: "菜單"}, {en: "order", zh: "點餐/訂購"}, {en: "soup", zh: "湯"}, {en: "salad", zh: "沙拉"}, {en: "steak", zh: "牛排"}],
+                            "第6課 (Unit 6)": [{en: "should", zh: "應該"}, {en: "must", zh: "必須"}, {en: "need", zh: "需要"}, {en: "wash", zh: "洗"}, {en: "clean", zh: "打掃/乾淨的"}, {en: "mask", zh: "口罩"}]
+                        },
+                        "九年級 (9上)": {
+                            "第1課 (Unit 1)": [{en: "have been", zh: "已經去過/已經在"}, {en: "has done", zh: "已經完成"}, {en: "already", zh: "已經"}, {en: "yet", zh: "還（未）"}, {en: "ever", zh: "曾經"}, {en: "never", zh: "從未"}],
+                            "第2課 (Unit 2)": [{en: "so... that...", zh: "如此……以致於……"}, {en: "too... to...", zh: "太……以致於不能……"}, {en: "enough", zh: "足夠的"}, {en: "useful", zh: "有用的"}, {en: "convenient", zh: "方便的"}],
+                            "第3課 (Unit 3)": [{en: "which", zh: "哪一個"}, {en: "who", zh: "誰"}, {en: "that", zh: "引導關代"}, {en: "which is", zh: "那是……"}, {en: "smartphone", zh: "智慧型手機"}, {en: "application", zh: "應用程式/App"}],
+                            "第4課 (Unit 4)": [{en: "environment", zh: "環境"}, {en: "recycle", zh: "回收"}, {en: "plastic", zh: "塑膠"}, {en: "trash", zh: "垃圾"}, {en: "earth", zh: "地球"}, {en: "protect", zh: "保護"}],
+                            "第5課 (Unit 5)": [{en: "though", zh: "雖然"}, {en: "although", zh: "雖然"}, {en: "however", zh: "然而"}, {en: "besides", zh: "此外"}, {en: "instead", zh: "代替/相反地"}],
+                            "第6課 (Unit 6)": [{en: "culture", zh: "文化"}, {en: "festival", zh: "節慶"}, {en: "celebrate", zh: "慶祝"}, {en: "custom", zh: "習俗"}, {en: "traditional", zh: "傳統的"}]
+                        }
+                    },
+                    "康軒版": {
+                        "七年級 (7上)": {
+                            "第1課 (Unit 1)": [{en: "good", zh: "好的"}, {en: "morning", zh: "早上"}, {en: "afternoon", zh: "下午"}, {en: "everyone", zh: "大家"}, {en: "welcome", zh: "歡迎"}, {en: "new", zh: "新的"}],
+                            "第2課 (Unit 2)": [{en: "man", zh: "男人"}, {en: "woman", zh: "女人"}, {en: "boy", zh: "男孩"}, {en: "girl", zh: "女孩"}, {en: "tall", zh: "高的"}, {en: "short", zh: "矮的/短的"}],
+                            "第3課 (Unit 3)": [{en: "bag", zh: "包包"}, {en: "ruler", zh: "尺"}, {en: "eraser", zh: "橡皮擦"}, {en: "pen", zh: "原子筆"}, {en: "notebook", zh: "筆記本"}, {en: "on", zh: "在……上面"}],
+                            "第4課 (Unit 4)": [{en: "cat", zh: "貓"}, {en: "dog", zh: "狗"}, {en: "bird", zh: "鳥"}, {en: "fish", zh: "魚"}, {en: "rabbit", zh: "兔子"}, {en: "pet", zh: "寵物"}],
+                            "第5課 (Unit 5)": [{en: "run", zh: "跑步"}, {en: "jump", zh: "跳躍"}, {en: "walk", zh: "走路"}, {en: "ride", zh: "騎"}, {en: "fly", zh: "飛"}],
+                            "第6課 (Unit 6)": [{en: "time", zh: "時間"}, {en: "today", zh: "今天"}, {en: "tonight", zh: "今晚"}, {en: "party", zh: "派對"}, {en: "clock", zh: "時鐘"}]
+                        },
+                        "八年級 (8上)": {
+                            "第1課 (Unit 1)": [{en: "trip", zh: "旅行"}, {en: "yesterday", zh: "昨天"}, {en: "last week", zh: "上週"}, {en: "enjoy", zh: "享受"}, {en: "wonderful", zh: "極好的"}],
+                            "第2課 (Unit 2)": [{en: "gave", zh: "給（give 的過去式）"}, {en: "made", zh: "做（make 的過去式）"}, {en: "wrote", zh: "寫（write 的過去式）"}, {en: "read", zh: "讀（read 的過去式）"}, {en: "told", zh: "告訴（tell 的過去式）"}],
+                            "第3課 (Unit 3)": [{en: "how often", zh: "多久一次"}, {en: "once", zh: "一次"}, {en: "twice", zh: "兩次"}, {en: "every day", zh: "每天"}, {en: "habit", zh: "習慣"}],
+                            "第4課 (Unit 4)": [{en: "sick", zh: "生病的"}, {en: "sore throat", zh: "喉嚨痛"}, {en: "rest", zh: "休息"}, {en: "drink", zh: "喝"}, {en: "care", zh: "照顧"}],
+                            "第5課 (Unit 5)": [{en: "restaurant", zh: "餐廳"}, {en: "waiter", zh: "服務生"}, {en: "food", zh: "食物"}, {en: "chicken", zh: "雞肉"}, {en: "rice", zh: "米飯/飯"}],
+                            "第6課 (Unit 6)": [{en: "traffic", zh: "交通"}, {en: "rule", zh: "規則"}, {en: "cross", zh: "穿越"}, {en: "sidewalk", zh: "人行道"}, {en: "safe", zh: "安全的"}]
+                        },
+                        "九年級 (9上)": {
+                            "第1課 (Unit 1)": [{en: "since", zh: "自從"}, {en: "for", zh: "長達（時間）"}, {en: "experience", zh: "經驗/經歷"}, {en: "just", zh: "剛剛"}, {en: "recently", zh: "最近"}],
+                            "第2課 (Unit 2)": [{en: "because", zh: "因為"}, {en: "because of", zh: "因為（接名詞）"}, {en: "so", zh: "所以"}, {en: "result", zh: "結果"}],
+                            "第3課 (Unit 3)": [{en: "person", zh: "人"}, {en: "thing", zh: "事物"}, {en: "that", zh: "關代（人/物）"}, {en: "whose", zh: "誰的（關代）"}, {en: "item", zh: "物品"}],
+                            "第4課 (Unit 4)": [{en: "waste", zh: "浪費/廢棄物"}, {en: "save", zh: "節省/拯救"}, {en: "energy", zh: "能源"}, {en: "power", zh: "電力/力量"}, {en: "nature", zh: "大自然"}],
+                            "第5課 (Unit 5)": [{en: "opinion", zh: "意見"}, {en: "agree", zh: "同意"}, {en: "disagree", zh: "不同意"}, {en: "believe", zh: "相信"}, {en: "think", zh: "思考/認為"}],
+                            "第6課 (Unit 6)": [{en: "history", zh: "歷史"}, {en: "symbol", zh: "象徵"}, {en: "meaning", zh: "意義"}, {en: "special", zh: "特別的"}, {en: "memory", zh: "記憶/回憶"}]
+                        }
+                    },
+                    "南一版": {
+                        "七年級 (7上)": {
+                            "第1課 (Unit 1)": [{en: "hi", zh: "嗨"}, {en: "I am", zh: "我是"}, {en: "you are", zh: "你是"}, {en: "name", zh: "名字"}, {en: "fine", zh: "良好的"}],
+                            "第2課 (Unit 2)": [{en: "father", zh: "爸爸"}, {en: "mother", zh: "媽媽"}, {en: "brother", zh: "兄弟"}, {en: "sister", zh: "姊妹"}, {en: "grandpa", zh: "爺爺/外公"}],
+                            "第3課 (Unit 3)": [{en: "where", zh: "在哪裡"}, {en: "in", zh: "在……裡面"}, {en: "on", zh: "在……上面"}, {en: "under", zh: "在……下面"}, {en: "table", zh: "桌子"}],
+                            "第4課 (Unit 4)": [{en: "look", zh: "看"}, {en: "big", zh: "大的"}, {en: "small", zh: "小的"}, {en: "pretty", zh: "漂亮的"}, {en: "handsome", zh: "英俊的"}],
+                            "第5課 (Unit 5)": [{en: "can", zh: "會/能夠"}, {en: "speak", zh: "說（語言）"}, {en: "write", zh: "寫"}, {en: "read", zh: "讀"}, {en: "play basketball", zh: "打籃球"}],
+                            "第6課 (Unit 6)": [{en: "day", zh: "日子"}, {en: "Sunday", zh: "星期日"}, {en: "Monday", zh: "星期一"}, {en: "Tuesday", zh: "星期二"}, {en: "Wednesday", zh: "星期三"}]
+                        },
+                        "八年級 (8上)": {
+                            "第1課 (Unit 1)": [{en: "vacation", zh: "假期"}, {en: "island", zh: "島嶼"}, {en: "sea", zh: "大海"}, {en: "swimsuit", zh: "泳衣"}, {en: "weather", zh: "天氣"}],
+                            "第2課 (Unit 2)": [{en: "spoke", zh: "說（speak 的過去式）"}, {en: "swam", zh: "游泳（swim 的過去式）"}, {en: "ran", zh: "跑步（run 的過去式）"}, {en: "drove", zh: "開車（drive 的過去式）"}, {en: "came", zh: "來（come 的過去式）"}],
+                            "第3課 (Unit 3)": [{en: "always", zh: "總是"}, {en: "usually", zh: "通常"}, {en: "often", zh: "經常"}, {en: "sometimes", zh: "有時"}, {en: "never", zh: "從不"}],
+                            "第4課 (Unit 4)": [{en: "hospital", zh: "醫院"}, {en: "doctor", zh: "醫生"}, {en: "fever", zh: "發燒"}, {en: "headache", zh: "頭痛"}, {en: "take medicine", zh: "吃藥"}],
+                            "第5課 (Unit 5)": [{en: "menu", zh: "菜單"}, {en: "beef", zh: "牛肉"}, {en: "pork", zh: "豬肉"}, {en: "soup", zh: "湯"}, {en: "juice", zh: "果汁"}],
+                            "第6課 (Unit 6)": [{en: "must", zh: "必須"}, {en: "should", zh: "應該"}, {en: "stop", zh: "停止"}, {en: "wait", zh: "等待"}, {en: "light", zh: "燈/光線"}]
+                        },
+                        "九年級 (9上)": {
+                            "第1課 (Unit 1)": [{en: "have done", zh: "完成"}, {en: "has seen", zh: "看過"}, {en: "already", zh: "已經"}, {en: "yet", zh: "還未"}, {en: "ever", zh: "曾經"}],
+                            "第2課 (Unit 2)": [{en: "so", zh: "所以"}, {en: "too", zh: "太……"}, {en: "enough", zh: "足夠"}, {en: "very", zh: "非常"}],
+                            "第3課 (Unit 3)": [{en: "who", zh: "誰（關代）"}, {en: "which", zh: "哪一個（關代）"}, {en: "that", zh: "關代"}, {en: "friendship", zh: "友誼"}],
+                            "第4課 (Unit 4)": [{en: "earth", zh: "地球"}, {en: "clean", zh: "清潔/乾淨的"}, {en: "recycle", zh: "回收"}, {en: "paper", zh: "紙張"}],
+                            "第5課 (Unit 5)": [{en: "however", zh: "然而"}, {en: "although", zh: "雖然"}, {en: "because", zh: "因為"}, {en: "so", zh: "所以"}],
+                            "第6課 (Unit 6)": [{en: "holiday", zh: "節日"}, {en: "gift", zh: "禮物"}, {en: "card", zh: "卡片"}, {en: "wish", zh: "祝福/願望"}]
+                        }
+                    }
+                },
+                "英文文法": {
+                    "翰林版": {
+                        "7 年級 (Grade 7 / 國一)": {
+                            "全冊語法精選": [
+                                {sent: "Amy and Peter _______ students in Class 701.", ans: "are", options: ["are", "is", "am", "be"]},
+                                {sent: "Is that your schoolbag over there? Yes, _______ is.", ans: "it", options: ["it", "this", "that", "there"]},
+                                {sent: "My father is a doctor, _______ my mother is a nurse.", ans: "and", options: ["and", "but", "so", "or"]},
+                                {sent: "The cat is sleeping _______ the chair. (在...下面)", ans: "under", options: ["under", "on", "in", "behind"]},
+                                {sent: "Are there _______ apples on the dining table?", ans: "any", options: ["any", "some", "a", "one"]}
+                            ]
+                        }
+                    }
+                }
+            },
+            "高中": {
+                "英文單字": {
+                    "龍騰版": {
+                        "高一 (10上)": {
+                            "第1課 (Lesson 1)": [{en: "attitude", zh: "態度"}, {en: "challenge", zh: "挑戰"}, {en: "opportunity", zh: "機會"}, {en: "adapt", zh: "適應"}, {en: "confidence", zh: "信心"}, {en: "encourage", zh: "鼓勵"}],
+                            "第2課 (Lesson 2)": [{en: "culture", zh: "文化"}, {en: "tradition", zh: "傳統"}, {en: "custom", zh: "習俗"}, {en: "symbol", zh: "象徵"}, {en: "respect", zh: "尊重"}, {en: "celebrate", zh: "慶祝"}],
+                            "第3課 (Lesson 3)": [{en: "technology", zh: "科技"}, {en: "device", zh: "裝置"}, {en: "smart", zh: "智慧的"}, {en: "convenient", zh: "方便的"}, {en: "impact", zh: "影響"}, {en: "future", zh: "未來"}],
+                            "第4課 (Lesson 4)": [{en: "emotion", zh: "情緒"}, {en: "express", zh: "表達"}, {en: "feeling", zh: "感受"}, {en: "stress", zh: "壓力"}, {en: "manage", zh: "管理/應付"}, {en: "support", zh: "支持"}],
+                            "第5課 (Lesson 5)": [{en: "environment", zh: "環境"}, {en: "pollution", zh: "污染"}, {en: "protect", zh: "保護"}, {en: "resource", zh: "資源"}, {en: "recycle", zh: "回收"}, {en: "sustainable", zh: "永續的"}],
+                            "第6課 (Lesson 6)": [{en: "creativity", zh: "創造力"}, {en: "inspire", zh: "啟發"}, {en: "original", zh: "原創的"}, {en: "imagine", zh: "想像"}, {en: "solution", zh: "解決方案"}, {en: "invention", zh: "發明"}]
+                        },
+                        "高二 (11上)": {
+                            "第1課 (Lesson 1)": [{en: "global", zh: "全球的"}, {en: "economy", zh: "經濟"}, {en: "trade", zh: "貿易"}, {en: "market", zh: "市場"}, {en: "industry", zh: "產業"}, {en: "connect", zh: "連結"}],
+                            "第2課 (Lesson 2)": [{en: "psychology", zh: "心理學"}, {en: "behavior", zh: "行為"}, {en: "habit", zh: "習慣"}, {en: "influence", zh: "影響"}, {en: "mental", zh: "心理的"}, {en: "perception", zh: "感知/觀念"}],
+                            "第3課 (Lesson 3)": [{en: "diversity", zh: "多樣性"}, {en: "community", zh: "社區/共同體"}, {en: "include", zh: "包含"}, {en: "equality", zh: "平等"}, {en: "identity", zh: "身份認同"}, {en: "society", zh: "社會"}],
+                            "第4課 (Lesson 4)": [{en: "science", zh: "科學"}, {en: "discovery", zh: "發現"}, {en: "research", zh: "研究"}, {en: "experiment", zh: "實驗"}, {en: "evidence", zh: "證據"}, {en: "theory", zh: "理論"}],
+                            "第5課 (Lesson 5)": [{en: "literature", zh: "文學"}, {en: "author", zh: "作者"}, {en: "narrative", zh: "敘述/故事"}, {en: "theme", zh: "主題"}, {en: "character", zh: "角色"}, {en: "metaphor", zh: "隱喻"}],
+                            "第6課 (Lesson 6)": [{en: "media", zh: "媒體"}, {en: "information", zh: "資訊"}, {en: "truth", zh: "真相"}, {en: "spread", zh: "傳播"}, {en: "source", zh: "來源"}, {en: "critical", zh: "批判性的"}]
+                        },
+                        "高三 (12上)": {
+                            "第1課 (Lesson 1)": [{en: "philosophy", zh: "哲學"}, {en: "concept", zh: "概念"}, {en: "exist", zh: "存在"}, {en: "perspective", zh: "觀點"}, {en: "value", zh: "價值"}, {en: "reflect", zh: "反思"}],
+                            "第2課 (Lesson 2)": [{en: "innovation", zh: "創新"}, {en: "pioneer", zh: "先驅"}, {en: "breakthrough", zh: "突破"}, {en: "transform", zh: "改變/轉型"}, {en: "vision", zh: "願景"}, {en: "lead", zh: "領導"}],
+                            "第3課 (Lesson 3)": [{en: "ethics", zh: "倫理/道德"}, {en: "moral", zh: "道德的"}, {en: "issue", zh: "議題"}, {en: "principle", zh: "原則"}, {en: "responsibility", zh: "責任"}, {en: "dilemma", zh: "困境"}],
+                            "第4課 (Lesson 4)": [{en: "civilization", zh: "文明"}, {en: "history", zh: "歷史"}, {en: "heritage", zh: "遺產"}, {en: "monument", zh: "紀念碑"}, {en: "decline", zh: "衰退"}, {en: "preserve", zh: "保存"}],
+                            "第5課 (Lesson 5)": [{en: "biodiversity", zh: "生物多樣性"}, {en: "ecosystem", zh: "生態系統"}, {en: "extinct", zh: "滅絕的"}, {en: "species", zh: "物種"}, {en: "habitat", zh: "棲息地"}, {en: "balance", zh: "平衡"}],
+                            "第6課 (Lesson 6)": [{en: "globalization", zh: "全球化"}, {en: "border", zh: "國界"}, {en: "exchange", zh: "交流/交換"}, {en: "trend", zh: "趨勢"}, {en: "cooperate", zh: "合作"}, {en: "integration", zh: "整合"}]
+                        }
+                    },
+                    "三民版": {
+                        "高一 (10上)": {
+                            "第1課 (Lesson 1)": [{en: "friendship", zh: "友誼"}, {en: "bond", zh: "紐帶/關係"}, {en: "trust", zh: "信任"}, {en: "share", zh: "分享"}, {en: "companion", zh: "伴侶/同伴"}, {en: "loyal", zh: "忠誠的"}],
+                            "第2課 (Lesson 2)": [{en: "memory", zh: "記憶"}, {en: "remember", zh: "記得"}, {en: "forget", zh: "忘記"}, {en: "precious", zh: "珍貴的"}, {en: "nostalgia", zh: "懷舊"}, {en: "record", zh: "記錄"}],
+                            "第3課 (Lesson 3)": [{en: "travel", zh: "旅行"}, {en: "destination", zh: "目的地"}, {en: "explore", zh: "探索"}, {en: "journey", zh: "旅程"}, {en: "adventure", zh: "冒險"}, {en: "view", zh: "風景"}],
+                            "第4課 (Lesson 4)": [{en: "health", zh: "健康"}, {en: "diet", zh: "飲食"}, {en: "exercise", zh: "運動"}, {en: "benefit", zh: "益處"}, {en: "lifestyle", zh: "生活方式"}, {en: "wellness", zh: "健康狀態"}],
+                            "第5課 (Lesson 5)": [{en: "art", zh: "藝術"}, {en: "exhibition", zh: "展覽"}, {en: "artist", zh: "藝術家"}, {en: "gallery", zh: "畫廊"}, {en: "create", zh: "創作"}, {en: "style", zh: "風格"}],
+                            "第6課 (Lesson 6)": [{en: "communication", zh: "溝通"}, {en: "language", zh: "語言"}, {en: "gesture", zh: "手勢"}, {en: "message", zh: "訊息"}, {en: "understand", zh: "理解"}, {en: "connect", zh: "連結"}]
+                        },
+                        "高二 (11上)": {
+                            "第1課 (Lesson 1)": [{en: "ambition", zh: "雄心/抱負"}, {en: "achieve", zh: "成就/實現"}, {en: "goal", zh: "目標"}, {en: "success", zh: "成功"}, {en: "failure", zh: "失敗"}, {en: "persevere", zh: "堅持"}],
+                            "第2課 (Lesson 2)": [{en: "nature", zh: "大自然"}, {en: "landscape", zh: "風景/地貌"}, {en: "wildlife", zh: "野生動物"}, {en: "conserve", zh: "保育"}, {en: "climate", zh: "氣候"}, {en: "threat", zh: "威脅"}],
+                            "第3課 (Lesson 3)": [{en: "education", zh: "教育"}, {en: "knowledge", zh: "知識"}, {en: "skill", zh: "技能"}, {en: "learn", zh: "學習"}, {en: "curriculum", zh: "課程"}, {en: "wisdom", zh: "智慧"}],
+                            "第4課 (Lesson 4)": [{en: "technology", zh: "科技"}, {en: "artificial", zh: "人造的"}, {en: "intelligence", zh: "智慧"}, {en: "automation", zh: "自動化"}, {en: "future", zh: "未來"}, {en: "digital", zh: "數位的"}],
+                            "第5課 (Lesson 5)": [{en: "society", zh: "社會"}, {en: "structure", zh: "結構"}, {en: "citizen", zh: "公民"}, {en: "law", zh: "法律"}, {en: "justice", zh: "正義"}, {en: "fairness", zh: "公平"}],
+                            "第6課 (Lesson 6)": [{en: "music", zh: "音樂"}, {en: "rhythm", zh: "節奏"}, {en: "melody", zh: "旋律"}, {en: "harmony", zh: "和聲"}, {en: "perform", zh: "表演"}, {en: "audience", zh: "觀眾"}]
+                        },
+                        "高三 (12上)": {
+                            "第1課 (Lesson 1)": [{en: "leadership", zh: "領導力"}, {en: "strategy", zh: "策略"}, {en: "guide", zh: "引導"}, {en: "decision", zh: "決定"}, {en: "authority", zh: "權威"}, {en: "inspire", zh: "鼓舞"}],
+                            "第2課 (Lesson 2)": [{en: "sustainability", zh: "永續性"}, {en: "carbon", zh: "碳"}, {en: "footprint", zh: "足跡"}, {en: "renewable", zh: "可再生的"}, {en: "energy", zh: "能源"}, {en: "green", zh: "綠色的/環保的"}],
+                            "第3課 (Lesson 3)": [{en: "psychology", zh: "心理學"}, {en: "emotion", zh: "情感"}, {en: "empathy", zh: "同理心"}, {en: "compassion", zh: "同情心"}, {en: "relationship", zh: "關係"}, {en: "conflict", zh: "衝突"}],
+                            "第4課 (Lesson 4)": [{en: "economy", zh: "經濟"}, {en: "investment", zh: "投資"}, {en: "finance", zh: "財務"}, {en: "market", zh: "市場"}, {en: "growth", zh: "成長"}, {en: "poverty", zh: "貧窮"}],
+                            "第5課 (Lesson 5)": [{en: "mythology", zh: "神話"}, {en: "legend", zh: "傳說"}, {en: "hero", zh: "英雄"}, {en: "symbolism", zh: "象徵主義"}, {en: "ancient", zh: "古代的"}, {en: "tale", zh: "故事"}],
+                            "第6課 (Lesson 6)": [{en: "humanity", zh: "人性/人類"}, {en: "future", zh: "未來"}, {en: "destiny", zh: "命運"}, {en: "explore", zh: "探索"}, {en: "universe", zh: "宇宙"}, {en: "exist", zh: "存在"}]
+                        }
+                    },
+                    "翰林版 (Han Lin High)": {
+                        "高一 (10上)": {
+                            "第1課 (Lesson 1)": [{en: "start", zh: "開始"}, {en: "journey", zh: "旅程"}, {en: "dream", zh: "夢想"}, {en: "effort", zh: "努力"}, {en: "achieve", zh: "達成"}, {en: "hope", zh: "希望"}],
+                            "第2課 (Lesson 2)": [{en: "family", zh: "家庭"}, {en: "support", zh: "支持"}, {en: "love", zh: "愛"}, {en: "care", zh: "關心"}, {en: "together", zh: "在一起"}, {en: "warmth", zh: "溫暖"}],
+                            "第3課 (Lesson 3)": [{en: "food", zh: "食物"}, {en: "flavor", zh: "風味"}, {en: "cuisine", zh: "料理"}, {en: "ingredient", zh: "食材"}, {en: "recipe", zh: "食譜"}, {en: "taste", zh: "品嚐"}],
+                            "第4課 (Lesson 4)": [{en: "sport", zh: "運動"}, {en: "team", zh: "團隊"}, {en: "player", zh: "球員"}, {en: "compete", zh: "競爭"}, {en: "victory", zh: "勝利"}, {en: "spirit", zh: "精神"}],
+                            "第5課 (Lesson 5)": [{en: "animal", zh: "動物"}, {en: "protect", zh: "保護"}, {en: "wild", zh: "野生的"}, {en: "care", zh: "照料"}, {en: "rescue", zh: "救援"}, {en: "safe", zh: "安全的"}],
+                            "第6課 (Lesson 6)": [{en: "festival", zh: "節慶"}, {en: "celebration", zh: "慶祝活動"}, {en: "holiday", zh: "假日"}, {en: "fun", zh: "樂趣"}, {en: "joy", zh: "喜悅"}, {en: "gather", zh: "聚集"}]
+                        },
+                        "高二 (11上)": {
+                            "第1課 (Lesson 1)": [{en: "career", zh: "職業/生涯"}, {en: "profession", zh: "專業"}, {en: "passion", zh: "熱情"}, {en: "choose", zh: "選擇"}, {en: "path", zh: "道路"}, {en: "workplace", zh: "職場"}],
+                            "第2課 (Lesson 2)": [{en: "environment", zh: "環境"}, {en: "green", zh: "環保的"}, {en: "clean", zh: "清潔的"}, {en: "save", zh: "節約"}, {en: "recycle", zh: "回收"}, {en: "earth", zh: "地球"}],
+                            "第3課 (Lesson 3)": [{en: "media", zh: "媒體"}, {en: "news", zh: "新聞"}, {en: "information", zh: "資訊"}, {en: "social", zh: "社交的"}, {en: "network", zh: "網路"}, {en: "share", zh: "分享"}],
+                            "第4課 (Lesson 4)": [{en: "culture", zh: "文化"}, {en: "travel", zh: "旅遊"}, {en: "discover", zh: "發現"}, {en: "difference", zh: "差異"}, {en: "custom", zh: "習俗"}, {en: "world", zh: "世界"}],
+                            "第5課 (Lesson 5)": [{en: "science", zh: "科學"}, {en: "health", zh: "健康"}, {en: "medicine", zh: "醫學"}, {en: "cure", zh: "治癒"}, {en: "disease", zh: "疾病"}, {en: "body", zh: "身體"}],
+                            "第6課 (Lesson 6)": [{en: "art", zh: "藝術"}, {en: "design", zh: "設計"}, {en: "beauty", zh: "美感"}, {en: "fashion", zh: "時尚"}, {en: "modern", zh: "現代的"}, {en: "classic", zh: "經典的"}]
+                        },
+                        "高三 (12上)": {
+                            "第1課 (Lesson 1)": [{en: "global", zh: "全球的"}, {en: "issue", zh: "議題"}, {en: "peace", zh: "和平"}, {en: "cooperation", zh: "合作"}, {en: "world", zh: "世界"}, {en: "union", zh: "聯合"}],
+                            "第2課 (Lesson 2)": [{en: "technology", zh: "科技"}, {en: "AI", zh: "人工智慧"}, {en: "robot", zh: "機器人"}, {en: "future", zh: "未來"}, {en: "change", zh: "改變"}, {en: "smart", zh: "智慧的"}],
+                            "第3課 (Lesson 3)": [{en: "history", zh: "歷史"}, {en: "event", zh: "事件"}, {en: "impact", zh: "影響"}, {en: "past", zh: "過去"}, {en: "lesson", zh: "教訓"}, {en: "memory", zh: "記憶"}],
+                            "第4課 (Lesson 4)": [{en: "economy", zh: "經濟"}, {en: "trade", zh: "貿易"}, {en: "business", zh: "商業"}, {en: "company", zh: "公司"}, {en: "success", zh: "成功"}, {en: "value", zh: "價值"}],
+                            "第5課 (Lesson 5)": [{en: "philosophy", zh: "哲學"}, {en: "thought", zh: "思想"}, {en: "life", zh: "生活/生命"}, {en: "meaning", zh: "意義"}, {en: "truth", zh: "真理"}, {en: "mind", zh: "心智"}],
+                            "第6課 (Lesson 6)": [{en: "future", zh: "未來"}, {en: "vision", zh: "願景"}, {en: "hope", zh: "希望"}, {en: "create", zh: "創造"}, {en: "world", zh: "世界"}, {en: "lead", zh: "引領"}]
+                        }
+                    },
+                    "遠東版 (Far East)": {
+                        "高一 (10上)": {
+                            "第1課 (Lesson 1)": [{en: "greeting", zh: "問候"}, {en: "welcome", zh: "歡迎"}, {en: "school", zh: "學校"}, {en: "student", zh: "學生"}, {en: "learn", zh: "學習"}, {en: "study", zh: "研讀"}],
+                            "第2課 (Lesson 2)": [{en: "friend", zh: "朋友"}, {en: "share", zh: "分享"}, {en: "help", zh: "幫助"}, {en: "kind", zh: "仁慈的"}, {en: "smile", zh: "微笑"}, {en: "care", zh: "在乎"}],
+                            "第3課 (Lesson 3)": [{en: "family", zh: "家庭"}, {en: "home", zh: "家"}, {en: "house", zh: "房屋"}, {en: "parent", zh: "父母"}, {en: "child", zh: "孩子"}, {en: "love", zh: "關愛"}],
+                            "第4課 (Lesson 4)": [{en: "hobby", zh: "興趣"}, {en: "music", zh: "音樂"}, {en: "sport", zh: "運動"}, {en: "read", zh: "閱讀"}, {en: "play", zh: "遊玩"}, {en: "time", zh: "時間"}],
+                            "第5課 (Lesson 5)": [{en: "city", zh: "城市"}, {en: "place", zh: "地點"}, {en: "map", zh: "地圖"}, {en: "street", zh: "街道"}, {en: "shop", zh: "商店"}, {en: "visit", zh: "拜訪"}],
+                            "第6課 (Lesson 6)": [{en: "season", zh: "季節"}, {en: "weather", zh: "天氣"}, {en: "sun", zh: "太陽"}, {en: "rain", zh: "雨"}, {en: "wind", zh: "風"}, {en: "snow", zh: "雪"}]
+                        },
+                        "高二 (11上)": {
+                            "第1課 (Lesson 1)": [{en: "experience", zh: "經驗"}, {en: "trip", zh: "旅行"}, {en: "photo", zh: "照片"}, {en: "memory", zh: "回憶"}, {en: "wonderful", zh: "美好的"}, {en: "fun", zh: "樂趣"}],
+                            "第2課 (Lesson 2)": [{en: "health", zh: "健康"}, {en: "food", zh: "食物"}, {en: "fruit", zh: "水果"}, {en: "vegetable", zh: "蔬菜"}, {en: "drink", zh: "飲料"}, {en: "body", zh: "身體"}],
+                            "第3課 (Lesson 3)": [{en: "job", zh: "工作"}, {en: "work", zh: "工作"}, {en: "teacher", zh: "老師"}, {en: "doctor", zh: "醫生"}, {en: "driver", zh: "司機"}, {en: "cook", zh: "廚師"}],
+                            "第4課 (Lesson 4)": [{en: "animal", zh: "動物"}, {en: "dog", zh: "狗"}, {en: "cat", zh: "貓"}, {en: "bird", zh: "鳥"}, {en: "zoo", zh: "動物園"}, {en: "nature", zh: "大自然"}],
+                            "第5課 (Lesson 5)": [{en: "shop", zh: "購物"}, {en: "buy", zh: "購買"}, {en: "price", zh: "價格"}, {en: "money", zh: "金錢"}, {en: "store", zh: "商店"}, {en: "sale", zh: "特賣"}],
+                            "第6課 (Lesson 6)": [{en: "holiday", zh: "節日"}, {en: "gift", zh: "禮物"}, {en: "party", zh: "派對"}, {en: "dance", zh: "跳舞"}, {en: "sing", zh: "唱歌"}, {en: "happy", zh: "快樂的"}]
+                        },
+                        "高三 (12上)": {
+                            "第1課 (Lesson 1)": [{en: "world", zh: "世界"}, {en: "country", zh: "國家"}, {en: "people", zh: "人們"}, {en: "culture", zh: "文化"}, {en: "language", zh: "語言"}, {en: "travel", zh: "旅行"}],
+                            "第2課 (Lesson 2)": [{en: "computer", zh: "電腦"}, {en: "internet", zh: "網路"}, {en: "phone", zh: "電話"}, {en: "message", zh: "訊息"}, {en: "send", zh: "傳送"}, {en: "online", zh: "線上"}],
+                            "第3課 (Lesson 3)": [{en: "earth", zh: "地球"}, {en: "tree", zh: "樹木"}, {en: "water", zh: "水"}, {en: "air", zh: "空氣"}, {en: "clean", zh: "乾淨的"}, {en: "protect", zh: "保護"}],
+                            "第4課 (Lesson 4)": [{en: "life", zh: "生活"}, {en: "story", zh: "故事"}, {en: "book", zh: "書本"}, {en: "write", zh: "寫作"}, {en: "read", zh: "閱讀"}, {en: "know", zh: "知道"}],
+                            "第5課 (Lesson 5)": [{en: "future", zh: "未來"}, {en: "plan", zh: "計劃"}, {en: "hope", zh: "希望"}, {en: "try", zh: "嘗試"}, {en: "work hard", zh: "努力"}, {en: "success", zh: "成功"}],
+                            "第6課 (Lesson 6)": [{en: "change", zh: "改變"}, {en: "new", zh: "新的"}, {en: "different", zh: "不同的"}, {en: "think", zh: "思考"}, {en: "make", zh: "製作"}, {en: "do", zh: "做"}]
+                        }
+                    },
+                    "育達版 (Yu Da / 技高職校)": {
+                        "高一 (10上)": {
+                            "第1課 (Lesson 1)": [{en: "office", zh: "辦公室"}, {en: "business", zh: "商業"}, {en: "work", zh: "工作"}, {en: "email", zh: "電子郵件"}, {en: "contact", zh: "聯絡"}, {en: "staff", zh: "員工"}],
+                            "第2課 (Lesson 2)": [{en: "service", zh: "服務"}, {en: "customer", zh: "顧客"}, {en: "help", zh: "協助"}, {en: "satisfy", zh: "使滿意"}, {en: "product", zh: "產品"}, {en: "quality", zh: "品質"}],
+                            "第3課 (Lesson 3)": [{en: "computer", zh: "電腦"}, {en: "system", zh: "系統"}, {en: "file", zh: "檔案"}, {en: "data", zh: "資料"}, {en: "software", zh: "軟體"}, {en: "hardware", zh: "硬體"}],
+                            "第4課 (Lesson 4)": [{en: "hotel", zh: "飯店"}, {en: "room", zh: "房間"}, {en: "book", zh: "預訂"}, {en: "check in", zh: "辦理入住"}, {en: "guest", zh: "賓客"}, {en: "key", zh: "鑰匙"}],
+                            "第5課 (Lesson 5)": [{en: "restaurant", zh: "餐廳"}, {en: "menu", zh: "菜單"}, {en: "order", zh: "點餐"}, {en: "dish", zh: "菜餚"}, {en: "chef", zh: "主廚"}, {en: "pay", zh: "付款"}],
+                            "第6課 (Lesson 6)": [{en: "safety", zh: "安全"}, {en: "rule", zh: "規則"}, {en: "danger", zh: "危險"}, {en: "protect", zh: "防護"}, {en: "equipment", zh: "設備"}, {en: "caution", zh: "小心"}]
+                        },
+                        "高二 (11上)": {
+                            "第1課 (Lesson 1)": [{en: "marketing", zh: "行銷"}, {en: "market", zh: "市場"}, {en: "sell", zh: "銷售"}, {en: "brand", zh: "品牌"}, {en: "promote", zh: "推廣"}, {en: "ad", zh: "廣告"}],
+                            "第2課 (Lesson 2)": [{en: "meeting", zh: "會議"}, {en: "discuss", zh: "討論"}, {en: "plan", zh: "計劃"}, {en: "report", zh: "報告"}, {en: "schedule", zh: "日程表"}, {en: "result", zh: "結果"}],
+                            "第3課 (Lesson 3)": [{en: "trade", zh: "貿易"}, {en: "export", zh: "出口"}, {en: "import", zh: "進口"}, {en: "ship", zh: "發貨/運輸"}, {en: "cost", zh: "成本"}, {en: "price", zh: "價格"}],
+                            "第4課 (Lesson 4)": [{en: "finance", zh: "財務"}, {en: "money", zh: "金錢"}, {en: "bank", zh: "銀行"}, {en: "account", zh: "帳戶"}, {en: "pay", zh: "支付"}, {en: "card", zh: "卡片"}],
+                            "第5課 (Lesson 5)": [{en: "skill", zh: "技能"}, {en: "practice", zh: "練習"}, {en: "train", zh: "訓練"}, {en: "expert", zh: "專家"}, {en: "level", zh: "等級"}, {en: "improve", zh: "提升"}],
+                            "第6課 (Lesson 6)": [{en: "teamwork", zh: "團隊合作"}, {en: "leader", zh: "領導者"}, {en: "member", zh: "成員"}, {en: "cooperate", zh: "合作"}, {en: "goal", zh: "目標"}, {en: "task", zh: "任務"}]
+                        },
+                        "高三 (12上)": {
+                            "第1課 (Lesson 1)": [{en: "interview", zh: "面試"}, {en: "resume", zh: "履歷"}, {en: "apply", zh: "應徵"}, {en: "job", zh: "工作"}, {en: "career", zh: "職涯"}, {en: "hire", zh: "僱用"}],
+                            "第2課 (Lesson 2)": [{en: "management", zh: "管理"}, {en: "manager", zh: "經理"}, {en: "company", zh: "公司"}, {en: "strategy", zh: "策略"}, {en: "organize", zh: "組織"}, {en: "control", zh: "控制"}],
+                            "第3課 (Lesson 3)": [{en: "communication", zh: "溝通"}, {en: "speak", zh: "說話"}, {en: "listen", zh: "傾聽"}, {en: "present", zh: "簡報/呈現"}, {en: "negotiate", zh: "談判"}, {en: "agree", zh: "達成協議"}],
+                            "第4課 (Lesson 4)": [{en: "global", zh: "全球的"}, {en: "international", zh: "國際的"}, {en: "world", zh: "世界"}, {en: "business", zh: "商務"}, {en: "partner", zh: "夥伴"}, {en: "connect", zh: "連結"}],
+                            "第5課 (Lesson 5)": [{en: "technology", zh: "科技"}, {en: "digital", zh: "數位的"}, {en: "online", zh: "線上的"}, {en: "app", zh: "應用程式"}, {en: "device", zh: "裝置"}, {en: "smart", zh: "智慧的"}],
+                            "第6課 (Lesson 6)": [{en: "future", zh: "未來"}, {en: "trend", zh: "趨勢"}, {en: "success", zh: "成功"}, {en: "goal", zh: "目標"}, {en: "achieve", zh: "實現"}, {en: "growth", zh: "成長"}]
+                        }
+                    }
+                },
+                "英文文法": {
+                    "龍騰版": {
+                        "高一 (Grade 10)": {
+                            "全冊語法精選": [
+                                {sent: "The typhoon caused severe damage to the small town, _______ many families homeless.", ans: "leaving", options: ["leaving", "left", "to leave", "leaves"]},
+                                {sent: "It is important that every student _______ the rules carefully.", ans: "follow", options: ["follow", "follows", "followed", "following"]},
+                                {sent: "Scarcely had he stepped out of the house _______ it started to rain heavily.", ans: "when", options: ["when", "than", "before", "after"]}
+                            ]
+                        }
+                    }
+                }
+            },
+            "大學": {
+                "英文單字": {
+                    "多益模組 (TOEIC)": {
+                        "大一 (Year 1)": {
+                            "第1課 (Unit 1: Workplace Basics)": [{en: "applicant", zh: "應徵者"}, {en: "contract", zh: "合約"}, {en: "colleague", zh: "同事"}, {en: "employee", zh: "員工"}, {en: "department", zh: "部門"}, {en: "position", zh: "職位"}, {en: "resume", zh: "履歷"}],
+                            "第2課 (Unit 2: Office Communication)": [{en: "announcement", zh: "公告"}, {en: "memorandum", zh: "備忘錄"}, {en: "confirm", zh: "確認"}, {en: "schedule", zh: "時間表/安排"}, {en: "meeting", zh: "會議"}, {en: "agenda", zh: "議程"}, {en: "inquiry", zh: "詢問"}],
+                            "第3課 (Unit 3: Customer Service)": [{en: "complaint", zh: "抱怨/投訴"}, {en: "refund", zh: "退款"}, {en: "satisfaction", zh: "滿意度"}, {en: "inconvenience", zh: "不便"}, {en: "policy", zh: "政策/規定"}, {en: "feedback", zh: "回饋"}, {en: "service", zh: "服務"}]
+                        },
+                        "大二 (Year 2)": {
+                            "第1課 (Unit 1: Business Operations)": [{en: "negotiation", zh: "談判/協商"}, {en: "proposal", zh: "提案"}, {en: "strategy", zh: "策略"}, {en: "budget", zh: "預算"}, {en: "revenue", zh: "營收"}, {en: "expenditure", zh: "支出"}, {en: "transaction", zh: "交易"}],
+                            "第2課 (Unit 2: Marketing & Sales)": [{en: "campaign", zh: "行銷活動"}, {en: "promotion", zh: "促銷/升遷"}, {en: "target", zh: "目標"}, {en: "distribution", zh: "分銷/分配"}, {en: "brand", zh: "品牌"}, {en: "launch", zh: "發表/推出"}, {en: "inventory", zh: "庫存"}],
+                            "第3課 (Unit 3: Finance & Banking)": [{en: "investment", zh: "投資"}, {en: "statement", zh: "財務報表/對帳單"}, {en: "accountant", zh: "會計師"}, {en: "interest rate", zh: "利率"}, {en: "mortgage", zh: "房貸"}, {en: "audit", zh: "審計/稽核"}, {en: "profitability", zh: "盈利能力"}]
+                        },
+                        "大三 (Year 3)": {
+                            "第1課 (Unit 1: Global Trade & Logistics)": [{en: "shipment", zh: "貨物/運輸"}, {en: "customs", zh: "海關"}, {en: "freight", zh: "貨運"}, {en: "supplier", zh: "供應商"}, {en: "vendor", zh: "廠商"}, {en: "logistics", zh: "物流"}, {en: "tariff", zh: "關稅"}],
+                            "第2課 (Unit 2: Corporate Governance)": [{en: "executive", zh: "高階主管"}, {en: "shareholder", zh: "股東"}, {en: "merger", zh: "合併"}, {en: "acquisition", zh: "收購"}, {en: "board", zh: "董事會"}, {en: "compliance", zh: "合規/順從"}, {en: "restructure", zh: "重組"}],
+                            "第3課 (Unit 3: Human Resources & Law)": [{en: "compensation", zh: "補償/薪酬"}, {en: "personnel", zh: "人力資源/員工"}, {en: "termination", zh: "解僱/終止"}, {en: "regulation", zh: "法規"}, {en: "liability", zh: "法律責任"}, {en: "clause", zh: "條款"}, {en: "entitlement", zh: "權益/資格"}]
+                        }
+                    },
+                    "托福模組 (TOEFL iBT)": {
+                        "大一 (Year 1)": {
+                            "第1課 (Unit 1: Academic Fundamentals)": [{en: "lecture", zh: "講座/授課"}, {en: "syllabus", zh: "教學大綱"}, {en: "assignment", zh: "作業/任務"}, {en: "faculty", zh: "教職員"}, {en: "prerequisite", zh: "先修科目"}, {en: "campus", zh: "校園"}, {en: "tuition", zh: "學費"}],
+                            "第2課 (Unit 2: Introductory Natural Sciences)": [{en: "hypothesis", zh: "假設"}, {en: "experiment", zh: "實驗"}, {en: "observe", zh: "觀察"}, {en: "organism", zh: "生物體"}, {en: "habitat", zh: "棲息地"}, {en: "drought", zh: "乾旱"}, {en: "phenomenon", zh: "現象"}],
+                            "第3課 (Unit 3: Introductory Social Sciences)": [{en: "civilization", zh: "文明"}, {en: "artifact", zh: "手工艺品/文物"}, {en: "migration", zh: "遷移"}, {en: "settlement", zh: "聚落/定居"}, {en: "culture", zh: "文化"}, {en: "community", zh: "社群"}, {en: "tradition", zh: "傳統"}]
+                        },
+                        "大二 (Year 2)": {
+                            "第1課 (Unit 1: Biology & Ecology)": [{en: "photosynthesis", zh: "光合作用"}, {en: "ecosystem", zh: "生態系統"}, {en: "biodiversity", zh: "生物多樣性"}, {en: "adaptation", zh: "適應"}, {en: "predator", zh: "捕食者"}, {en: "symbiosis", zh: "共生"}, {en: "evolution", zh: "進化"}],
+                            "第2課 (Unit 2: Geology & Astronomy)": [{en: "glacier", zh: "冰河"}, {en: "tectonic", zh: "地殼構造的"}, {en: "erosion", zh: "侵蝕"}, {en: "asteroid", zh: "小行星"}, {en: "atmosphere", zh: "大氣層"}, {en: "crater", zh: "隕石坑/火山口"}, {en: "sediment", zh: "沉積物"}],
+                            "第3課 (Unit 3: Art & Architecture)": [{en: "aesthetics", zh: "美學"}, {en: "exhibition", zh: "展覽"}, {en: "sculpture", zh: "雕塑"}, {en: "perspective", zh: "透視/觀點"}, {en: "renovation", zh: "翻新/修復"}, {en: "movement", zh: "流派/運動"}, {en: "mural", zh: "壁畫"}]
+                        },
+                        "大三 (Year 3)": {
+                            "第1課 (Unit 1: Advanced Psychology & Cognitive Science)": [{en: "cognition", zh: "認知"}, {en: "perception", zh: "感知"}, {en: "stimulus", zh: "刺激"}, {en: "neurology", zh: "神經學"}, {en: "subconscious", zh: "潛意識"}, {en: "behaviorism", zh: "行為主義"}, {en: "conditioning", zh: "制約"}],
+                            "第2課 (Unit 2: Anthropology & History)": [{en: "indigenous", zh: "土著的/原住民的"}, {en: "archaeology", zh: "考古學"}, {en: "hierarchies", zh: "階級制度"}, {en: "nomadic", zh: "遊牧的"}, {en: "excavation", zh: "挖掘"}, {en: "ethnography", zh: "民族誌"}, {en: "sovereignty", zh: "主權"}],
+                            "第3課 (Unit 3: Atmospheric & Planetary Science)": [{en: "precipitation", zh: "降水"}, {en: "solar radiation", zh: "太陽輻射"}, {en: "meteorology", zh: "氣象學"}, {en: "geothermal", zh: "地熱的"}, {en: "terrestrial", zh: "地球的/陸地的"}, {en: "greenhouse effect", zh: "溫室效應"}, {en: "stratosphere", zh: "平流層"}]
+                        }
+                    },
+                    "雅思模組 (IELTS Academic)": {
+                        "大一 (Year 1)": {
+                            "第1課 (Unit 1: People & Society)": [{en: "demographics", zh: "人口統計數據"}, {en: "lifestyle", zh: "生活方式"}, {en: "generation", zh: "世代"}, {en: "urbanization", zh: "城市化"}, {en: "interaction", zh: "互動"}, {en: "neighboring", zh: "鄰近的"}, {en: "socialize", zh: "社交"}],
+                            "第2課 (Unit 2: Education & Learning)": [{en: "curriculum", zh: "課程"}, {en: "literacy", zh: "讀寫能力"}, {en: "pedagogy", zh: "教學法"}, {en: "vocational", zh: "職業的"}, {en: "discipline", zh: "學科/紀律"}, {en: "scholarship", zh: "獎學金"}, {en: "qualification", zh: "資格"}],
+                            "第3課 (Unit 3: Health & Fitness)": [{en: "well-being", zh: "健康/福祉"}, {en: "nutrition", zh: "營養"}, {en: "obesity", zh: "肥胖"}, {en: "epidemic", zh: "流行病"}, {en: "prevention", zh: "預防"}, {en: "treatment", zh: "治療"}, {en: "chronic", zh: "慢性的"}]
+                        },
+                        "大二 (Year 2)": {
+                            "第1課 (Unit 1: Environment & Climate)": [{en: "sustainability", zh: "永續性"}, {en: "deforestation", zh: "森林砍伐"}, {en: "conservation", zh: "保育"}, {en: "renewable", zh: "可再生的"}, {en: "pollution", zh: "污染"}, {en: "emissions", zh: "排放物"}, {en: "footprint", zh: "足跡"}],
+                            "第2課 (Unit 2: Media & Technology)": [{en: "broadcasting", zh: "廣播/播送"}, {en: "censorship", zh: "審查制度"}, {en: "automation", zh: "自動化"}, {en: "digitalization", zh: "數位化"}, {en: "algorithm", zh: "演算法"}, {en: "exposure", zh: "暴露/關注"}, {en: "journalism", zh: "新聞業"}],
+                            "第3課 (Unit 3: Transport & Travel)": [{en: "infrastructure", zh: "基礎建設"}, {en: "commute", zh: "通勤"}, {en: "congestion", zh: "擁塞"}, {en: "destination", zh: "目的地"}, {en: "hospitality", zh: "餐旅業"}, {en: "itinerary", zh: "行程"}, {en: "pedestrian", zh: "行人"}]
+                        },
+                        "大三 (Year 3)": {
+                            "第1課 (Unit 1: Economics & Globalization)": [{en: "monopoly", zh: "壟斷"}, {en: "inflation", zh: "通貨膨脹"}, {en: "subsidize", zh: "補助"}, {en: "disparity", zh: "差距/不平等"}, {en: "consumption", zh: "消費"}, {en: "commercialization", zh: "商業化"}, {en: "standardization", zh: "標準化"}],
+                            "第2課 (Unit 2: Science & Innovation)": [{en: "breakthrough", zh: "突破"}, {en: "biotechnology", zh: "生物科技"}, {en: "genetics", zh: "基因學"}, {en: "implementation", zh: "實施/執行"}, {en: "feasibility", zh: "可行性"}, {en: "artificial", zh: "人造的"}, {en: "pioneer", zh: "先驅"}],
+                            "第3課 (Unit 3: Law & Government)": [{en: "legislation", zh: "立法"}, {en: "jurisdiction", zh: "管轄權"}, {en: "bureaucracy", zh: "官僚機構"}, {en: "referendum", zh: "公民投票"}, {en: "enforcement", zh: "執行/實施"}, {en: "sanction", zh: "制裁"}, {en: "constitution", zh: "憲法"}]
+                        }
+                    },
+                    "全民英檢模組 (GEPT)": {
+                        "大一 (Year 1: 中級/中高級基礎)": {
+                            "第1課 (Unit 1: Everyday Life & Communication)": [{en: "apologize", zh: "道歉"}, {en: "congratulate", zh: "祝賀"}, {en: "invitation", zh: "邀請"}, {en: "conversation", zh: "對話"}, {en: "opinion", zh: "意見"}, {en: "suggestion", zh: "建議"}, {en: "attitude", zh: "態度"}],
+                            "第2課 (Unit 2: Entertainment & Media)": [{en: "performance", zh: "表演"}, {en: "audience", zh: "觀眾"}, {en: "ticket", zh: "門票"}, {en: "channel", zh: "頻道"}, {en: "broadcast", zh: "播送"}, {en: "review", zh: "影評/評論"}, {en: "celebrity", zh: "名人"}],
+                            "第3課 (Unit 3: Shopping & Consumerism)": [{en: "discount", zh: "折扣"}, {en: "receipt", zh: "收據"}, {en: "guarantee", zh: "保證/保固"}, {en: "bargain", zh: "特價商品/討價還價"}, {en: "purchase", zh: "購買"}, {en: "brand", zh: "品牌"}, {en: "quality", zh: "品質"}]
+                        },
+                        "大二 (Year 2: 中高級)": {
+                            "第1課 (Unit 1: Health & Medicine)": [{en: "symptom", zh: "症狀"}, {en: "diagnosis", zh: "診斷"}, {en: "prescription", zh: "處方籤"}, {en: "physician", zh: "內科醫生"}, {en: "infection", zh: "感染"}, {en: "recovery", zh: "康復"}, {en: "mental health", zh: "心理健康"}],
+                            "第2課 (Unit 2: Work & Careers)": [{en: "interview", zh: "面試"}, {en: "qualify", zh: "符合資格"}, {en: "promotion", zh: "晉升"}, {en: "experience", zh: "經驗"}, {en: "salary", zh: "薪水"}, {en: "profession", zh: "專業"}, {en: "duty", zh: "職責"}],
+                            "第3課 (Unit 3: Environment & Nature)": [{en: "natural resources", zh: "自然資源"}, {en: "disaster", zh: "災害"}, {en: "threaten", zh: "威脅"}, {en: "preserve", zh: "保護/保存"}, {en: "wildlife", zh: "野生動植物"}, {en: "climate", zh: "氣候"}, {en: "recycle", zh: "回收"}]
+                        },
+                        "大三 (Year 3: 高級)": {
+                            "第1課 (Unit 1: Public Affairs & Politics)": [{en: "policy", zh: "政策"}, {en: "candidate", zh: "候選人"}, {en: "election", zh: "選舉"}, {en: "government", zh: "政府"}, {en: "reform", zh: "改革"}, {en: "controversy", zh: "爭議"}, {en: "diplomacy", zh: "外交"}],
+                            "第2課 (Unit 2: Culture & Philosophy)": [{en: "heritage", zh: "文化遺產"}, {en: "philosophy", zh: "哲學"}, {en: "ethical", zh: "道德的"}, {en: "perspective", zh: "觀點"}, {en: "value", zh: "價值觀"}, {en: "tradition", zh: "傳統"}, {en: "symbolism", zh: "象徵意義"}],
+                            "第3課 (Unit 3: Advanced Science & Technology)": [{en: "innovation", zh: "創新"}, {en: "research", zh: "研究"}, {en: "analysis", zh: "分析"}, {en: "theory", zh: "理論"}, {en: "evidence", zh: "證據"}, {en: "impact", zh: "影響"}, {en: "future", zh: "未來"}]
+                        }
+                    }
+                },
+                "英文文法": {
+                    "學術文法與閱讀應用": {
+                        "大一 (Freshman Year)": {
+                            "單元 1：學術文法與閱讀應用": [
+                                {sent: "The research team conducted an empirical study, thereby _______ new insights into consumer behavior.", ans: "providing", options: ["providing", "provided", "provides", "to provide"]},
+                                {sent: "It is essential that every undergraduate student _______ academic integrity guidelines.", ans: "adhere to", options: ["adhere to", "adheres to", "adhered to", "adhering to"]},
+                                {sent: "Scarcely had the lecture commenced _______ the professor was interrupted by a fire alarm.", ans: "when", options: ["when", "than", "before", "after"]}
+                            ]
                         }
                     }
                 }
             }
         };
 
+        const STORAGE_USERS_KEY = "EN_QUIZ_USERS_DB";
+        const STORAGE_SCORES_KEY = "EN_QUIZ_SCORES_DB";
+        const STORAGE_CURRENT_USER = "EN_QUIZ_LOGGED_USER";
+
         let currentUser = null;
         let currentQuizQuestions = [];
         let currentQuestionIdx = 0;
         let currentQuizScore = 0;
+        let quizTimerInterval = null;
+        let quizSeconds = 0;
+        let wrongQuestions = [];
+
+        function safeStorageGet(k, d) { try { const i = localStorage.getItem(k); return i ? JSON.parse(i) : d; } catch(e) { return d; } }
+        function safeStorageSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
 
         function showModal(m, t = "系統提示") {
             document.getElementById('modalTitle').innerText = t;
@@ -417,114 +851,72 @@
         let isRegisterTab = false;
         function switchAuthTab(t) {
             isRegisterTab = (t === 'register');
+            document.getElementById('registerNameField').classList.toggle('hidden', !isRegisterTab);
             document.getElementById('registerFields').classList.toggle('hidden', !isRegisterTab);
-            document.getElementById('forgotPasswordLink').classList.toggle('hidden', isRegisterTab);
             document.getElementById('tabLoginBtn').className = isRegisterTab ? "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white" : "flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow";
             document.getElementById('tabRegisterBtn').className = isRegisterTab ? "flex-1 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow" : "flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white";
             document.getElementById('authSubmitBtn').innerText = isRegisterTab ? "註冊並登入" : "立即登入";
         }
 
-        function showForgotPasswordForm() { document.getElementById('forgotPasswordSection').classList.remove('hidden'); }
-        function hideForgotPasswordForm() { document.getElementById('forgotPasswordSection').classList.add('hidden'); }
+        // 驗證是否純英文字母
+        function isEnglishOnly(str) {
+            return /^[a-zA-Z]+$/.test(str);
+        }
 
-        async function handleAuthSubmit(e) {
+        function handleAuthSubmit(e) {
             e.preventDefault();
-            const username = document.getElementById('authUsername').value.trim();
-            const password = document.getElementById('authPassword').value.trim();
+            const u = document.getElementById('authUsername').value.trim();
+            const p = document.getElementById('authPassword').value.trim();
 
-            if (!username || !password) return showModal("請填寫帳號與密碼！");
+            if (!u || !p) return showModal("請填寫帳號與密碼！");
+
+            if (!isEnglishOnly(u)) {
+                return showModal("帳號只能使用英文字母 (a-z, A-Z)！");
+            }
+            if (!isEnglishOnly(p)) {
+                return showModal("密碼只能使用英文字母 (a-z, A-Z)！");
+            }
+
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
 
             if (isRegisterTab) {
-                const realName = document.getElementById('authRealName').value.trim() || username;
-                const email = document.getElementById('authEmail').value.trim();
+                const rName = document.getElementById('authRealName').value.trim();
+                if (!rName) return showModal("請填寫姓名！");
+
+                if (users.find(x => x.username === u)) return showModal("此帳號已被註冊！");
+                
                 const role = document.getElementById('authRole').value;
-
-                if (!email) return showModal("請填寫 Gmail 信箱以方便日後忘記密碼驗證！");
-
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: { data: { username: username, real_name: realName, role: role } }
-                });
-
-                if (error) showModal("註冊失敗：" + error.message);
-                else showModal("註冊成功！系統已將驗證信發送至您的 Gmail，請至信箱點擊連結啟用帳號。");
+                const newUser = { username: u, password: p, realName: rName, role: role, boundUsers: [] };
+                users.push(newUser);
+                safeStorageSet(STORAGE_USERS_KEY, users);
+                currentUser = newUser;
+                showModal("註冊成功並已存入儲存庫！自動為您登入");
+                loginSuccess();
             } else {
-                let loginEmail = username;
-                if (!username.includes('@')) loginEmail = username + "@example.com";
-
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: loginEmail,
-                    password: password
-                });
-
-                if (error) showModal("登入失敗：帳號或密碼錯誤！");
-                else {
-                    currentUser = {
-                        id: data.user.id,
-                        email: data.user.email,
-                        username: data.user.user_metadata.username || username,
-                        realName: data.user.user_metadata.real_name || username,
-                        role: data.user.user_metadata.role || "4"
-                    };
-                    loginSuccess();
-                }
-            }
-        }
-
-        async function handleSendPasswordReset() {
-            const inputUsername = document.getElementById('forgotUsername').value.trim();
-            const inputEmail = document.getElementById('forgotEmail').value.trim();
-
-            if (!inputUsername || !inputEmail) return showModal("請填寫帳號與 Gmail 信箱！");
-
-            const redirectSiteUrl = window.location.href.split('?')[0];
-            const { data, error } = await supabase.auth.resetPasswordForEmail(inputEmail, { redirectTo: redirectSiteUrl });
-
-            if (error) showModal("發送失敗：" + error.message);
-            else {
-                showModal("驗證成功！重設密碼連結已發送至您的 Gmail，請至信箱點擊連結修改密碼。");
-                hideForgotPasswordForm();
-            }
-        }
-
-        async function handleUpdateNewPassword() {
-            const newPassword = document.getElementById('resetNewPassword').value.trim();
-            if (!newPassword) return showModal("請輸入新密碼！");
-
-            const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-
-            if (error) showModal("密碼更新失敗：" + error.message);
-            else {
-                showModal("密碼已順利更新！即將自動進入系統。");
-                document.getElementById('resetPasswordModal').classList.add('hidden');
-                if (data.user) {
-                    currentUser = {
-                        id: data.user.id,
-                        email: data.user.email,
-                        username: data.user.user_metadata.username || "用戶",
-                        realName: data.user.user_metadata.real_name || "用戶",
-                        role: data.user.user_metadata.role || "4"
-                    };
-                    loginSuccess();
-                }
+                const found = users.find(x => x.username === u && x.password === p);
+                if (!found) return showModal("儲存庫中無此帳號或密碼錯誤！");
+                currentUser = found;
+                loginSuccess();
             }
         }
 
         function loginSuccess() {
+            safeStorageSet(STORAGE_CURRENT_USER, currentUser);
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('topHeader').classList.remove('hidden');
-            const rNames = { "1": "教職員", "2": "老師", "3": "家長", "4": "學生", "5": "其他身分" };
-            document.getElementById('userRoleBadge').innerText = `${currentUser.realName} (${rNames[currentUser.role] || '使用者'})`;
-            document.getElementById('stepName').value = currentUser.realName;
+            
+            const rNames = { "admin": "👑 總系統管理員", "1": "教職員", "2": "老師", "3": "家長", "4": "學生", "5": "其他身分" };
+            document.getElementById('userRoleBadge').innerText = `${currentUser.realName || currentUser.username} (${rNames[currentUser.role] || '使用者'})`;
+            document.getElementById('stepName').value = currentUser.realName || currentUser.username;
+
             updateGradeDropdown();
             updatePublisherOptions();
             showSection('courseSelect');
         }
 
-        async function handleLogout() {
-            await supabase.auth.signOut();
+        function handleLogout() {
             currentUser = null;
+            safeStorageSet(STORAGE_CURRENT_USER, null);
             document.getElementById('topHeader').classList.add('hidden');
             showSection('auth');
         }
@@ -533,17 +925,25 @@
             ['authSection', 'courseSelectSection', 'wordBankSection', 'quizSection', 'dashboardSection', 'settingsSection'].forEach(x => document.getElementById(x).classList.add('hidden'));
             if (s === 'auth') document.getElementById('authSection').classList.remove('hidden');
             if (s === 'courseSelect') document.getElementById('courseSelectSection').classList.remove('hidden');
-            if (s === 'wordBank') { document.getElementById('wordBankSection').classList.remove('hidden'); }
+            if (s === 'wordBank') { document.getElementById('wordBankSection').classList.remove('hidden'); renderWordCards(); }
             if (s === 'quiz') document.getElementById('quizSection').classList.remove('hidden');
-            if (s === 'dashboard') { document.getElementById('dashboardSection').classList.remove('hidden'); }
-            if (s === 'settings') { document.getElementById('settingsSection').classList.remove('hidden'); }
+            if (s === 'dashboard') { document.getElementById('dashboardSection').classList.remove('hidden'); renderDashboard(); }
+            if (s === 'settings') { document.getElementById('settingsSection').classList.remove('hidden'); document.getElementById('adminRoleManager').classList.toggle('hidden', currentUser.role !== 'admin'); }
         }
 
         function updateGradeDropdown() {
             const edu = document.getElementById('stepEduDegree').value;
             const gSel = document.getElementById('stepEduGrade');
             gSel.innerHTML = "";
-            const m = { "國小": ["1年級", "2年級", "3年級", "4年級", "5年級", "6年級"], "國中": ["國1", "國2", "國3"], "高中": ["高1", "高2", "高3"] };
+            const m = {
+                "幼稚園": ["幼幼班", "小班", "中班", "大班"],
+                "國小": ["1年級", "2年級", "3年級", "4年級", "5年級", "6年級"],
+                "國中": ["國1", "國2", "國3"],
+                "高中": ["高1", "高2", "高3"],
+                "大學": ["大1", "大2", "大3"],
+                "大學畢業(不是老師)": ["大學畢業(不是老師)"],
+                "老師": ["老師"]
+            };
             (m[edu] || [edu]).forEach(g => gSel.appendChild(new Option(g, g)));
         }
 
@@ -563,54 +963,201 @@
             const pub = document.getElementById('targetPublisher').value;
             const uSel = document.getElementById('targetUnit');
             uSel.innerHTML = "";
+
             const pubData = QUESTION_DATABASE[edu]?.[subj]?.[pub] || {};
             for (let grade in pubData) {
                 for (let unit in pubData[grade]) {
                     uSel.appendChild(new Option(`${grade} - ${unit}`, `${grade} - ${unit}`));
                 }
             }
+
+            if (edu === "國小") {
+                uSel.appendChild(new Option("第一次段考範圍", "第一次段考"));
+                uSel.appendChild(new Option("第二次段考範圍", "第二次段考"));
+            } else {
+                uSel.appendChild(new Option("第一次段考範圍", "第一次段考"));
+                uSel.appendChild(new Option("第二次段考範圍", "第二次段考"));
+                uSel.appendChild(new Option("第三次段考範圍", "第三次段考"));
+            }
+            uSel.appendChild(new Option("全冊總複習", "全冊"));
         }
 
         function setQuickQuestionCount(c) { document.getElementById('customQuestionCount').value = c === 'all' ? 999 : c; }
-        function startStudyMode() { showSection('wordBank'); }
 
+        function getQuestionsForScope(edu, subj, pub, unitStr) {
+            const pubData = QUESTION_DATABASE[edu]?.[subj]?.[pub] || {};
+            let targetPool = [];
+            let fallbackPool = [];
+
+            if (unitStr.includes(" - ")) {
+                const [grade, unit] = unitStr.split(" - ");
+                targetPool = pubData[grade]?.[unit] || [];
+
+                for (let u in pubData[grade]) {
+                    if (u !== unit) {
+                        fallbackPool = fallbackPool.concat(pubData[grade][u] || []);
+                    }
+                }
+            } else {
+                for (let g in pubData) {
+                    for (let u in pubData[g]) {
+                        targetPool = targetPool.concat(pubData[g][u] || []);
+                    }
+                }
+            }
+
+            return { targetPool, fallbackPool };
+        }
+
+        function renderWordCards() {
+            const grid = document.getElementById('wordCardsGrid');
+            const search = document.getElementById('wordSearchInput').value.toLowerCase();
+            const edu = document.getElementById('targetEdu').value;
+            const subj = document.getElementById('targetSubject').value;
+            const pub = document.getElementById('targetPublisher').value;
+            const unitStr = document.getElementById('targetUnit').value;
+
+            document.getElementById('studyScopeTitle').innerText = `目前學習範圍：${edu} > ${subj} > ${pub} > ${unitStr}`;
+            grid.innerHTML = "";
+
+            let { targetPool, fallbackPool } = getQuestionsForScope(edu, subj, pub, unitStr);
+            let words = [...targetPool, ...fallbackPool];
+            let filtered = words.filter(w => (w.en && w.en.toLowerCase().includes(search)) || (w.zh && w.zh.includes(search)));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="col-span-2 text-center text-gray-400 py-8">目前範圍尚無單字資料。</p>`;
+                return;
+            }
+
+            filtered.forEach(w => {
+                const card = document.createElement('div');
+                card.className = "glass-panel rounded-2xl p-4 space-y-2 border border-white/10";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-black text-purple-200">${w.en || '單字'}</span>
+                        <button onclick="speakText('${w.en}')" class="glass-btn px-3 py-1 rounded-full text-xs text-purple-300"><i class="fa-solid fa-volume-high"></i> 發音</button>
+                    </div>
+                    <p class="text-sm text-gray-300">${w.zh || ''}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function speakText(txt) {
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance(txt);
+                u.lang = 'en-US';
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        function speakCurrentQuestion() {
+            const q = currentQuizQuestions[currentQuestionIdx];
+            if (q) speakText(q.en || q.sent);
+        }
+
+        /* --- 隨機題目生成 --- */
         function startQuizMode() {
             const edu = document.getElementById('targetEdu').value;
             const subj = document.getElementById('targetSubject').value;
             const pub = document.getElementById('targetPublisher').value;
             const unitStr = document.getElementById('targetUnit').value;
-            const pool = QUESTION_DATABASE[edu]?.[subj]?.[pub]?.["三年級 (3上)"]?.[unitStr.split(' - ')[1]] || [{en: "test", zh: "測試"}];
+            let requestedCount = parseInt(document.getElementById('customQuestionCount').value) || 5;
 
-            currentQuizQuestions = shuffleArray(pool);
+            let { targetPool, fallbackPool } = getQuestionsForScope(edu, subj, pub, unitStr);
+            
+            if (targetPool.length === 0 && fallbackPool.length === 0) {
+                return showModal("該範圍目前暫無測驗題目！");
+            }
+
+            // 洗牌主要題目
+            let shuffledTarget = shuffleArray(targetPool);
+            let finalQuestions = shuffledTarget.slice(0, requestedCount);
+
+            // 若數量不足自訂題數，由洗牌後的備用池補足
+            if (finalQuestions.length < requestedCount && fallbackPool.length > 0) {
+                let shuffledFallback = shuffleArray(fallbackPool);
+                let needed = requestedCount - finalQuestions.length;
+                finalQuestions = finalQuestions.concat(shuffledFallback.slice(0, needed));
+            }
+
+            currentQuizQuestions = finalQuestions;
             currentQuestionIdx = 0;
             currentQuizScore = 0;
+            wrongQuestions = [];
+            quizSeconds = 0;
 
             document.getElementById('quizCard').classList.remove('hidden');
             document.getElementById('quizResultCard').classList.add('hidden');
             showSection('quiz');
+
+            startQuizTimer();
             renderCurrentQuestion();
         }
 
+        function startQuizTimer() {
+            clearInterval(quizTimerInterval);
+            quizTimerInterval = setInterval(() => {
+                quizSeconds++;
+                const m = String(Math.floor(quizSeconds / 60)).padStart(2, '0');
+                const s = String(quizSeconds % 60).padStart(2, '0');
+                document.getElementById('quizTimer').innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${m}:${s}`;
+            }, 1000);
+        }
+
+        /* --- 隨機答案選項佈局渲染 --- */
         function renderCurrentQuestion() {
             const q = currentQuizQuestions[currentQuestionIdx];
             document.getElementById('quizProgress').innerText = `第 ${currentQuestionIdx + 1} / ${currentQuizQuestions.length} 題`;
-            document.getElementById('questionText').innerText = q.en;
+            document.getElementById('quizScopeHeader').innerText = document.getElementById('targetUnit').value;
+
+            const qText = q.sent ? q.sent : q.en;
+            document.getElementById('questionText').innerText = qText;
 
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = "";
+            document.getElementById('instantFeedback').classList.add('hidden');
             document.getElementById('nextQuestionBtn').classList.add('hidden');
 
-            const options = shuffleArray([q.zh, "蘋果", "香蕉", "學生"]);
+            let options = [];
+            if (q.options) {
+                options = shuffleArray(q.options);
+            } else {
+                let correctAns = q.zh;
+                let wrongPool = ["蘋果", "香蕉", "學校", "學生", "老師", "快樂", "朋友", "顏色", "狗狗", "貓咪", "書籍", "天氣", "時間", "地點"].filter(x => x !== correctAns);
+                wrongPool = shuffleArray(wrongPool).slice(0, 3);
+                options = shuffleArray([correctAns, ...wrongPool]);
+            }
+
             options.forEach(opt => {
                 const b = document.createElement('button');
-                b.className = "glass-btn p-4 rounded-2xl text-sm font-semibold text-left text-gray-200";
+                b.className = "glass-btn p-4 rounded-2xl text-sm font-semibold text-left text-gray-200 transition-all hover:border-purple-400";
                 b.innerText = opt;
-                b.onclick = () => {
-                    if (opt === q.zh) currentQuizScore += Math.round(100 / currentQuizQuestions.length);
-                    document.getElementById('nextQuestionBtn').classList.remove('hidden');
-                };
+                b.onclick = () => handleAnswerSelect(opt, q, b);
                 grid.appendChild(b);
             });
+        }
+
+        function handleAnswerSelect(selected, q, btn) {
+            for (let b of document.getElementById('optionsGrid').children) b.disabled = true;
+            const correctAns = q.ans || q.zh;
+            const isCorrect = (selected === correctAns);
+
+            if (isCorrect) {
+                currentQuizScore += Math.round(100 / currentQuizQuestions.length);
+                btn.classList.add('bg-emerald-600/60', 'border-emerald-400');
+            } else {
+                btn.classList.add('bg-rose-600/60', 'border-rose-400');
+                wrongQuestions.push({ question: q.sent || q.en, wrong: selected, correct: correctAns });
+            }
+
+            if (document.getElementById('instantAnswerToggle').checked) {
+                const fb = document.getElementById('instantFeedback');
+                fb.classList.remove('hidden');
+                fb.className = `p-4 rounded-xl text-sm font-bold text-center ${isCorrect ? 'bg-emerald-900/60 text-emerald-300' : 'bg-rose-900/60 text-rose-300'}`;
+                fb.innerText = isCorrect ? "答對了！🎉" : `答錯了！正確答案是：${correctAns}`;
+            }
+            document.getElementById('nextQuestionBtn').classList.remove('hidden');
         }
 
         function nextQuestion() {
@@ -620,25 +1167,154 @@
         }
 
         function finishQuiz() {
+            clearInterval(quizTimerInterval);
             document.getElementById('quizCard').classList.add('hidden');
             document.getElementById('quizResultCard').classList.remove('hidden');
+
             document.getElementById('finalScoreText').innerText = `${currentQuizScore} 分`;
+            document.getElementById('scoreDetailText').innerText = `答對 ${currentQuizQuestions.length - wrongQuestions.length} 題 / 共 ${currentQuizQuestions.length} 題`;
+
+            const is100 = (currentQuizScore === 100);
+            document.getElementById('honorBadge').classList.toggle('hidden', !is100);
+            if (is100) speakText("Congratulations! Perfect score of 100 points!");
+
+            saveScoreRecord(currentQuizScore);
         }
 
-        async function handleChangePassword() {
+        function saveScoreRecord(score) {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            scores.unshift({
+                id: Date.now(),
+                username: currentUser.username,
+                realName: currentUser.realName || currentUser.username,
+                role: currentUser.role,
+                unit: document.getElementById('targetUnit').value,
+                score: score,
+                date: new Date().toLocaleString(),
+                deletedBy: []
+            });
+            safeStorageSet(STORAGE_SCORES_KEY, scores);
+        }
+
+        function renderDashboard() {
+            const tbody = document.getElementById('scoresTableBody');
+            tbody.innerHTML = "";
+
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            let visible = scores.filter(s => {
+                if (s.deletedBy && s.deletedBy.includes(currentUser.username)) return false;
+                if (currentUser.role === 'admin') return true;
+                if (s.role === 'admin') return false;
+                if (currentUser.role === '1') return true;
+                if (currentUser.role === '2' || currentUser.role === '3') return s.username === currentUser.username || (currentUser.boundUsers || []).includes(s.username);
+                return s.username === currentUser.username;
+            });
+
+            visible.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3">${s.date}</td>
+                    <td class="p-3 font-bold text-purple-200">${s.realName} (${s.username})</td>
+                    <td class="p-3">${s.role}</td>
+                    <td class="p-3">${s.unit}</td>
+                    <td class="p-3 font-black ${s.score >= 60 ? 'text-emerald-400' : 'text-rose-400'}">${s.score} 分</td>
+                    <td class="p-3"><button onclick="deleteSingleScore(${s.id})" class="text-rose-400 hover:text-rose-200"><i class="fa-solid fa-trash"></i> 刪除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteSingleScore(id) {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            const idx = scores.findIndex(s => s.id === id);
+            if (idx !== -1) {
+                if (!scores[idx].deletedBy) scores[idx].deletedBy = [];
+                scores[idx].deletedBy.push(currentUser.username);
+                safeStorageSet(STORAGE_SCORES_KEY, scores);
+                renderDashboard();
+            }
+        }
+
+        function clearUserScoresRoleBased() {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            scores.forEach(s => {
+                if (!s.deletedBy) s.deletedBy = [];
+                if (!s.deletedBy.includes(currentUser.username)) s.deletedBy.push(currentUser.username);
+            });
+            safeStorageSet(STORAGE_SCORES_KEY, scores);
+            showModal("名冊已清空！（上層權限依然保留備份）");
+            renderDashboard();
+        }
+
+        function copyWrongQuestions() {
+            let text = "=== 錯題複習庫 ===\n";
+            wrongQuestions.forEach((wq, i) => {
+                text += `${i + 1}. 題目: ${wq.question}\n   錯誤答案: ${wq.wrong}\n   正確答案: ${wq.correct}\n`;
+            });
+            navigator.clipboard.writeText(text);
+            showModal("錯題已成功複製到剪貼簿！");
+        }
+
+        function exportScoresToCSV() {
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            let csv = "\uFEFF時間,帳號,姓名,身分,單元,得分\n";
+            scores.forEach(s => { csv += `"${s.date}","${s.username}","${s.realName}","${s.role}","${s.unit}","${s.score}"\n`; });
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `英文測驗成績表_${Date.now()}.csv`;
+            a.click();
+        }
+
+        function executeAdminRoleChange() {
+            if (currentUser.role !== 'admin') return;
+            const u = document.getElementById('targetAdminUsername').value.trim();
+            const r = document.getElementById('targetAdminRole').value;
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            const idx = users.findIndex(x => x.username === u);
+            if (idx === -1) return showModal("找不到該目標帳號！");
+            users[idx].role = r;
+            safeStorageSet(STORAGE_USERS_KEY, users);
+            showModal(`帳號 ${u} 權限已修改為 ${r}！`);
+        }
+
+        function handleChangePassword() {
             const pwd = document.getElementById('newPasswordInput').value.trim();
             if (!pwd) return showModal("請輸入新密碼！");
-            const { error } = await supabase.auth.updateUser({ password: pwd });
-            if (error) showModal("修改失敗：" + error.message);
-            else showModal("密碼修改成功！");
+            if (!isEnglishOnly(pwd)) return showModal("新密碼只能使用英文字母 (a-z, A-Z)！");
+
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            const idx = users.findIndex(x => x.username === currentUser.username);
+            if (idx !== -1) {
+                users[idx].password = pwd;
+                safeStorageSet(STORAGE_USERS_KEY, users);
+                currentUser.password = pwd;
+                safeStorageSet(STORAGE_CURRENT_USER, currentUser);
+                showModal("密碼修改成功！");
+            }
+        }
+
+        function handleDeleteAccount() {
+            if (currentUser.role === 'admin') return showModal("總管理員帳號無法注銷！");
+            
+            // 刪除使用者儲存庫中的資料
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            users = users.filter(x => x.username !== currentUser.username);
+            safeStorageSet(STORAGE_USERS_KEY, users);
+
+            // 刪除此帳號對應的成績紀錄
+            let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
+            scores = scores.filter(s => s.username !== currentUser.username);
+            safeStorageSet(STORAGE_SCORES_KEY, scores);
+
+            handleLogout();
+            showModal("您的帳號、個人資料及所有測驗紀錄已從儲存庫徹底清除！");
         }
 
         window.onload = function() {
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (event === 'PASSWORD_RECOVERY') {
-                    document.getElementById('resetPasswordModal').classList.remove('hidden');
-                }
-            });
+            const saved = safeStorageGet(STORAGE_CURRENT_USER, null);
+            if (saved) { currentUser = saved; loginSuccess(); }
+            else { showSection('auth'); }
         };
     </script>
 </body>
