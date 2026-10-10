@@ -108,12 +108,12 @@
                     <input type="text" id="authRealName" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入姓名">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號 (只能用英文)</label>
-                    <input type="text" id="authUsername" required pattern="[a-zA-Z]+" title="只能輸入英文字母" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入英文帳號">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">帳號 (英文或數字)</label>
+                    <input type="text" id="authUsername" required pattern="[a-zA-Z0-9]+" title="只能輸入英文與數字" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入英文或數字帳號">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">密碼 (只能用英文)</label>
-                    <input type="password" id="authPassword" required pattern="[a-zA-Z]+" title="只能輸入英文字母" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入英文密碼">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">密碼 (英文或數字)</label>
+                    <input type="password" id="authPassword" required pattern="[a-zA-Z0-9]+" title="只能輸入英文與數字" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入英文或數字密碼">
                 </div>
 
                 <div id="registerFields" class="space-y-4 hidden">
@@ -352,8 +352,8 @@
             </div>
 
             <div class="space-y-3">
-                <h3 class="text-sm font-bold text-indigo-300">修改個人密碼 (只能用英文)</h3>
-                <input type="password" id="newPasswordInput" pattern="[a-zA-Z]+" title="只能輸入英文字母" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入英文新密碼">
+                <h3 class="text-sm font-bold text-indigo-300">修改個人密碼 (英文或數字)</h3>
+                <input type="password" id="newPasswordInput" pattern="[a-zA-Z0-9]+" title="只能輸入英文與數字" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入英文或數字新密碼">
                 <button onclick="handleChangePassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-indigo-200">確認修改密碼</button>
             </div>
 
@@ -378,7 +378,7 @@
             return arr;
         }
 
-        /* --- 全題庫引擎（已替換為完整文字檔資料） --- */
+        /* --- 全題庫引擎（精確依據文字檔 1_2.txt 解析） --- */
         const QUESTION_DATABASE = {
             "國小": {
                 "英文單字": {
@@ -464,7 +464,7 @@
                 "英文文法": {
                     "翰林版": {
                         "3 年級 (Grade 3)": {
-                            "全冊語法精選": [
+                            "全冊語法題庫": [
                                 {sent: "What is _______ name? My name is Dino.", ans: "your", options: ["your", "my", "his", "her"]},
                                 {sent: "I _______ a student.", ans: "am", options: ["am", "is", "are", "be"]},
                                 {sent: "She _______ my sister, Tina.", ans: "is", options: ["is", "am", "are", "be"]},
@@ -474,28 +474,44 @@
                                 {sent: "How _______ are you? I am eight years old.", ans: "old", options: ["old", "many", "much", "color"]},
                                 {sent: "This is _______ apple.", ans: "an", options: ["an", "a", "the", "two"]},
                                 {sent: "_______ is that? That is a marker.", ans: "What", options: ["What", "Who", "Where", "How"]},
-                                {sent: "Is he your brother? No, he _______. ", ans: "isn't", options: ["isn't", "is", "aren't", "don't"]}
+                                {sent: "Is he your brother? No, he _______.", ans: "isn't", options: ["isn't", "is", "aren't", "don't"]}
+                            ]
+                        },
+                        "4 年級 (Grade 4)": {
+                            "全冊語法題庫": [
+                                {sent: "What _______ is it? It is 7:00.", ans: "time", options: ["time", "color", "day", "old"]},
+                                {sent: "It's time _______ breakfast.", ans: "for", options: ["for", "to", "at", "in"]},
+                                {sent: "What _______ he doing? He is sleeping.", ans: "is", options: ["is", "are", "am", "do"]},
+                                {sent: "They _______ playing basketball.", ans: "are", options: ["are", "is", "am", "do"]}
+                            ]
+                        },
+                        "5 年級 (Grade 5)": {
+                            "全冊語法題庫": [
+                                {sent: "Where _______ you yesterday?", ans: "were", options: ["were", "was", "are", "is"]},
+                                {sent: "She _______ at the library last night.", ans: "was", options: ["was", "were", "is", "are"]}
+                            ]
+                        },
+                        "6 年級 (Grade 6)": {
+                            "全冊語法題庫": [
+                                {sent: "Taipei 101 is the _______ building in Taiwan. (最高的)", ans: "tallest", options: ["tallest", "taller", "tall", "more tall"]},
+                                {sent: "Blue whales are the _______ animals in the world. (最大的)", ans: "biggest", options: ["biggest", "bigger", "big", "more big"]}
                             ]
                         }
                     },
                     "南一版": {
                         "3 年級 (Grade 3)": {
-                            "全冊語法精選": [
+                            "全冊語法題庫": [
                                 {sent: "Hello, I _______ Ben.", ans: "am", options: ["am", "is", "are", "be"]},
-                                {sent: "Is it _______ marker?", ans: "a", options: ["a", "an", "two", "the"]},
-                                {sent: "What is this? _______ is a chair.", ans: "It", options: ["It", "This", "That", "They"]},
-                                {sent: "My mother is a _______. (老師)", ans: "teacher", options: ["teacher", "doctor", "nurse", "cook"]},
-                                {sent: "How _______ are you? I'm nine.", ans: "old", options: ["old", "many", "much", "tall"]}
+                                {sent: "Is it _______ marker?", ans: "a", options: ["a", "an", "the", "two"]},
+                                {sent: "What is this? _______ is a chair.", ans: "It", options: ["It", "This", "That", "They"]}
                             ]
                         }
                     },
                     "康軒版": {
                         "3 年級 (Grade 3)": {
-                            "全冊語法精選": [
+                            "全冊語法題庫": [
                                 {sent: "I _______ a student.", ans: "am", options: ["am", "is", "are", "be"]},
-                                {sent: "What _______ your name?", ans: "is", options: ["is", "am", "are", "be"]},
-                                {sent: "Is it _______ cap?", ans: "a", options: ["a", "an", "the", "two"]},
-                                {sent: "_______ is he? He is my brother.", ans: "Who", options: ["Who", "What", "Where", "How"]}
+                                {sent: "What _______ your name?", ans: "is", options: ["is", "am", "are", "be"]}
                             ]
                         }
                     }
@@ -575,7 +591,7 @@
                         "九年級 (9上)": {
                             "第1課 (Unit 1)": [{en: "have done", zh: "完成"}, {en: "has seen", zh: "看過"}, {en: "already", zh: "已經"}, {en: "yet", zh: "還未"}, {en: "ever", zh: "曾經"}],
                             "第2課 (Unit 2)": [{en: "so", zh: "所以"}, {en: "too", zh: "太……"}, {en: "enough", zh: "足夠"}, {en: "very", zh: "非常"}],
-                            "第3課 (Unit 3)": [{en: "who", zh: "誰（關代）"}, {en: "which", zh: "哪一個（關代）"}, {en: "that", zh: "關代"}, {en: "friendship", zh: "友誼"}],
+                            "第3課 (Unit 3)": [{en: "who", zh: "誰（關代）"}, {en: "which", zh: "哪一個（关代）"}, {en: "that", zh: "關代"}, {en: "friendship", zh: "友誼"}],
                             "第4課 (Unit 4)": [{en: "earth", zh: "地球"}, {en: "clean", zh: "清潔/乾淨的"}, {en: "recycle", zh: "回收"}, {en: "paper", zh: "紙張"}],
                             "第5課 (Unit 5)": [{en: "however", zh: "然而"}, {en: "although", zh: "雖然"}, {en: "because", zh: "因為"}, {en: "so", zh: "所以"}],
                             "第6課 (Unit 6)": [{en: "holiday", zh: "節日"}, {en: "gift", zh: "禮物"}, {en: "card", zh: "卡片"}, {en: "wish", zh: "祝福/願望"}]
@@ -585,12 +601,38 @@
                 "英文文法": {
                     "翰林版": {
                         "7 年級 (Grade 7 / 國一)": {
-                            "全冊語法精選": [
+                            "全冊語法題庫": [
                                 {sent: "Amy and Peter _______ students in Class 701.", ans: "are", options: ["are", "is", "am", "be"]},
                                 {sent: "Is that your schoolbag over there? Yes, _______ is.", ans: "it", options: ["it", "this", "that", "there"]},
                                 {sent: "My father is a doctor, _______ my mother is a nurse.", ans: "and", options: ["and", "but", "so", "or"]},
                                 {sent: "The cat is sleeping _______ the chair. (在...下面)", ans: "under", options: ["under", "on", "in", "behind"]},
                                 {sent: "Are there _______ apples on the dining table?", ans: "any", options: ["any", "some", "a", "one"]}
+                            ]
+                        },
+                        "8 年級 (Grade 8 / 國二)": {
+                            "全冊語法題庫": [
+                                {sent: "Where _______ you last night at eight o'clock?", ans: "were", options: ["were", "was", "are", "is"]},
+                                {sent: "She _______ at the city library yesterday afternoon.", ans: "was", options: ["was", "were", "is", "are"]}
+                            ]
+                        },
+                        "9 年級 (Grade 9 / 國三)": {
+                            "全冊語法題庫": [
+                                {sent: "Taipei 101 was once the _______ building in the world. (最高的)", ans: "tallest", options: ["tallest", "taller", "tall", "most tall"]},
+                                {sent: "Blue whales are the _______ animals on Earth. (最大的)", ans: "biggest", options: ["biggest", "bigger", "big", "most big"]}
+                            ]
+                        }
+                    },
+                    "南一版": {
+                        "7 年級 (Grade 7 / 國一)": {
+                            "全冊語法題庫": [
+                                {sent: "Hello, I _______ a new student in this class.", ans: "am", options: ["am", "is", "are", "be"]}
+                            ]
+                        }
+                    },
+                    "康軒版": {
+                        "7 年級 (Grade 7 / 國一)": {
+                            "全冊語法題庫": [
+                                {sent: "I _______ a student at Kang Hsuan Junior High.", ans: "am", options: ["am", "is", "are", "be"]}
                             ]
                         }
                     }
@@ -732,10 +774,34 @@
                 "英文文法": {
                     "龍騰版": {
                         "高一 (Grade 10)": {
-                            "全冊語法精選": [
+                            "全冊語法題庫": [
                                 {sent: "The typhoon caused severe damage to the small town, _______ many families homeless.", ans: "leaving", options: ["leaving", "left", "to leave", "leaves"]},
                                 {sent: "It is important that every student _______ the rules carefully.", ans: "follow", options: ["follow", "follows", "followed", "following"]},
                                 {sent: "Scarcely had he stepped out of the house _______ it started to rain heavily.", ans: "when", options: ["when", "than", "before", "after"]}
+                            ]
+                        },
+                        "高二 (Grade 11)": {
+                            "全冊語法題庫": [
+                                {sent: "The company introduced a revolutionary product, thereby _______ its market position.", ans: "strengthening", options: ["strengthening", "strengthened", "strengthens", "to strengthen"]}
+                            ]
+                        },
+                        "高三 (Grade 11-12 / 高三指考與測驗總複習)": {
+                            "全冊語法題庫": [
+                                {sent: "Driven by curiosity, the scientist conducted numerous experiments, thereby _______ a groundbreaking theory.", ans: "establishing", options: ["establishing", "established", "establishes", "to establish"]}
+                            ]
+                        }
+                    },
+                    "三民版": {
+                        "高一 (Grade 10)": {
+                            "全冊語法題庫": [
+                                {sent: "It is essential that every driver _______ the traffic safety rules.", ans: "obey", options: ["obey", "obeys", "obeyed", "obeying"]}
+                            ]
+                        }
+                    },
+                    "翰林版": {
+                        "高一 (Grade 10)": {
+                            "全冊語法題庫": [
+                                {sent: "It is important that every student _______ the safety instructions carefully.", ans: "follow", options: ["follow", "follows", "followed", "following"]}
                             ]
                         }
                     }
@@ -815,10 +881,20 @@
                 "英文文法": {
                     "學術文法與閱讀應用": {
                         "大一 (Freshman Year)": {
-                            "單元 1：學術文法與閱讀應用": [
+                            "【單元 1：學術文法與閱讀應用】": [
                                 {sent: "The research team conducted an empirical study, thereby _______ new insights into consumer behavior.", ans: "providing", options: ["providing", "provided", "provides", "to provide"]},
                                 {sent: "It is essential that every undergraduate student _______ academic integrity guidelines.", ans: "adhere to", options: ["adhere to", "adheres to", "adhered to", "adhering to"]},
                                 {sent: "Scarcely had the lecture commenced _______ the professor was interrupted by a fire alarm.", ans: "when", options: ["when", "than", "before", "after"]}
+                            ]
+                        },
+                        "大二 (Sophomore Year)": {
+                            "【單元 2：進階專題與學術論述】": [
+                                {sent: "The interdisciplinary project integrated biology and computer science, thereby _______ computational genetics.", ans: "advancing", options: ["advancing", "advanced", "advances", "to advance"]}
+                            ]
+                        },
+                        "大三 (Junior Year)": {
+                            "【單元 3：高等學術研究與論文寫作】": [
+                                {sent: "The research team adopted a qualitative approach, thereby _______ nuanced insights into human behavior.", ans: "uncovering", options: ["uncovering", "uncovered", "uncovers", "to uncover"]}
                             ]
                         }
                     }
@@ -858,9 +934,9 @@
             document.getElementById('authSubmitBtn').innerText = isRegisterTab ? "註冊並登入" : "立即登入";
         }
 
-        // 驗證是否純英文字母
-        function isEnglishOnly(str) {
-            return /^[a-zA-Z]+$/.test(str);
+        // 驗證是否只包含英文或數字
+        function isEnglishOrNumber(str) {
+            return /^[a-zA-Z0-9]+$/.test(str);
         }
 
         function handleAuthSubmit(e) {
@@ -870,11 +946,11 @@
 
             if (!u || !p) return showModal("請填寫帳號與密碼！");
 
-            if (!isEnglishOnly(u)) {
-                return showModal("帳號只能使用英文字母 (a-z, A-Z)！");
+            if (!isEnglishOrNumber(u)) {
+                return showModal("帳號只能使用英文或數字 (a-z, A-Z, 0-9)！");
             }
-            if (!isEnglishOnly(p)) {
-                return showModal("密碼只能使用英文字母 (a-z, A-Z)！");
+            if (!isEnglishOrNumber(p)) {
+                return showModal("密碼只能使用英文或數字 (a-z, A-Z, 0-9)！");
             }
 
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
@@ -1070,11 +1146,9 @@
                 return showModal("該範圍目前暫無測驗題目！");
             }
 
-            // 洗牌主要題目
             let shuffledTarget = shuffleArray(targetPool);
             let finalQuestions = shuffledTarget.slice(0, requestedCount);
 
-            // 若數量不足自訂題數，由洗牌後的備用池補足
             if (finalQuestions.length < requestedCount && fallbackPool.length > 0) {
                 let shuffledFallback = shuffleArray(fallbackPool);
                 let needed = requestedCount - finalQuestions.length;
@@ -1281,7 +1355,7 @@
         function handleChangePassword() {
             const pwd = document.getElementById('newPasswordInput').value.trim();
             if (!pwd) return showModal("請輸入新密碼！");
-            if (!isEnglishOnly(pwd)) return showModal("新密碼只能使用英文字母 (a-z, A-Z)！");
+            if (!isEnglishOrNumber(pwd)) return showModal("新密碼只能使用英文或數字 (a-z, A-Z, 0-9)！");
 
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
             const idx = users.findIndex(x => x.username === currentUser.username);
@@ -1297,12 +1371,10 @@
         function handleDeleteAccount() {
             if (currentUser.role === 'admin') return showModal("總管理員帳號無法注銷！");
             
-            // 刪除使用者儲存庫中的資料
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
             users = users.filter(x => x.username !== currentUser.username);
             safeStorageSet(STORAGE_USERS_KEY, users);
 
-            // 刪除此帳號對應的成績紀錄
             let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
             scores = scores.filter(s => s.username !== currentUser.username);
             safeStorageSet(STORAGE_SCORES_KEY, scores);
