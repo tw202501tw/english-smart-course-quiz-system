@@ -28,6 +28,8 @@
     input, select { background: rgba(255, 255, 255, 0.7); }
     button { background: #4facfe; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
     button:hover { background: #00f2fe; }
+    .btn-secondary { background: #a18cd1; }
+    .btn-secondary:hover { background: #fbc2eb; }
     .btn-danger { background: #ff758c; }
     .btn-danger:hover { background: #ff7eb3; }
     .hidden { display: none !important; }
@@ -46,7 +48,19 @@
     <input type="text" id="login-username" placeholder="請輸入帳號">
     <input type="password" id="login-password" placeholder="請輸入密碼">
     <button id="login-btn">登入</button>
+    <button id="go-register-btn" class="btn-secondary">註冊新帳號</button>
     <p id="login-msg" style="color: red;"></p>
+  </div>
+
+  <!-- 1.5 註冊畫面 -->
+  <div class="glass-container hidden" id="register-screen">
+    <h2>註冊新帳號</h2>
+    <input type="text" id="reg-username" placeholder="請設定帳號">
+    <input type="password" id="reg-password" placeholder="請設定密碼">
+    <input type="password" id="reg-password-confirm" placeholder="請再次輸入密碼">
+    <button id="register-btn">送出註冊</button>
+    <button id="reg-back-btn" class="btn-danger">返回登入</button>
+    <p id="reg-msg" style="color: red;"></p>
   </div>
 
   <!-- 2. 主選單 -->
@@ -76,7 +90,7 @@
 
     <div id="user-management-section" class="hidden">
       <hr>
-      <h3>帳號權限與密碼管理</h3>
+      <h3>帳號權限與密碼管理 (總管理員專屬)</h3>
       <button id="refresh-users-btn">載入使用者名單</button>
       <table class="admin-table">
         <thead><tr><th>帳號</th><th>新密碼</th><th>身分</th><th>操作</th></tr></thead>
@@ -135,7 +149,7 @@
     let currentUser = { username: '', role: '' };
 
     // ==========================================
-    // 題庫資料結構 (壓縮版，包含國小與國中完整範圍)
+    // 題庫資料結構 (自動載入，不需手動輸入)
     // ==========================================
     const quizData = {
       "國小": {
@@ -355,9 +369,54 @@
       populateSelect(scopeSel, quizData[stageSel.value][editionSel.value][gradeSel.value]);
     });
 
-    // 初始化選單
     populateSelect(stageSel, quizData);
     stageSel.dispatchEvent(new Event('change'));
+
+    // ==========================================
+    // 註冊系統邏輯
+    // ==========================================
+    document.getElementById('go-register-btn').addEventListener('click', () => {
+      document.getElementById('reg-username').value = '';
+      document.getElementById('reg-password').value = '';
+      document.getElementById('reg-password-confirm').value = '';
+      document.getElementById('reg-msg').textContent = '';
+      showScreen('register-screen');
+    });
+
+    document.getElementById('reg-back-btn').addEventListener('click', () => showScreen('login-screen'));
+
+    document.getElementById('register-btn').addEventListener('click', async () => {
+      const userVal = document.getElementById('reg-username').value.trim();
+      const passVal = document.getElementById('reg-password').value.trim();
+      const passConfirm = document.getElementById('reg-password-confirm').value.trim();
+      const msg = document.getElementById('reg-msg');
+
+      if (!userVal || !passVal) { msg.textContent = "帳號與密碼不能為空！"; return; }
+      if (passVal !== passConfirm) { msg.textContent = "兩次密碼輸入不一致！"; return; }
+
+      msg.style.color = "blue"; msg.textContent = "正在檢查帳號並寫入資料庫...";
+
+      try {
+        const q = query(collection(db, "users"), where("username", "==", userVal));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          msg.style.color = "red"; msg.textContent = "此帳號已被註冊，請換一個名稱。";
+          return;
+        }
+
+        await addDoc(collection(db, "users"), {
+          username: userVal,
+          password: passVal,
+          role: "student" // 註冊者預設為學生
+        });
+
+        alert("註冊成功！請使用新帳號登入。");
+        showScreen('login-screen');
+      } catch (e) {
+        msg.style.color = "red"; msg.textContent = "註冊失敗，請確認資料庫權限設定：" + e.message;
+      }
+    });
 
     // ==========================================
     // 登入系統邏輯
@@ -373,8 +432,7 @@
         const querySnapshot = await getDocs(q);
         
         if (querySnapshot.empty) {
-          msg.textContent = "找不到此帳號，請聯絡管理員。";
-          return;
+          msg.textContent = "找不到此帳號，請先註冊。"; return;
         }
 
         let loggedIn = false;
@@ -388,12 +446,16 @@
 
         if (loggedIn) {
           document.getElementById('welcome-text').textContent = `歡迎, ${currentUser.username} (${currentUser.role})`;
+          
+          // 若為管理員或教職員，顯示後台按鈕
           if (currentUser.role === 'superadmin' || currentUser.role === 'staff') {
             document.getElementById('go-admin-btn').classList.remove('hidden');
           }
+          // 若為總管理員，顯示帳號管理區
           if (currentUser.role === 'superadmin') {
             document.getElementById('user-management-section').classList.remove('hidden');
           }
+          
           showScreen('main-menu');
         } else { msg.textContent = "密碼錯誤！"; }
       } catch (e) { msg.textContent = "連線發生錯誤，請確認網路與資料庫設定。"; }
@@ -410,11 +472,12 @@
     });
 
     // ==========================================
-    // 後台管理系統
+    // 後台管理系統邏輯 (成績檢視與帳號管理)
     // ==========================================
     document.getElementById('go-admin-btn').addEventListener('click', () => showScreen('admin-screen'));
     document.getElementById('admin-back-btn').addEventListener('click', () => showScreen('main-menu'));
 
+    // 載入成績按鈕
     document.getElementById('refresh-scores-btn').addEventListener('click', async () => {
       const tbody = document.getElementById('scores-tbody');
       tbody.innerHTML = '<tr><td colspan="4">載入中...</td></tr>';
@@ -423,12 +486,15 @@
         tbody.innerHTML = '';
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          if (currentUser.role === 'staff' && data.user_role === 'superadmin') return; // 教職員不看總管理員
+          // 【權限核心邏輯】: 如果登入者是教職員(staff)，則隱藏身分為(superadmin)的成績
+          if (currentUser.role === 'staff' && data.user_role === 'superadmin') return; 
+          
           tbody.innerHTML += `<tr><td>${data.username}</td><td>${data.user_role}</td><td>${data.test_scope}</td><td>${data.final_score}</td></tr>`;
         });
       } catch (e) { tbody.innerHTML = '<tr><td colspan="4">載入失敗</td></tr>'; }
     });
 
+    // 載入使用者名單按鈕 (僅總管理員可見)
     document.getElementById('refresh-users-btn').addEventListener('click', async () => {
       const tbody = document.getElementById('users-tbody');
       tbody.innerHTML = '<tr><td colspan="4">載入中...</td></tr>';
@@ -452,6 +518,7 @@
       } catch (e) { tbody.innerHTML = '<tr><td colspan="4">載入失敗</td></tr>'; }
     });
 
+    // 更新使用者密碼與身分 (掛載到 window 供按鈕點擊)
     window.updateUser = async (docId) => {
       const newPw = document.getElementById(`pw-${docId}`).value;
       const newRole = document.getElementById(`role-${docId}`).value;
@@ -473,7 +540,7 @@
       const stg = stageSel.value, edt = editionSel.value, grd = gradeSel.value, scp = scopeSel.value;
       if (quizData[stg] && quizData[stg][edt] && quizData[stg][edt][grd] && quizData[stg][edt][grd][scp]) {
         currentQuestions = [...quizData[stg][edt][grd][scp]];
-        currentQuestions.sort(() => Math.random() - 0.5); // 隨機打亂
+        currentQuestions.sort(() => Math.random() - 0.5); 
         currentQuestionIndex = 0; score = 0;
         document.getElementById('score-display').textContent = score;
         showScreen('quiz-screen');
@@ -518,7 +585,7 @@
         await addDoc(collection(db, "quiz_records"), {
           username: currentUser.username,
           user_role: currentUser.role,
-          test_scope: `${stageSel.value}-${gradeSel.value}-${scopeSel.value}`,
+          test_scope: `${stageSel.value}-${editionSel.value}-${gradeSel.value}-${scopeSel.value}`,
           final_score: score,
           timestamp: serverTimestamp()
         });
