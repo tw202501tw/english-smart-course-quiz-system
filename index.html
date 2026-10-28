@@ -5,30 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>英文智慧選課測驗系統</title>
   <style>
-    :root { --bg: #1a1a2e; --box: #16213e; --primary: #0f3460; --accent: #e94560; --text: #e0e0e0; }
-    body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    .container { background: var(--box); border-radius: 15px; padding: 25px; width: 90%; max-width: 500px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    :root { --bg: #0f172a; --box: #1e293b; --primary: #3b82f6; --accent: #ef4444; --text: #f8fafc; --success: #10b981; }
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    .container { background: var(--box); border-radius: 15px; padding: 25px; width: 90%; max-width: 600px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     h2, h3 { text-align: center; color: white; margin-top: 0; }
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #aaa; }
-    input, select, button { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; box-sizing: border-box; background: #0f172a; color: white; font-size: 16px; margin-bottom: 10px; }
-    input:focus, select:focus { outline: none; border-color: var(--accent); }
-    button { background: var(--accent); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    button:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--primary); }
+    .title-highlight { color: #38bdf8; }
+    .input-group { margin-bottom: 15px; text-align: left; }
+    .input-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #94a3b8; font-weight: bold; }
+    input, select, button { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; box-sizing: border-box; background: #0f172a; color: white; font-size: 16px; margin-bottom: 10px; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); }
+    button { background: var(--primary); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; color: white; }
+    button:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-secondary { background: #475569; }
+    .btn-secondary:hover { background: #64748b; }
+    .btn-accent { background: var(--accent); }
     .hidden { display: none !important; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-    .admin-table th, .admin-table td { padding: 8px; border: 1px solid #333; text-align: center; }
-    .admin-table th { background: var(--primary); }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px; }
+    
+    /* 表格樣式 */
+    .table-container { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #334155; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; white-space: nowrap; }
+    th, td { padding: 10px; border-bottom: 1px solid #334155; text-align: center; }
+    th { background: #0f172a; color: #38bdf8; position: sticky; top: 0; }
+    tr:hover { background: #334155; }
+    
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .menu-btn { height: 100px; font-size: 18px; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .menu-btn span { font-size: 24px; margin-bottom: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- 登入畫面 -->
+  <!-- 1. 登入畫面 -->
   <div class="container" id="login-screen">
-    <h2>會員安全登入</h2>
-    <p style="font-size: 12px; color: #888; text-align:center;">登入系統需驗證身分</p>
+    <h2 class="title-highlight">英文智慧選課測驗系統</h2>
+    <p style="font-size: 13px; color: #94a3b8; text-align:center;">支援主資料庫與備用帳號庫雙重登入驗證</p>
     <div class="input-group">
       <label>帳號</label>
       <input type="text" id="login-account" placeholder="請輸入帳號">
@@ -37,271 +48,212 @@
       <label>密碼</label>
       <input type="password" id="login-password" placeholder="請輸入密碼">
     </div>
-    <button id="login-btn">立即登入</button>
+    <button id="login-btn">安全登入</button>
     <button id="go-register-btn" class="btn-secondary">註冊新帳號 (前往表單)</button>
-    <p id="login-msg" style="color: var(--accent); text-align: center;"></p>
+    <p id="login-msg" style="color: var(--accent); text-align: center; font-weight: bold; margin-top: 15px;"></p>
   </div>
 
-  <!-- 主選單 / 選課系統 -->
-  <div class="container hidden" id="main-menu" style="max-width: 600px;">
+  <!-- 2. 主選單 -->
+  <div class="container hidden" id="main-menu">
     <div class="header">
       <div>
-        <h3 style="margin:0;">英文智慧選課測驗系統</h3>
-        <span id="user-name-display" style="color: #aaa; font-size: 14px;"></span>
+        <h3 style="margin:0; text-align: left;" class="title-highlight">系統大廳</h3>
+        <span id="user-name-display" style="color: #94a3b8; font-size: 14px;"></span>
       </div>
-      <button id="logout-btn" style="width: auto; padding: 5px 15px;" class="btn-secondary">登出</button>
+      <button id="logout-btn" style="width: auto; padding: 6px 15px;" class="btn-secondary">登出</button>
     </div>
 
-    <!-- 七階段選單 -->
-    <div id="selection-area">
-      <h3>兩階段智慧選課與範圍設定</h3>
-      
-      <div class="input-group">
-        <label>Step 1: ① 個人學歷</label>
-        <select id="step1-stage">
-          <option value="">請選擇...</option>
-          <option value="幼稚園">幼稚園</option>
-          <option value="國小">國小</option>
-          <option value="國中">國中</option>
-          <option value="高中">高中</option>
-          <option value="大學">大學</option>
-          <option value="大學畢業(不是老師)">大學畢業(不是老師)</option>
-          <option value="老師">老師</option>
-        </select>
-      </div>
-
-      <div class="input-group hidden" id="step2-box">
-        <label>Step 2: ② 年級/身分動態選單</label>
-        <select id="step2-grade"></select>
-      </div>
-
-      <h3 class="hidden step3-title">Step 3 & Step 4 做題學歷與科目</h3>
-      <div class="input-group hidden" id="step3-box">
-        <label>Step 3: 做題目標學歷</label>
-        <select id="step3-target">
-          <option value="">請選擇...</option>
-          <option value="國小">國小</option>
-          <option value="國中">國中</option>
-          <option value="高中">高中</option>
-        </select>
-      </div>
-
-      <div class="input-group hidden" id="step4-box">
-        <label>Step 4: 測驗科目</label>
-        <select id="step4-subject">
-          <option value="">請選擇...</option>
-          <option value="英文單字">英文單字</option>
-          <option value="英文文法">英文文法</option>
-        </select>
-      </div>
-
-      <h3 class="hidden step5-title">Step 5 & Step 6 版本與學年度</h3>
-      <div class="input-group hidden" id="step5-box">
-        <label>Step 5: 版本選擇</label>
-        <select id="step5-edition">
-          <option value="">請選擇...</option>
-          <option value="翰林版 (Han Lin)">翰林版 (Han Lin)</option>
-          <option value="康軒版 (Kang Hsuan)">康軒版 (Kang Hsuan)</option>
-          <option value="南一版 (Nan I)">南一版 (Nan I)</option>
-        </select>
-      </div>
-
-      <div class="input-group hidden" id="step6-box">
-        <label>Step 6: 版本學年度選擇</label>
-        <select id="step6-year">
-          <option value="">請選擇...</option>
-          <option value="115上學年度">115上學年度</option>
-          <option value="115下學年度">115下學年度</option>
-        </select>
-      </div>
-
-      <h3 class="hidden step7-title">Step 7 課程範圍與題數模式</h3>
-      <div class="input-group hidden" id="step7-box">
-        <label>課程/單元/段考範圍</label>
-        <select id="step7-scope">
-          <option value="">請選擇範圍...</option>
-          <option value="全部單字">全部單字</option>
-          <option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option>
-          <option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option>
-          <option value="第二次段考/期末考 (U5~U6)">第二次段考/期末考 (U5~U6)</option>
-        </select>
-      </div>
-
-      <button id="start-quiz-btn" class="hidden">開始測驗</button>
-      <button id="go-admin-btn" class="btn-secondary hidden" style="margin-top: 20px;">進入成績與帳號管理後台</button>
+    <div class="menu-grid">
+      <button class="menu-btn" onclick="showScreen('quiz-setup-screen')"><span>📝</span>智慧選課測驗</button>
+      <button class="menu-btn" style="background: #8b5cf6;" onclick="showScreen('learning-pavilion-screen')"><span>📚</span>學習館</button>
+      <button class="menu-btn" style="background: #10b981; grid-column: span 2;" onclick="loadAndShowScores()"><span>📊</span>成績紀錄與後台</button>
     </div>
   </div>
 
-  <!-- 成績與帳號後台 -->
-  <div class="container hidden" id="admin-screen" style="max-width: 800px;">
+  <!-- 3. 智慧選課測驗設定 (原七階段) -->
+  <div class="container hidden" id="quiz-setup-screen">
     <div class="header">
-      <h3>成績與帳號管理後台</h3>
-      <button id="admin-back-btn" style="width: auto; padding: 5px 15px;" class="btn-secondary">返回</button>
+      <h3 style="margin:0;" class="title-highlight">智慧選課與範圍設定</h3>
+      <button onclick="showScreen('main-menu')" style="width: auto; padding: 5px 15px;" class="btn-secondary">返回</button>
     </div>
-    <p style="font-size: 13px; color: #aaa;">教職員可觀看所有學生成績；總管理員可直接至 Google 試算表修改帳號與刪除成績。</p>
+    <div id="selection-area">
+      <div class="input-group"><label>Step 1: 個人學歷</label><select id="step1-stage"><option value="國小">國小</option><option value="國中" selected>國中</option><option value="高中">高中</option></select></div>
+      <div class="input-group"><label>Step 2: 測驗科目</label><select id="step4-subject"><option value="英文單字">英文單字</option><option value="英文文法">英文文法</option></select></div>
+      <div class="input-group"><label>Step 3: 版本選擇</label><select id="step5-edition"><option value="翰林版 (Han Lin)">翰林版 (Han Lin)</option><option value="康軒版 (Kang Hsuan)">康軒版 (Kang Hsuan)</option><option value="南一版 (Nan I)">南一版 (Nan I)</option></select></div>
+      <div class="input-group"><label>Step 4: 版本學年度</label><select id="step6-year"><option value="115上學年度">115上學年度</option><option value="115下學年度">115下學年度</option></select></div>
+      <div class="input-group"><label>Step 5: 課程/段考範圍</label><select id="step7-scope"><option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option><option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option><option value="全部單字">全部單字</option></select></div>
+      <button id="start-quiz-btn" class="btn-accent" style="height: 50px; font-size: 18px;">開始測驗</button>
+    </div>
+  </div>
+
+  <!-- 4. 學習館 (全新) -->
+  <div class="container hidden" id="learning-pavilion-screen">
+    <div class="header">
+      <h3 style="margin:0; color: #8b5cf6;">📚 學習館</h3>
+      <button onclick="showScreen('main-menu')" style="width: auto; padding: 5px 15px;" class="btn-secondary">返回</button>
+    </div>
     
-    <div style="overflow-x: auto;">
-      <table class="admin-table">
+    <div class="input-group">
+      <label>1. 要複習的學歷</label>
+      <select><option value="全部學歷" selected>全部學歷</option><option value="國小">國小</option><option value="國中">國中</option><option value="高中">高中</option></select>
+    </div>
+    <div class="input-group">
+      <label>2. 要複習的測驗題目</label>
+      <select><option value="英文單字" selected>英文單字</option><option value="英文文法">英文文法</option></select>
+    </div>
+    <div class="input-group">
+      <label>3. 要複習的版本</label>
+      <select><option value="全部版本" selected>全部版本</option><option value="翰林版">翰林版</option><option value="康軒版">康軒版</option><option value="南一版">南一版</option></select>
+    </div>
+    <div class="input-group">
+      <label>4. 要複習的版本學年度</label>
+      <select><option value="最新的" selected>最新的</option><option value="115上學年度">115上學年度</option><option value="115下學年度">115下學年度</option></select>
+    </div>
+    <div class="input-group">
+      <label>5. 要複習的課程 / 單元 / 段考範圍</label>
+      <select><option value="全部課程 / 單元 / 段考範圍" selected>全部課程 / 單元 / 段考範圍</option><option value="第一次段考">第一次段考</option><option value="第二次段考">第二次段考</option></select>
+    </div>
+    
+    <button style="background: #8b5cf6; height: 50px; font-size: 18px;" onclick="alert('學習館教材準備中，即將開放！')">進入複習模式</button>
+  </div>
+
+  <!-- 5. 成績紀錄與後台 -->
+  <div class="container hidden" id="admin-screen" style="max-width: 900px;">
+    <div class="header">
+      <h3 style="margin:0; color: #10b981;">📊 成績紀錄與管理</h3>
+      <button onclick="showScreen('main-menu')" style="width: auto; padding: 5px 15px;" class="btn-secondary">返回</button>
+    </div>
+    <p id="admin-notice" style="font-size: 13px; color: #94a3b8;"></p>
+    
+    <!-- 老師/家長 綁定查詢區塊 -->
+    <div id="bind-search-area" class="input-group hidden" style="background: #0f172a; padding: 15px; border-radius: 8px;">
+      <label style="color: #38bdf8;">🔍 綁定學生查詢 (老師/家長專用)</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="bind-student-account" placeholder="請輸入學生或學員的帳號" style="margin-bottom: 0;">
+        <button onclick="filterBoundStudent()" style="width: 100px; margin: 0;">查詢</button>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; margin-top: 5px; margin-bottom: 0;">輸入帳號後可查看該學生的成績紀錄。</p>
+    </div>
+
+    <div class="table-container">
+      <table id="scores-table">
         <thead>
-          <tr>
-            <th>姓名</th><th>身分</th><th>目標學歷</th><th>範圍</th><th>得分</th>
-          </tr>
+          <tr><th>測驗時間</th><th>姓名</th><th>身分</th><th>科目</th><th>範圍</th><th>得分</th></tr>
         </thead>
         <tbody id="scores-tbody">
-          <tr><td colspan="5">成績請至您的 Google 試算表「成績紀錄」分頁查看</td></tr>
+          <tr><td colspan="6">資料讀取中，請稍候...</td></tr>
         </tbody>
       </table>
     </div>
-    <br>
-    <a href="#" id="sheet-link" target="_blank" style="color: #4facfe; text-decoration: none;">👉 點此前往 Google 試算表管理所有帳號與成績</a>
   </div>
 
-  <!-- 測驗進行畫面 -->
+  <!-- 6. 測驗進行畫面 -->
   <div class="container hidden" id="quiz-screen">
-    <h2 id="quiz-title">測驗進行中</h2>
-    <div style="font-size: 24px; margin: 20px 0; font-weight: bold; text-align: center;" id="question-text">載入中...</div>
-    <input type="text" id="answer-input" placeholder="請輸入答案 (英文)" autocomplete="off">
-    <button id="submit-btn">送出答案</button>
-    <p id="feedback-text" style="text-align: center;"></p>
-    <p style="text-align: center;">目前分數: <span id="score-display">0</span></p>
+    <h2 id="quiz-title" class="title-highlight">測驗進行中</h2>
+    <div style="font-size: 26px; margin: 30px 0; font-weight: bold; text-align: center; color: #fff;" id="question-text">載入中...</div>
+    <input type="text" id="answer-input" placeholder="請輸入答案 (英文)" autocomplete="off" style="text-align: center; font-size: 18px;">
+    <button id="submit-btn" class="btn-accent" style="height: 50px; font-size: 18px;">送出答案</button>
+    <p id="feedback-text" style="text-align: center; font-size: 18px; font-weight: bold; min-height: 25px;"></p>
+    <div style="text-align: center; background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 15px;">
+      目前分數: <span id="score-display" style="color: #10b981; font-weight: bold; font-size: 24px;">0</span>
+    </div>
   </div>
 
-  <!-- 測驗結果畫面 -->
+  <!-- 7. 測驗結果畫面 -->
   <div class="container hidden" id="result-screen">
-    <h2>測驗結束！</h2>
-    <p style="text-align: center;">你的最終分數是: <span id="final-score"></span></p>
-    <p id="save-status" style="text-align: center; color: #aaa; font-size: 14px;">正在儲存成績至雲端...</p>
-    <button id="result-back-btn">回主選單</button>
+    <h2 class="title-highlight">測驗結束！</h2>
+    <div style="text-align: center; padding: 30px 0;">
+      <p style="font-size: 18px; color: #94a3b8;">最終得分</p>
+      <p id="final-score" style="color: var(--accent); font-weight: bold; font-size: 48px; margin: 10px 0;"></p>
+    </div>
+    <p id="save-status" style="text-align: center; color: #94a3b8; font-size: 14px; background: #0f172a; padding: 10px; border-radius: 8px;">正在同步成績至雲端資料庫...</p>
+    <button id="result-back-btn" style="height: 50px; font-size: 18px;">回系統大廳</button>
   </div>
 
   <script>
     // ==========================================
-    // ⭐ 請在這裡貼上你在第一步和第二步取得的網址 ⭐
+    // 系統常數與 API 網址設定 (已自動填入)
     // ==========================================
-    const GOOGLE_SCRIPT_URL = '請貼上你第一步取得的_Apps_Script_網址';
-    const GOOGLE_FORM_URL = https://forms.gle/ZLiPpjx73WeWFaoUA;
-
-    // 將試算表連結放進後台給管理員點擊
-    document.getElementById('sheet-link').href = "https://docs.google.com/spreadsheets/d/1p9ik9A9OJ-jWoS9IbouCZ34Dns-1U7CzIqjypdEI9AE/edit";
+    const SHEET_ID = '1p9ik9A9OJ-jWoS9IbouCZ34Dns-1U7CzIqjypdEI9AE';
+    const GAS_POST_URL = 'https://script.google.com/macros/s/AKfycbxlfwiq0yQcq5gQLomaMoj1lqQFkj9DYC0h4mGw0k4OvhjoF-jxSYixZvBBS01yyw8/exec';
+    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/14xaOuEybmN1Slkuxj_icSyew7sjW4rmrKn2UYURySVs/viewform';
 
     let currentUser = { name: '', role: '', account: '' };
+    let allScoresData = []; // 暫存所有成績資料供查詢過濾
 
-    // ==========================================
-    // UI 控制與 7 階段聯動選單
-    // ==========================================
     function showScreen(screenId) {
       document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
       document.getElementById(screenId).classList.remove('hidden');
     }
 
-    const step1 = document.getElementById('step1-stage');
-    const step2Box = document.getElementById('step2-box'); const step2 = document.getElementById('step2-grade');
-    const step3Box = document.getElementById('step3-box'); const step3 = document.getElementById('step3-target');
-    const step4Box = document.getElementById('step4-box'); const step4 = document.getElementById('step4-subject');
-    const step5Box = document.getElementById('step5-box'); const step5 = document.getElementById('step5-edition');
-    const step6Box = document.getElementById('step6-box'); const step6 = document.getElementById('step6-year');
-    const step7Box = document.getElementById('step7-box'); const step7 = document.getElementById('step7-scope');
-    const startQuizBtn = document.getElementById('start-quiz-btn');
-
-    // Step 1 改變時，顯示 Step 2
-    step1.addEventListener('change', () => {
-      step2Box.classList.add('hidden');
-      step2.innerHTML = '<option value="">請選擇...</option>';
-      let options = [];
-      if(step1.value === '幼稚園') options = ['幼幼班', '小班', '中班', '大班'];
-      else if(step1.value === '國小') options = ['1年級', '2年級', '3年級', '4年級', '5年級', '6年級'];
-      else if(step1.value === '國中') options = ['國1', '國2', '國3'];
-      else if(step1.value === '高中') options = ['高1', '高2', '高3'];
-      else if(step1.value === '大學') options = ['大1', '大2', '大3', '大4'];
-      else if(step1.value === '大學畢業(不是老師)' || step1.value === '老師') options = [step1.value];
-      
-      if(options.length > 0) {
-        options.forEach(opt => step2.innerHTML += `<option value="${opt}">${opt}</option>`);
-        step2Box.classList.remove('hidden');
+    // ==========================================
+    // 核心功能：透過 Google GViz 直接讀取試算表資料
+    // ==========================================
+    async function fetchSheetData(sheetName) {
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+        return json.table.rows;
+      } catch (error) {
+        console.error(`讀取 ${sheetName} 失敗:`, error);
+        return [];
       }
-    });
+    }
 
-    // Step 2 選擇後，開放 3, 4
-    step2.addEventListener('change', () => {
-      if(step2.value) {
-        document.querySelector('.step3-title').classList.remove('hidden');
-        step3Box.classList.remove('hidden');
-        step4Box.classList.remove('hidden');
-      }
-    });
-
-    // Step 4 選擇後，開放 5, 6
-    step4.addEventListener('change', () => {
-      if(step4.value) {
-        document.querySelector('.step5-title').classList.remove('hidden');
-        step5Box.classList.remove('hidden');
-        step6Box.classList.remove('hidden');
-      }
-    });
-
-    // Step 6 選擇後，開放 7
-    step6.addEventListener('change', () => {
-      if(step6.value) {
-        document.querySelector('.step7-title').classList.remove('hidden');
-        step7Box.classList.remove('hidden');
-      }
-    });
-
-    // Step 7 選擇後，顯示開始按鈕
-    step7.addEventListener('change', () => {
-      if(step7.value) startQuizBtn.classList.remove('hidden');
-      else startQuizBtn.classList.add('hidden');
-    });
+    function getCellValue(cell) {
+      if (!cell || cell.v === null || cell.v === undefined) return '';
+      return String(cell.v).trim();
+    }
 
     // ==========================================
-    // 登入與註冊邏輯
+    // 登入邏輯 (雙重資料庫驗證)
     // ==========================================
-    document.getElementById('go-register-btn').addEventListener('click', () => {
-      window.open(GOOGLE_FORM_URL, '_blank'); 
-    });
+    document.getElementById('go-register-btn').addEventListener('click', () => window.open(GOOGLE_FORM_URL, '_blank'));
 
     document.getElementById('login-btn').addEventListener('click', async () => {
       const userVal = document.getElementById('login-account').value.trim();
       const passVal = document.getElementById('login-password').value.trim();
       const msg = document.getElementById('login-msg');
       
-      if(!userVal || !passVal) { msg.textContent = "請輸入帳號密碼"; return; }
-      if(GOOGLE_SCRIPT_URL.includes(https://script.google.com/macros/s/AKfycbxlfwiq0yQcq5gQLomaMoj1lqQFkj9DYC0h4mGw0k4OvhjoF-jxSYixZvBBS01yyw8/exec)) { msg.textContent = "系統尚未綁定資料庫"; return; }
+      if(!userVal || !passVal) { msg.textContent = "⚠️ 請輸入帳號與密碼"; return; }
 
-      msg.style.color = "#4facfe";
+      msg.style.color = "#38bdf8";
       msg.textContent = "連線驗證中，請稍候...";
 
-      try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
-        const users = await response.json();
-        
-        let loggedIn = false;
-        for (let i = 0; i < users.length; i++) {
-          if (String(users[i].account) === userVal && String(users[i].password) === passVal) {
-            currentUser = users[i];
-            loggedIn = true;
-            break;
-          }
-        }
+      // 1. 同時讀取「主資料庫」與「備用資料庫」
+      const [rowsMain, rowsBackup1, rowsBackup2] = await Promise.all([
+        fetchSheetData('帳號密碼儲存庫'),
+        fetchSheetData('預備&備用帳號'),
+        fetchSheetData('預備_備用帳號') // 檔案名稱防呆機制
+      ]);
 
-        if (loggedIn) {
-          msg.textContent = "";
-          document.getElementById('user-name-display').textContent = `${currentUser.name} (${currentUser.role})`;
-          
-          // 權限：總管理員 或 教職員 可看後台
-          if (currentUser.role.includes('總管理員') || currentUser.role.includes('教職員')) {
-            document.getElementById('go-admin-btn').classList.remove('hidden');
-          } else {
-            document.getElementById('go-admin-btn').classList.add('hidden');
-          }
-          showScreen('main-menu');
-        } else {
-          msg.style.color = "var(--accent)";
-          msg.textContent = "帳號或密碼錯誤！或管理員尚未開通您的帳號。";
+      const allRows = [...rowsMain, ...rowsBackup1, ...rowsBackup2];
+      let loggedIn = false;
+
+      for (let i = 1; i < allRows.length; i++) { 
+        const row = allRows[i].c;
+        if (!row) continue;
+        const dbName = getCellValue(row[0]);
+        const dbRole = getCellValue(row[1]);
+        const dbAccount = getCellValue(row[2]);
+        const dbPassword = getCellValue(row[3]);
+
+        if (dbAccount === userVal && dbPassword === passVal) {
+          currentUser = { name: dbName, role: dbRole, account: dbAccount };
+          loggedIn = true;
+          break;
         }
-      } catch (error) {
+      }
+
+      if (loggedIn) {
+        msg.textContent = "";
+        document.getElementById('user-name-display').textContent = `身分：${currentUser.role} | 姓名：${currentUser.name}`;
+        showScreen('main-menu');
+      } else {
         msg.style.color = "var(--accent)";
-        msg.textContent = "系統連線失敗，請稍後再試。";
+        msg.textContent = "❌ 帳號或密碼錯誤！或者尚未註冊。";
       }
     });
 
@@ -313,18 +265,104 @@
       showScreen('login-screen');
     });
 
-    document.getElementById('go-admin-btn').addEventListener('click', () => showScreen('admin-screen'));
-    document.getElementById('admin-back-btn').addEventListener('click', () => showScreen('main-menu'));
+    // ==========================================
+    // 成績後台與嚴格權限控管
+    // ==========================================
+    async function loadAndShowScores() {
+      showScreen('admin-screen');
+      const tbody = document.getElementById('scores-tbody');
+      const notice = document.getElementById('admin-notice');
+      const bindSearchArea = document.getElementById('bind-search-area');
+      tbody.innerHTML = '<tr><td colspan="6">資料讀取中，請稍候...</td></tr>';
+      bindSearchArea.classList.add('hidden');
+
+      const rows = await fetchSheetData('成績紀錄');
+      allScoresData = [];
+
+      // 解析成績資料 (假設格式：測驗時間, 姓名, 帳號, 身分, 目標學歷, 科目, 版本, 範圍, 得分)
+      for (let i = 1; i < rows.length; i++) {
+        if (!rows[i].c) continue;
+        allScoresData.push({
+          time: getCellValue(rows[i].c[0]),
+          name: getCellValue(rows[i].c[1]),
+          account: getCellValue(rows[i].c[2]),
+          role: getCellValue(rows[i].c[3]),
+          subject: getCellValue(rows[i].c[5]),
+          scope: getCellValue(rows[i].c[7]),
+          score: getCellValue(rows[i].c[8])
+        });
+      }
+
+      renderScoreTable();
+    }
+
+    function renderScoreTable(searchAccount = null) {
+      const tbody = document.getElementById('scores-tbody');
+      const notice = document.getElementById('admin-notice');
+      const bindSearchArea = document.getElementById('bind-search-area');
+      tbody.innerHTML = '';
+      let displayCount = 0;
+
+      allScoresData.forEach(data => {
+        let canView = false;
+        
+        // 權限邏輯判斷
+        if (currentUser.role.includes('總管理員')) {
+          canView = true;
+          notice.textContent = "🟢 總管理員模式：可查看系統內所有成員的成績。";
+        } 
+        else if (currentUser.role.includes('教職員') || currentUser.role.includes('人事室') || currentUser.role.includes('處室') || currentUser.role.includes('校長')) {
+          if (!data.role.includes('總管理員')) canView = true;
+          notice.textContent = "🟢 教職員模式：可查看除總管理員外之所有學生成績。";
+        }
+        else if (currentUser.role.includes('老師') || currentUser.role.includes('導師') || currentUser.role.includes('家長')) {
+          bindSearchArea.classList.remove('hidden');
+          notice.textContent = "🟡 老師/家長模式：可查看自身成績，或於下方輸入帳號查詢綁定學生之成績。";
+          
+          if (data.account === currentUser.account) canView = true; // 看自己
+          if (searchAccount && data.account === searchAccount) {
+            // 查詢防護：只能查學生或不符合條件者
+            if (data.role.includes('學生') || data.role.includes('以上都沒有')) canView = true;
+          }
+        }
+        else {
+          if (data.account === currentUser.account) canView = true; // 學生只能看自己
+          notice.textContent = "⚪ 學生/一般模式：僅可查看您本人的成績紀錄。";
+        }
+
+        if (canView) {
+          displayCount++;
+          tbody.innerHTML += `<tr>
+            <td>${data.time.split(' ')[0]}</td>
+            <td>${data.name}</td>
+            <td>${data.role.substring(0, 4)}</td>
+            <td>${data.subject}</td>
+            <td><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${data.scope}">${data.scope}</div></td>
+            <td style="color:#10b981; font-weight:bold;">${data.score}</td>
+          </tr>`;
+        }
+      });
+
+      if (displayCount === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">目前沒有可顯示的成績紀錄。</td></tr>';
+      }
+    }
+
+    function filterBoundStudent() {
+      const searchVal = document.getElementById('bind-student-account').value.trim();
+      if (!searchVal) { alert("請輸入學生帳號！"); return; }
+      renderScoreTable(searchVal);
+    }
 
     // ==========================================
-    // 測驗系統核心邏輯與資料回傳
+    // 測驗核心系統
     // ==========================================
     let currentQuestions = [
-      {q:"蘋果", a:"apple", t:"v"}, {q:"香蕉", a:"banana", t:"v"}, {q:"貓", a:"cat", t:"v"}
-    ]; // 由於題庫太龐大，這裡先放內建預設題庫，確保所有範圍都有題目可測
+      {q:"蘋果", a:"apple"}, {q:"香蕉", a:"banana"}, {q:"學校", a:"school"}
+    ];
     let currentQuestionIndex = 0, score = 0;
 
-    startQuizBtn.addEventListener('click', () => {
+    document.getElementById('start-quiz-btn').addEventListener('click', () => {
       currentQuestions.sort(() => Math.random() - 0.5); 
       currentQuestionIndex = 0; score = 0;
       document.getElementById('score-display').textContent = score;
@@ -337,8 +375,7 @@
 
     function loadQuestion() {
       answerInput.value = ''; feedbackText.textContent = ''; answerInput.focus();
-      const qData = currentQuestions[currentQuestionIndex];
-      document.getElementById('question-text').textContent = `請輸入「${qData.q}」的英文`;
+      document.getElementById('question-text').textContent = `請輸入「${currentQuestions[currentQuestionIndex].q}」的英文`;
     }
 
     document.getElementById('submit-btn').addEventListener('click', checkAnswer);
@@ -351,9 +388,9 @@
       
       if (userAnswer === qData.a.toLowerCase()) {
         score += 10; document.getElementById('score-display').textContent = score;
-        feedbackText.style.color = "#4facfe"; feedbackText.textContent = "答對了！";
+        feedbackText.style.color = "#10b981"; feedbackText.textContent = "✅ 答對了！";
       } else {
-        feedbackText.style.color = "var(--accent)"; feedbackText.textContent = `答錯了！正確答案是: ${qData.a}`;
+        feedbackText.style.color = "var(--accent)"; feedbackText.textContent = `❌ 答錯了！正確答案是: ${qData.a}`;
       }
       currentQuestionIndex++;
       setTimeout(() => {
@@ -365,35 +402,29 @@
     function endQuiz() {
       showScreen('result-screen');
       document.getElementById('final-score').textContent = score;
-      
-      // 將成績傳回 Google 試算表
+      const statusEl = document.getElementById('save-status');
+      statusEl.style.color = "#94a3b8";
+      statusEl.textContent = "正在安全寫入成績至資料庫...";
+
       const payload = {
-        name: currentUser.name,
-        account: currentUser.account,
-        role: currentUser.role,
-        targetStage: step3.value,
-        subject: step4.value,
-        edition: step5.value + " / " + step6.value,
-        scope: step7.value,
+        name: currentUser.name, account: currentUser.account, role: currentUser.role,
+        targetStage: document.getElementById('step1-stage').value,
+        subject: document.getElementById('step4-subject').value,
+        edition: document.getElementById('step5-edition').value,
+        scope: document.getElementById('step7-scope').value,
         score: score
       };
 
-      fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // 解決跨域問題
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      fetch(GAS_POST_URL, {
+        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       }).then(() => {
-        document.getElementById('save-status').textContent = "✅ 成績已安全儲存至資料庫！";
+        statusEl.style.color = "#10b981"; statusEl.textContent = "✅ 成績已成功寫入您的系統資料庫！";
       }).catch(() => {
-        document.getElementById('save-status').textContent = "⚠️ 成績傳送異常，請通知管理員。";
+        statusEl.style.color = "var(--accent)"; statusEl.textContent = "⚠️ 網路異常，成績傳送失敗。";
       });
     }
 
-    document.getElementById('result-back-btn').addEventListener('click', () => {
-      document.getElementById('save-status').textContent = "正在儲存成績至雲端...";
-      showScreen('main-menu');
-    });
+    document.getElementById('result-back-btn').addEventListener('click', () => showScreen('main-menu'));
   </script>
 </body>
 </html>
