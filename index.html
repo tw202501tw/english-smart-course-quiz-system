@@ -216,7 +216,7 @@
     <section id="screen-quiz-setup" class="glass-card rounded-2xl p-6 sm:p-8 hidden">
       <div class="flex justify-between items-center border-b border-slate-700/80 pb-4 mb-6">
         <h2 class="text-xl font-bold text-cyan-400 flex items-center gap-2">
-          <i class="fa-solid fa-sliders"></i> 智慧選課與測驗範圍設定
+          <i class="fa-solid fa-sliders"></i> 兩階段智慧選課與範圍設定
         </h2>
         <button onclick="showScreen('screen-main-menu')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
           <i class="fa-solid fa-arrow-left"></i> 返回大廳
@@ -224,66 +224,89 @@
       </div>
 
       <div class="space-y-4 text-left">
+        <!-- Step 1 & Step 2 個人身分與學歷 -->
+        <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <div class="text-xs font-bold text-cyan-400 mb-2">Step 1 & Step 2 個人身分與學歷</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">學生/測驗者姓名</label>
+              <input type="text" id="q-tester-name" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="可修改姓名">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">① 個人學歷</label>
+              <select id="q-user-edu" class="w-full glass-input rounded-xl px-3 py-2 text-sm" onchange="updateUserEduGrade()">
+                <option value="幼稚園">幼稚園</option>
+                <option value="國小">國小</option>
+                <option value="國中" selected>國中</option>
+                <option value="高中">高中</option>
+                <option value="大學">大學</option>
+                <option value="大學畢業(不是老師)">大學畢業(不是老師)</option>
+                <option value="老師">老師</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">② 年級/身分動態選單</label>
+              <select id="q-user-grade" class="w-full glass-input rounded-xl px-3 py-2 text-sm"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 & Step 4 做題目標學歷與科目 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Step 1: 個人/目標學歷</label>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Step 3: 做題目標學歷</label>
             <select id="q-stage" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateSubOptions('q')">
               <option value="國小">國小</option>
               <option value="國中" selected>國中</option>
               <option value="高中">高中</option>
-              <option value="大學">大學</option>
+              <option value="大學">大學/檢定模組</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Step 2: 年級 / 模組</label>
-            <select id="q-grade" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm"></select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Step 3: 測驗科目</label>
-            <select id="q-subject" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm">
+            <label class="block text-xs font-bold text-slate-300 mb-1">Step 4: 測驗科目</label>
+            <select id="q-subject" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateScopeOptions('q')">
               <option value="英文單字">英文單字</option>
               <option value="英文文法">英文文法</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Step 4: 版本選擇</label>
-            <select id="q-edition" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm"></select>
-          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Step 5 & Step 6 版本與學年度 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Step 5: 學年度</label>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Step 5: 版本選擇</label>
+            <select id="q-edition" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateScopeOptions('q')"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">目標年級</label>
+            <select id="q-grade" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateScopeOptions('q')"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Step 6: 版本學年度</label>
             <select id="q-year" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm">
               <option value="115上學年度">115上學年度</option>
               <option value="115下學年度">115下學年度</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Step 6: 課程/段考範圍</label>
-            <select id="q-scope" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm">
-              <option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option>
-              <option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option>
-              <option value="期末考 (U5~U6)">期末考 (U5~U6)</option>
-              <option value="全部題目">全部範圍/題目</option>
-            </select>
-          </div>
+        </div>
+
+        <!-- Step 7 課程/單元/段考範圍 -->
+        <div>
+          <label class="block text-xs font-bold text-cyan-300 mb-1">Step 7: 課程 / 每一課單元 / 段考範圍</label>
+          <select id="q-scope" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm"></select>
         </div>
 
         <!-- 題數模式選擇 (Question Count Selector) -->
         <div class="pt-2">
-          <label class="block text-xs font-bold text-cyan-300 mb-2">Step 7: 選擇測驗題數模式</label>
+          <label class="block text-xs font-bold text-cyan-300 mb-2">題數選擇 (10題 / 20題 / 全部題目 / 自選題數)</label>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="q-count-btns">
-            <button type="button" onclick="selectQCount(10, this)" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition border-cyan-500 bg-cyan-500/20 text-cyan-300">10 題</button>
-            <button type="button" onclick="selectQCount(20, this)" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition">20 題</button>
-            <button type="button" onclick="selectQCount('ALL', this)" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition">全部題目</button>
-            <button type="button" onclick="selectQCount('CUSTOM', this)" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition">自選題數</button>
+            <button type="button" onclick="selectQCount(10, this, 'q')" class="q-count-btn py-2.5 rounded-xl border border-cyan-500 bg-cyan-500/20 text-cyan-300 text-xs font-bold hover:border-cyan-500 transition">10 題</button>
+            <button type="button" onclick="selectQCount(20, this, 'q')" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition">20 題</button>
+            <button type="button" onclick="selectQCount('ALL', this, 'q')" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition">全部題目</button>
+            <button type="button" onclick="selectQCount('CUSTOM', this, 'q')" class="q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition">自選題數</button>
           </div>
-          <div id="custom-count-box" class="mt-3 hidden">
-            <input type="number" id="q-custom-num" min="1" max="100" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-center" placeholder="請輸入自訂題數 (例: 15)">
+          <div id="q-custom-count-box" class="mt-3 hidden">
+            <input type="number" id="q-custom-num" min="1" max="500" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-center" placeholder="請手動輸入題數 (例如: 15)">
           </div>
         </div>
 
@@ -297,7 +320,7 @@
     <section id="screen-spelling-setup" class="glass-card rounded-2xl p-6 sm:p-8 hidden">
       <div class="flex justify-between items-center border-b border-slate-700/80 pb-4 mb-6">
         <h2 class="text-xl font-bold text-purple-400 flex items-center gap-2">
-          <i class="fa-solid fa-spell-check"></i> 拼字練習館設定
+          <i class="fa-solid fa-spell-check"></i> 拼字練習館設定 (與學習館/測驗完全同步)
         </h2>
         <button onclick="showScreen('screen-main-menu')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
           <i class="fa-solid fa-arrow-left"></i> 返回大廳
@@ -312,27 +335,45 @@
               <option value="國小">國小</option>
               <option value="國中" selected>國中</option>
               <option value="高中">高中</option>
-              <option value="大學">大學</option>
+              <option value="大學">大學/檢定模組</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">年級 / 模組</label>
-            <select id="s-grade" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm"></select>
+            <label class="block text-xs font-bold text-slate-300 mb-1">練習科目</label>
+            <select id="s-subject" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateScopeOptions('s')">
+              <option value="英文單字" selected>英文單字</option>
+              <option value="英文文法">英文文法 (句型填空拼字)</option>
+            </select>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">版本</label>
-            <select id="s-edition" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm"></select>
+            <label class="block text-xs font-bold text-slate-300 mb-1">版本選擇</label>
+            <select id="s-edition" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateScopeOptions('s')"></select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">範圍</label>
-            <select id="s-scope" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm">
-              <option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option>
-              <option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option>
-              <option value="全部題目">全部範圍</option>
-            </select>
+            <label class="block text-xs font-bold text-slate-300 mb-1">年級 / 模組</label>
+            <select id="s-grade" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm" onchange="updateScopeOptions('s')"></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-purple-300 mb-1">課程 / 每一課單元 / 段考範圍</label>
+          <select id="s-scope" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm"></select>
+        </div>
+
+        <!-- 拼字練習題數選擇 -->
+        <div class="pt-1">
+          <label class="block text-xs font-bold text-purple-300 mb-2">練習題數選擇</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="s-count-btns">
+            <button type="button" onclick="selectQCount(10, this, 's')" class="s-count-btn py-2.5 rounded-xl border border-purple-500 bg-purple-500/20 text-purple-300 text-xs font-bold transition">10 題</button>
+            <button type="button" onclick="selectQCount(20, this, 's')" class="s-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold transition">20 題</button>
+            <button type="button" onclick="selectQCount('ALL', this, 's')" class="s-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold transition">全部題目</button>
+            <button type="button" onclick="selectQCount('CUSTOM', this, 's')" class="s-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold transition">自選題數</button>
+          </div>
+          <div id="s-custom-count-box" class="mt-3 hidden">
+            <input type="number" id="s-custom-num" min="1" max="500" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-center" placeholder="請手動輸入練習題數 (例如: 15)">
           </div>
         </div>
 
@@ -345,6 +386,7 @@
     <!-- 5. 測驗進行畫面 (Quiz Playing Screen) -->
     <section id="screen-quiz-play" class="glass-card rounded-2xl p-6 sm:p-8 hidden text-center">
       <div class="flex justify-between items-center mb-4 text-xs font-semibold text-slate-400">
+        <button onclick="showScreen('screen-quiz-setup')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-300"><i class="fa-solid fa-xmark mr-1"></i>放棄</button>
         <span id="quiz-progress-text">題目 1 / 10</span>
         <span class="text-emerald-400">得分: <span id="quiz-score-num" class="text-base font-bold">0</span></span>
       </div>
@@ -355,9 +397,15 @@
       </div>
 
       <div class="py-4">
-        <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700" id="quiz-q-type">中文翻譯題</span>
-        <h3 class="text-xl sm:text-2xl font-bold text-white mt-3 mb-2" id="quiz-q-title">請輸入「蘋果」的英文</h3>
-        <p id="quiz-q-sentence" class="text-sm text-slate-300 bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-left my-4 hidden"></p>
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700" id="quiz-q-type">英文單字</span>
+          <span class="text-xs px-2.5 py-1 rounded bg-slate-800/80 text-slate-400 border border-slate-700" id="quiz-q-unit">第1課</span>
+          <button onclick="playCurrentQuizTTS()" class="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 flex items-center justify-center transition" title="發音提示">
+            <i class="fa-solid fa-volume-high text-xs"></i>
+          </button>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-bold text-white mt-3 mb-2" id="quiz-q-title">載入中...</h3>
+        <p id="quiz-q-sentence" class="text-sm text-slate-300 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 text-left my-4"></p>
       </div>
 
       <div class="max-w-md mx-auto space-y-3">
@@ -373,27 +421,35 @@
     <!-- 6. 拼字練習進行畫面 (Spelling Play Screen) -->
     <section id="screen-spelling-play" class="glass-card rounded-2xl p-6 sm:p-8 hidden text-center">
       <div class="flex justify-between items-center mb-4 text-xs font-semibold text-slate-400">
+        <button onclick="showScreen('screen-spelling-setup')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-300"><i class="fa-solid fa-arrow-left mr-1"></i>返回設定</button>
         <span id="spell-progress-text">進度 1 / 10</span>
-        <span class="text-purple-400">拼字正確率: <span id="spell-score-num" class="text-base font-bold">0</span>%</span>
+        <span class="text-purple-400">答對題數: <span id="spell-score-num" class="text-base font-bold">0</span></span>
       </div>
 
       <div class="py-2">
+        <div class="mb-2">
+          <span class="text-xs px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30" id="spell-unit-badge">第1課</span>
+        </div>
         <div class="inline-flex items-center gap-2 mb-2">
-          <span class="text-2xl sm:text-3xl font-extrabold text-purple-300" id="spell-word-mean">蘋果</span>
-          <button onclick="playCurrentWordTTS()" class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 hover:bg-purple-500/40 flex items-center justify-center transition">
+          <span class="text-xl sm:text-2xl font-extrabold text-purple-300" id="spell-word-mean">蘋果</span>
+          <button onclick="playCurrentWordTTS()" class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 hover:bg-purple-500/40 flex items-center justify-center transition" title="聽發音">
             <i class="fa-solid fa-volume-high text-xs"></i>
           </button>
         </div>
-        <div class="text-sm text-slate-300 bg-slate-900/80 p-4 rounded-xl border border-purple-500/20 text-left my-3" id="spell-sentence-box">
-          💬 例句：I eat an <span class="font-bold text-purple-400 border-b-2 border-purple-400 px-1">_____</span> every morning.
-        </div>
+        <div class="text-xs text-slate-400 mb-2" id="spell-letter-hint">字數提示：5 個字母 (a _ _ _ e)</div>
+        <div class="text-sm text-slate-300 bg-slate-900/80 p-4 rounded-xl border border-purple-500/20 text-left my-3" id="spell-sentence-box"></div>
       </div>
 
       <div class="max-w-md mx-auto space-y-3">
-        <input type="text" id="spell-input" class="w-full glass-input rounded-xl px-4 py-3 text-center text-xl font-mono font-bold tracking-widest uppercase" placeholder="拼寫單字" autocomplete="off">
-        <button id="btn-spell-submit" class="w-full btn-purple py-3 rounded-xl font-bold text-white text-base">
-          檢查拼字
-        </button>
+        <input type="text" id="spell-input" class="w-full glass-input rounded-xl px-4 py-3 text-center text-xl font-mono font-bold tracking-widest" placeholder="請輸入正確拼字" autocomplete="off">
+        <div class="flex gap-2">
+          <button onclick="showSpellHint()" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 text-xs font-bold border border-slate-700">
+            <i class="fa-solid fa-lightbulb mr-1"></i>提示首尾字
+          </button>
+          <button id="btn-spell-submit" class="flex-1 btn-purple py-3 rounded-xl font-bold text-white text-base">
+            檢查拼字
+          </button>
+        </div>
       </div>
 
       <p id="spell-feedback" class="text-sm font-bold mt-4 min-h-[24px]"></p>
@@ -403,18 +459,18 @@
     <section id="screen-learning-pavilion" class="glass-card rounded-2xl p-6 sm:p-8 hidden">
       <div class="flex justify-between items-center border-b border-slate-700/80 pb-4 mb-4">
         <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2">
-          <i class="fa-solid fa-book-open"></i> 學習館 - 單字與例句卡片
+          <i class="fa-solid fa-book-open"></i> 學習館 - 單字與文法句型完整庫
         </h2>
         <button onclick="showScreen('screen-main-menu')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
           <i class="fa-solid fa-arrow-left"></i> 返回
         </button>
       </div>
 
-      <!-- 5大動態下拉選單 -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4 text-left">
+      <!-- 學習館 6 大連動選單 (完全遵照指定預設值與每一課選項) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3 text-left">
         <div>
-          <label class="block text-[10px] text-slate-400 mb-0.5">1. 學歷</label>
-          <select id="lp-stage" class="w-full glass-input rounded-lg px-2 py-1.5 text-xs" onchange="renderLearningCards()">
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">1. 要複習的學歷</label>
+          <select id="lp-stage" class="w-full glass-input rounded-lg px-2.5 py-2 text-xs" onchange="onLpStageChange()">
             <option value="全部學歷" selected>全部學歷</option>
             <option value="國小">國小</option>
             <option value="國中">國中</option>
@@ -423,50 +479,49 @@
           </select>
         </div>
         <div>
-          <label class="block text-[10px] text-slate-400 mb-0.5">2. 科目</label>
-          <select id="lp-subject" class="w-full glass-input rounded-lg px-2 py-1.5 text-xs" onchange="renderLearningCards()">
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">2. 要複習的測驗題目</label>
+          <select id="lp-subject" class="w-full glass-input rounded-lg px-2.5 py-2 text-xs" onchange="renderLearningCards()">
             <option value="英文單字" selected>英文單字</option>
             <option value="英文文法">英文文法</option>
           </select>
         </div>
         <div>
-          <label class="block text-[10px] text-slate-400 mb-0.5">3. 版本</label>
-          <select id="lp-edition" class="w-full glass-input rounded-lg px-2 py-1.5 text-xs" onchange="renderLearningCards()">
-            <option value="全部版本" selected>全部版本</option>
-            <option value="翰林版">翰林版</option>
-            <option value="康軒版">康軒版</option>
-            <option value="南一版">南一版</option>
-            <option value="龍騰版">龍騰版</option>
-            <option value="三民版">三民版</option>
-          </select>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">3. 要複習的版本</label>
+          <select id="lp-edition" class="w-full glass-input rounded-lg px-2.5 py-2 text-xs" onchange="onLpEditionGradeChange()"></select>
         </div>
         <div>
-          <label class="block text-[10px] text-slate-400 mb-0.5">4. 學年度</label>
-          <select id="lp-year" class="w-full glass-input rounded-lg px-2 py-1.5 text-xs" onchange="renderLearningCards()">
-            <option value="最新的" selected>最新的</option>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">4. 要複習的版本學年度</label>
+          <select id="lp-year" class="w-full glass-input rounded-lg px-2.5 py-2 text-xs" onchange="renderLearningCards()">
+            <option value="最新的" selected>最新的 (115學年度)</option>
             <option value="115上學年度">115上學年度</option>
             <option value="115下學年度">115下學年度</option>
           </select>
         </div>
-        <div class="col-span-2 sm:col-span-2">
-          <label class="block text-[10px] text-slate-400 mb-0.5">5. 範圍</label>
-          <select id="lp-scope" class="w-full glass-input rounded-lg px-2 py-1.5 text-xs" onchange="renderLearningCards()">
-            <option value="全部範圍" selected>全部課程 / 單元 / 段考範圍</option>
-            <option value="第一次段考">第一次段考 (U1~U2)</option>
-            <option value="第二次段考">第二次段考 (U3~U4)</option>
-          </select>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">年級篩選</label>
+          <select id="lp-grade" class="w-full glass-input rounded-lg px-2.5 py-2 text-xs" onchange="onLpEditionGradeChange()"></select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-indigo-300 mb-1">5. 課程 / 每一課 / 段考範圍</label>
+          <select id="lp-scope" class="w-full glass-input rounded-lg px-2.5 py-2 text-xs" onchange="renderLearningCards()"></select>
         </div>
       </div>
 
+      <!-- 關鍵字快速搜尋與數量統計 -->
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-3">
+        <input type="text" id="lp-search" oninput="renderLearningCards()" class="w-full sm:w-64 glass-input rounded-lg px-3 py-1.5 text-xs" placeholder="🔍 搜尋單字、中文或例句...">
+        <span id="lp-count-badge" class="text-xs font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 rounded-lg">共 0 筆資料</span>
+      </div>
+
       <!-- 卡片渲染清單 Container -->
-      <div id="learning-cards-list" class="space-y-3 max-h-[420px] overflow-y-auto pr-1"></div>
+      <div id="learning-cards-list" class="space-y-2.5 max-h-[440px] overflow-y-auto pr-1"></div>
     </section>
 
     <!-- 8. 成績紀錄與後台 (Score Admin Screen) -->
     <section id="screen-admin" class="glass-card rounded-2xl p-6 sm:p-8 hidden">
       <div class="flex justify-between items-center border-b border-slate-700/80 pb-4 mb-4">
         <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
-          <i class="fa-solid fa-chart-column"></i> 成績紀錄與權限管理
+          <i class="fa-solid fa-chart-column"></i> 成績紀錄與學生綁定管理後台
         </h2>
         <button onclick="showScreen('screen-main-menu')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
           <i class="fa-solid fa-arrow-left"></i> 返回
@@ -477,15 +532,19 @@
         權限說明載入中...
       </div>
 
-      <!-- 老師/家長 綁定學生搜尋區域 -->
-      <div id="bind-search-box" class="bg-slate-900/80 p-3 rounded-xl border border-cyan-500/30 text-left mb-4 hidden">
-        <label class="block text-xs font-bold text-cyan-300 mb-1">🔍 綁定學生帳號查詢 (老師/家長專屬)</label>
-        <div class="flex gap-2">
-          <input type="text" id="bind-student-account" class="glass-input rounded-lg px-3 py-1.5 text-xs flex-1" placeholder="輸入學生成績帳號 (如: s001)">
-          <button onclick="filterStudentScores()" class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold">
-            查詢
+      <!-- 學生與老師/家長/教職員 綁定中心 (可一個一個按進去查看) -->
+      <div id="bind-search-box" class="bg-slate-900/80 p-4 rounded-xl border border-cyan-500/30 text-left mb-4 hidden">
+        <label class="block text-xs font-bold text-cyan-300 mb-2">🔗 學生帳號綁定中心 (點擊已綁定學生可直接調閱成績)</label>
+        <div class="flex gap-2 mb-3">
+          <input type="text" id="bind-student-account" class="glass-input rounded-lg px-3 py-1.5 text-xs flex-1" placeholder="輸入要綁定的學生/學員帳號 (如: s001 或 n001)">
+          <button onclick="addBoundStudent()" class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold">
+            + 新增綁定
+          </button>
+          <button onclick="renderScoreTable(null)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
+            顯示全部可看成績
           </button>
         </div>
+        <div id="bound-students-tags" class="flex flex-wrap gap-2"></div>
       </div>
 
       <!-- 成績表格 -->
@@ -493,20 +552,33 @@
         <table class="w-full text-xs text-center border-collapse">
           <thead>
             <tr class="bg-slate-900 text-cyan-300 border-b border-slate-700">
-              <th class="p-2.5">時間</th>
-              <th class="p-2.5">姓名</th>
+              <th class="p-2.5">測驗時間</th>
+              <th class="p-2.5">姓名(帳號)</th>
               <th class="p-2.5">身分</th>
-              <th class="p-2.5">科目</th>
-              <th class="p-2.5">範圍</th>
+              <th class="p-2.5">學歷/科目</th>
+              <th class="p-2.5">版本與範圍</th>
               <th class="p-2.5">得分</th>
+              <th class="p-2.5">詳細內容</th>
             </tr>
           </thead>
           <tbody id="scores-tbody" class="divide-y divide-slate-800 text-slate-300">
-            <tr><td colspan="6" class="p-4 text-slate-500">載入中...</td></tr>
+            <tr><td colspan="7" class="p-4 text-slate-500">載入中...</td></tr>
           </tbody>
         </table>
       </div>
     </section>
+
+    <!-- 成績詳細作答紀錄 Modal -->
+    <div id="modal-score-detail" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="glass-card rounded-2xl p-6 w-full max-w-lg text-left relative border border-slate-700 max-h-[85vh] flex flex-col">
+        <button onclick="document.getElementById('modal-score-detail').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <h3 class="text-lg font-bold text-cyan-400 mb-2"><i class="fa-solid fa-file-Waveform mr-1"></i> 測驗詳細報告</h3>
+        <div id="score-detail-meta" class="text-xs text-slate-300 bg-slate-900/70 p-3 rounded-xl border border-slate-800 mb-3 space-y-1"></div>
+        <div id="score-detail-questions" class="space-y-2 overflow-y-auto flex-1 pr-1 text-xs"></div>
+      </div>
+    </div>
 
     <!-- 9. 測驗結果畫面 (Result Screen) -->
     <section id="screen-result" class="glass-card rounded-2xl p-6 sm:p-10 hidden text-center">
@@ -536,61 +608,911 @@
 
   <script>
     // ==========================================
-    // 1. 全局配置與完整資料庫 (Complete Database)
+    // 1. 全局配置與完整題庫解析引擎 (100% 完整收錄單字和文法.txt)
     // ==========================================
     const SHEET_ID = '1p9ik9A9OJ-jWoS9IbouCZ34Dns-1U7CzIqjypdEI9AE';
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzNZqatn8Zf80uyUc3_mthjsNnFmhn7vYfiYUxgMm8E_iNBDINuUR0Fb6Q5631AquU/exec';
 
     let currentUser = { name: '', role: '', account: '' };
     let selectedQCount = 10;
+    let selectedSpellCount = 10;
     let activeQuizQuestions = [];
     let currentQIdx = 0;
     let currentScore = 0;
+    let currentQuizLogs = [];
     let rawScoreRecords = [];
 
-    // 內建完整資料庫（涵蓋國小、國中、高中、大學全版本單字與文法）
-    const VOCAB_GRAMMAR_DB = [
-      // 國小 - 翰林版
-      { stage: "國小", grade: "3年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "hello", mean: "你好", sentence: "Say hello to your teacher." },
-      { stage: "國小", grade: "3年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "fine", mean: "好的/健康良好", sentence: "I am fine, thank you." },
-      { stage: "國小", grade: "3年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文文法", word: "your", mean: "你的/你們的", sentence: "What is _____ name? My name is Dino." },
-      { stage: "國小", grade: "3年級", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", subject: "英文單字", word: "apple", mean: "蘋果", sentence: "An apple a day keeps the doctor away." },
-      { stage: "國小", grade: "4年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "ruler", mean: "尺", sentence: "I have a blue ruler in my bag." },
-      { stage: "國小", grade: "5年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "doctor", mean: "醫生", sentence: "My uncle is a doctor in a big hospital." },
-      { stage: "國小", grade: "6年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "library", mean: "圖書館", sentence: "We read quiet books in the library." },
+    // 完整收錄《單字和文法.txt》所有學歷、版本、年級、每一課單字
+    const RAW_VOCAB_TEXT = `
+===國小|翰林版 (Han Lin)===
+@三年級 (3上)|第1課 (Unit 1)
+hello	你好|hi	嗨|I	我|am	是|fine	好的/健康良好|goodbye	再見|bye	再見
+@三年級 (3上)|第2課 (Unit 2)
+what	什麼|is	是|your	你的/你們的|name	名字|my	我的|cat	貓|dog	狗
+@三年級 (3上)|第3課 (Unit 3)
+red	紅色|yellow	黃色|blue	藍色|green	綠色|color	顏色|it	它/牠
+@三年級 (3上)|第4課 (Unit 4)
+one	一|two	二|three	三|four	四|five	五|how	如何/多少|old	歲/老的
+@四年級 (4上)|第1課 (Unit 1)
+ruler	尺|marker	彩色筆/螢光筆|eraser	橡皮擦|pencil	鉛筆|pen	原子筆|book	書本
+@四年級 (4上)|第2課 (Unit 2)
+hungry	飢餓的|thirsty	口渴的|full	飽的|tired	疲累的|happy	快樂的|sad	悲傷的
+@四年級 (4上)|第3課 (Unit 3)
+apple	蘋果|banana	香蕉|orange	柳橙|ice cream	冰淇淋|want	想要|some	一些
+@四年級 (4上)|第4課 (Unit 4)
+desk	書桌|chair	椅子|bag	書包/提袋|box	盒子|in	在……裡面|on	在……上面|under	在……下面
+@五年級 (5上)|第1課 (Unit 1)
+doctor	醫生|teacher	老師|student	學生|nurse	護理師|cook	廚師|driver	司機
+@五年級 (5上)|第2課 (Unit 2)
+Sunday	星期日|Monday	星期一|Tuesday	星期二|Wednesday	星期三|Thursday	星期四|Friday	星期五|Saturday	星期六
+@五年級 (5上)|第3課 (Unit 3)
+art	美術|English	英文|math	數學|music	音樂|PE	體育|science	自然科學
+@五年級 (5上)|第4課 (Unit 4)
+do	做（助動詞）|does	做（單數助動詞）|like	喜歡|study	研讀/學習|play	玩/遊玩|watch	觀看
+@六年級 (6上)|第1課 (Unit 1)
+library	圖書館|park	公園|hospital	醫院|zoo	動物園|school	學校|supermarket	超市
+@六年級 (6上)|第2課 (Unit 2)
+by bus	搭公車|by car	搭汽車|by train	搭火車|on foot	步行|how	如何|go	去|turn right	右轉|turn left	左轉
+@六年級 (6上)|第3課 (Unit 3)
+breakfast	早餐|lunch	午餐|dinner	晚餐|eat	吃|drink	喝|time	時間
+@六年級 (6上)|第4課 (Unit 4)
+wake up	醒來|get up	起床|go to bed	上床睡覺|brush teeth	刷牙|wash face	洗臉
+===國小|康軒版 (Kang Hsuan)===
+@三年級 (3上)|第1課 (Unit 1)
+good morning	早安|good afternoon	午安|I	我|you	你/你們|teacher	老師
+@三年級 (3上)|第2課 (Unit 2)
+boy	男孩|girl	女孩|friend	朋友|tall	高的|short	矮的
+@三年級 (3上)|第3課 (Unit 3)
+pink	粉紅色|orange	橘色|purple	紫色|black	黑色|white	白色
+@三年級 (3上)|第4課 (Unit 4)
+six	六|seven	七|eight	八|nine	九|ten	十
+@四年級 (4上)|第1課 (Unit 1)
+father	父親|mother	母親|brother	兄弟|sister	姊妹|grandfather	祖父/外祖父|grandmother	祖母/外祖母
+@四年級 (4上)|第2課 (Unit 2)
+big	大的|small	小的|long	長的|short	短的|cute	可愛的
+@四年級 (4上)|第3課 (Unit 3)
+head	頭|eyes	眼睛|ears	耳朵|nose	鼻子|mouth	嘴巴|hands	手
+@四年級 (4上)|第4課 (Unit 4)
+cap	帽子|coat	外套/大衣|shoes	鞋子|socks	襪子|wear	穿/戴
+@五年級 (5上)|第1課 (Unit 1)
+what time	幾點|o'clock	點鐘|thirty	三十|fifteen	十五|late	遲到的
+@五年級 (5上)|第2課 (Unit 2)
+morning	早上|afternoon	下午|evening	晚上|night	夜晚|today	今天
+@五年級 (5上)|第3課 (Unit 3)
+basketball	籃球|baseball	棒球|soccer	足球|dodgeball	躲避球|play	打/玩
+@五年級 (5上)|第4課 (Unit 4)
+swim	游泳|dance	跳舞|sing	唱歌|draw	繪畫|ride a bike	騎腳踏車
+@六年級 (6上)|第1課 (Unit 1)
+bookstore	書店|post office	郵局|bank	銀行|restaurant	餐廳|movie theater	電影院
+@六年級 (6上)|第2課 (Unit 2)
+straight	直直地|left	左邊|right	右邊|block	街區|corner	轉角|next to	在……旁邊
+@六年級 (6上)|第3課 (Unit 3)
+weather	天氣|sunny	晴朗的|rainy	下雨的|cloudy	多雲的|windy	風大的|snowy	下雪的
+@六年級 (6上)|第4課 (Unit 4)
+hot	熱的|cold	冷的|warm	溫暖的|cool	涼爽的|season	季節
+===國小|南一版 (Nan I)===
+@三年級 (3上)|第1課 (Unit 1)
+hello	你好|nice to meet you	很高興認識你|name	名字|am	是|is	是|are	是
+@三年級 (3上)|第2課 (Unit 2)
+bear	熊|bird	鳥|fish	魚|rabbit	兔子|turtle	烏龜
+@三年級 (3上)|第3課 (Unit 3)
+red	紅色|green	綠色|yellow	黃色|blue	藍色|white	白色|black	黑色
+@三年級 (3上)|第4課 (Unit 4)
+one	一|two	二|three	三|four	四|five	五|number	數字|count	數數
+@四年級 (4上)|第1課 (Unit 1)
+pen	原子筆|pencil	鉛筆|ruler	尺|eraser	橡皮擦|bag	包包|desk	書桌
+@四年級 (4上)|第2課 (Unit 2)
+hot	熱的|cold	冷的|hungry	餓的|thirsty	渴的|tired	累的
+@四年級 (4上)|第3課 (Unit 3)
+cake	蛋糕|milk	牛奶|tea	茶|juice	果汁|water	水|please	請
+@四年級 (4上)|第4課 (Unit 4)
+in	在……裡面|on	在……上面|under	在……下面|by	在……旁邊|where	在哪裡|here	這裡|there	那裡
+@五年級 (5上)|第1課 (Unit 1)
+days of the week	一星期中的幾天|today	今天|tomorrow	明天|yesterday	昨天
+@五年級 (5上)|第2課 (Unit 2)
+subject	科目|English	英文|math	數學|science	科學|Chinese	中文|social studies	社會
+@五年級 (5上)|第3課 (Unit 3)
+do homework	寫作業|watch TV	看電視|play games	玩遊戲|listen to music	聽音樂
+@五年級 (5上)|第4課 (Unit 4)
+always	總是|usually	通常|sometimes	有時|never	從不
+@六年級 (6上)|第1課 (Unit 1)
+place	地點|hospital	醫院|park	公園|school	學校|station	車站|market	市場
+@六年級 (6上)|第2課 (Unit 2)
+transportation	交通工具|bus	公車|MRT	捷運|train	火車|car	汽車|bicycle	腳踏車|walk	走路
+@六年級 (6上)|第3課 (Unit 3)
+spring	春天|summer	夏天|fall	秋天|winter	冬天|season	季節
+@六年級 (6上)|第4課 (Unit 4)
+temperature	溫度|degree	度數|weather	天氣|forecast	預報
+===國中|翰林版 (Han Lin)===
+@七年級 (7上)|第1課 (Unit 1)
+hello	你好|student	學生|teacher	老師|friend	朋友|nice	好的/令人愉快的|meet	遇見/認識|classmate	同班同學
+@七年級 (7上)|第2課 (Unit 2)
+father	父親|mother	母親|brother	兄弟|sister	姊妹|family	家庭|doctor	醫生|nurse	護理師
+@七年級 (7上)|第3課 (Unit 3)
+desk	書桌|chair	椅子|book	書本|pencil	鉛筆|box	盒子|under	在……下面|behind	在……後面
+@七年級 (7上)|第4課 (Unit 4)
+hungry	飢餓的|thirsty	口渴的|smart	聰明的|cute	可愛的|happy	快樂的|tired	累的
+@七年級 (7上)|第5課 (Unit 5)
+sing	唱歌|dance	跳舞|draw	繪畫|cook	煮飯|play	演奏/打球|swim	游泳
+@七年級 (7上)|第6課 (Unit 6)
+what time	幾點|o'clock	點鐘|morning	早上|afternoon	下午|evening	晚上|night	夜晚
+@八年級 (8上)|第1課 (Unit 1)
+visit	造訪/看望|summer	夏天|camp	露營/營隊|vacation	假期|fun	樂趣/有趣的|beach	海灘
+@八年級 (8上)|第2課 (Unit 2)
+bought	買（buy 的過去式）|saw	看見（see 的過去式）|went	去（go 的過去式）|ate	吃（eat 的過去式）|had	有/吃（have 的過去式）|took	拿/搭乘（take 的過去式）
+@八年級 (8上)|第3課 (Unit 3)
+always	總是|usually	通常|often	經常|sometimes	有時|seldom	很少|never	從不
+@八年級 (8上)|第4課 (Unit 4)
+health	健康|fever	發燒|cough	咳嗽|headache	頭痛|cold	感冒|medicine	藥物
+@八年級 (8上)|第5課 (Unit 5)
+delicious	美味的|menu	菜單|order	點餐/訂購|soup	湯|salad	沙拉|steak	牛排
+@八年級 (8上)|第6課 (Unit 6)
+should	應該|must	必須|need	需要|wash	洗|clean	打掃/乾淨的|mask	口罩
+@九年級 (9上)|第1課 (Unit 1)
+have been	已經去過/已經在|has done	已經完成|already	已經|yet	還（未）|ever	曾經|never	從未
+@九年級 (9上)|第2課 (Unit 2)
+so... that...	如此……以致於……|too... to...	太……以致於不能……|enough	足夠的|useful	有用的|convenient	方便的
+@九年級 (9上)|第3課 (Unit 3)
+which	哪一個|who	誰|that	引導關代|which is	那是……|smartphone	智慧型手機|application	應用程式/App
+@九年級 (9上)|第4課 (Unit 4)
+environment	環境|recycle	回收|plastic	塑膠|trash	垃圾|earth	地球|protect	保護
+@九年級 (9上)|第5課 (Unit 5)
+though	雖然|although	雖然|however	然而|besides	此外|instead	代替/相反地
+@九年級 (9上)|第6課 (Unit 6)
+culture	文化|festival	節慶|celebrate	慶祝|custom	習俗|traditional	傳統的
+===國中|康軒版 (Kang Hsuan)===
+@七年級 (7上)|第1課 (Unit 1)
+good	好的|morning	早上|afternoon	下午|everyone	大家|welcome	歡迎|new	新的
+@七年級 (7上)|第2課 (Unit 2)
+man	男人|woman	女人|boy	男孩|girl	女孩|tall	高的|short	矮的/短的
+@七年級 (7上)|第3課 (Unit 3)
+bag	包包|ruler	尺|eraser	橡皮擦|pen	原子筆|notebook	筆記本|on	在……上面
+@七年級 (7上)|第4課 (Unit 4)
+cat	貓|dog	狗|bird	鳥|fish	魚|rabbit	兔子|pet	寵物
+@七年級 (7上)|第5課 (Unit 5)
+run	跑步|jump	跳躍|walk	走路|ride	騎|fly	飛
+@七年級 (7上)|第6課 (Unit 6)
+time	時間|today	今天|tonight	今晚|party	派對|clock	時鐘
+@八年級 (8上)|第1課 (Unit 1)
+trip	旅行|yesterday	昨天|last week	上週|enjoy	享受|wonderful	極好的
+@八年級 (8上)|第2課 (Unit 2)
+gave	給（give 的過去式）|made	做（make 的過去式）|wrote	寫（write 的過去式）|read	讀（read 的過去式）|told	告訴（tell 的過去式）
+@八年級 (8上)|第3課 (Unit 3)
+how often	多久一次|once	一次|twice	兩次|every day	每天|habit	習慣
+@八年級 (8上)|第4課 (Unit 4)
+sick	生病的|sore throat	喉嚨痛|rest	休息|drink	喝|care	照顧
+@八年級 (8上)|第5課 (Unit 5)
+restaurant	餐廳|waiter	服務生|food	食物|chicken	雞肉|rice	米飯/飯
+@八年級 (8上)|第6課 (Unit 6)
+traffic	交通|rule	規則|cross	穿越|sidewalk	人行道|safe	安全的
+@九年級 (9上)|第1課 (Unit 1)
+since	自從|for	長達（時間）|experience	經驗/經歷|just	剛剛|recently	最近
+@九年級 (9上)|第2課 (Unit 2)
+because	因為|because of	因為（接名詞）|so	所以|result	結果
+@九年級 (9上)|第3課 (Unit 3)
+person	人|thing	事物|that	關代（人/物）|whose	誰的（關代）|item	物品
+@九年級 (9上)|第4課 (Unit 4)
+waste	浪費/廢棄物|save	節省/拯救|energy	能源|power	電力/力量|nature	大自然
+@九年級 (9上)|第5課 (Unit 5)
+opinion	意見|agree	同意|disagree	不同意|believe	相信|think	思考/認為
+@九年級 (9上)|第6課 (Unit 6)
+history	歷史|symbol	象徵|meaning	意義|special	特別的|memory	記憶/回憶
+===國中|南一版 (Nan I)===
+@七年級 (7上)|第1課 (Unit 1)
+hi	嗨|I am	我是|you are	你是|name	名字|fine	良好的
+@七年級 (7上)|第2課 (Unit 2)
+father	爸爸|mother	媽媽|brother	兄弟|sister	姊妹|grandpa	爺爺/外公
+@七年級 (7上)|第3課 (Unit 3)
+where	在哪裡|in	在……裡面|on	在……上面|under	在……下面|table	桌子
+@七年級 (7上)|第4課 (Unit 4)
+look	看|big	大的|small	小的|pretty	漂亮的|handsome	英俊的
+@七年級 (7上)|第5課 (Unit 5)
+can	會/能夠|speak	說（語言）|write	寫|read	讀|play basketball	打籃球
+@七年級 (7上)|第6課 (Unit 6)
+day	日子|Sunday	星期日|Monday	星期一|Tuesday	星期二|Wednesday	星期三
+@八年級 (8上)|第1課 (Unit 1)
+vacation	假期|island	島嶼|sea	大海|swimsuit	泳衣|weather	天氣
+@八年級 (8上)|第2課 (Unit 2)
+spoke	說（speak 的過去式）|swam	游泳（swim 的過去式）|ran	跑步（run 的過去式）|drove	開車（drive 的過去式）|came	來（come 的過去式）
+@八年級 (8上)|第3課 (Unit 3)
+always	總是|usually	通常|often	經常|sometimes	有時|never	從不
+@八年級 (8上)|第4課 (Unit 4)
+hospital	醫院|doctor	醫生|fever	發燒|headache	頭痛|take medicine	吃藥
+@八年級 (8上)|第5課 (Unit 5)
+menu	菜單|beef	牛肉|pork	豬肉|soup	湯|juice	果汁
+@八年級 (8上)|第6課 (Unit 6)
+must	必須|should	應該|stop	停止|wait	等待|light	燈/光線
+@九年級 (9上)|第1課 (Unit 1)
+have done	完成|has seen	看過|already	已經|yet	還未|ever	曾經
+@九年級 (9上)|第2課 (Unit 2)
+so	所以|too	太……|enough	足夠|very	非常
+@九年級 (9上)|第3課 (Unit 3)
+who	誰（關代）|which	哪一個（關代）|that	關代|friendship	友誼
+@九年級 (9上)|第4課 (Unit 4)
+earth	地球|clean	清潔/乾淨的|recycle	回收|paper	紙張
+@九年級 (9上)|第5課 (Unit 5)
+however	然而|although	雖然|because	因為|so	所以
+@九年級 (9上)|第6課 (Unit 6)
+holiday	節日|gift	禮物|card	卡片|wish	祝福/願望
+===高中|龍騰版 (Lung Teng)===
+@高一 (10上)|第1課 (Lesson 1)
+attitude	態度|challenge	挑戰|opportunity	機會|adapt	適應|confidence	信心|encourage	鼓勵
+@高一 (10上)|第2課 (Lesson 2)
+culture	文化|tradition	傳統|custom	習俗|symbol	象徵|respect	尊重|celebrate	慶祝
+@高一 (10上)|第3課 (Lesson 3)
+technology	科技|device	裝置|smart	智慧的|convenient	方便的|impact	影響|future	未來
+@高一 (10上)|第4課 (Lesson 4)
+emotion	情緒|express	表達|feeling	感受|stress	壓力|manage	管理/應付|support	支持
+@高一 (10上)|第5課 (Lesson 5)
+environment	環境|pollution	污染|protect	保護|resource	資源|recycle	回收|sustainable	永續的
+@高一 (10上)|第6課 (Lesson 6)
+creativity	創造力|inspire	啟發|original	原創的|imagine	想像|solution	解決方案|invention	發明
+@高二 (11上)|第1課 (Lesson 1)
+global	全球的|economy	經濟|trade	貿易|market	市場|industry	產業|connect	連結
+@高二 (11上)|第2課 (Lesson 2)
+psychology	心理學|behavior	行為|habit	習慣|influence	影響|mental	心理的|perception	感知/觀念
+@高二 (11上)|第3課 (Lesson 3)
+diversity	多樣性|community	社區/共同體|include	包含|equality	平等|identity	身份認同|society	社會
+@高二 (11上)|第4課 (Lesson 4)
+science	科學|discovery	發現|research	研究|experiment	實驗|evidence	證據|theory	理論
+@高二 (11上)|第5課 (Lesson 5)
+literature	文學|author	作者|narrative	敘述/故事|theme	主題|character	角色|metaphor	隱喻
+@高二 (11上)|第6課 (Lesson 6)
+media	媒體|information	資訊|truth	真相|spread	傳播|source	來源|critical	批判性的
+@高三 (12上)|第1課 (Lesson 1)
+philosophy	哲學|concept	概念|exist	存在|perspective	觀點|value	價值|reflect	反思
+@高三 (12上)|第2課 (Lesson 2)
+innovation	創新|pioneer	先驅|breakthrough	突破|transform	改變/轉型|vision	願景|lead	領導
+@高三 (12上)|第3課 (Lesson 3)
+ethics	倫理/道德|moral	道德的|issue	議題|principle	原則|responsibility	責任|dilemma	困境
+@高三 (12上)|第4課 (Lesson 4)
+civilization	文明|history	歷史|heritage	遺產|monument	紀念碑|decline	衰退|preserve	保存
+@高三 (12上)|第5課 (Lesson 5)
+biodiversity	生物多樣性|ecosystem	生態系統|extinct	滅絕的|species	物種|habitat	棲息地|balance	平衡
+@高三 (12上)|第6課 (Lesson 6)
+globalization	全球化|border	國界|exchange	交流/交換|trend	趨勢|cooperate	合作|integration	整合
+===高中|三民版 (San Min)===
+@高一 (10上)|第1課 (Lesson 1)
+friendship	友誼|bond	紐帶/關係|trust	信任|share	分享|companion	伴侶/同伴|loyal	忠誠的
+@高一 (10上)|第2課 (Lesson 2)
+memory	記憶|remember	記得|forget	忘記|precious	珍貴的|nostalgia	懷舊|record	記錄
+@高一 (10上)|第3課 (Lesson 3)
+travel	旅行|destination	目的地|explore	探索|journey	旅程|adventure	冒險|view	風景
+@高一 (10上)|第4課 (Lesson 4)
+health	健康|diet	飲食|exercise	運動|benefit	益處|lifestyle	生活方式|wellness	健康狀態
+@高一 (10上)|第5課 (Lesson 5)
+art	藝術|exhibition	展覽|artist	藝術家|gallery	畫廊|create	創作|style	風格
+@高一 (10上)|第6課 (Lesson 6)
+communication	溝通|language	語言|gesture	手勢|message	訊息|understand	理解|connect	連結
+@高二 (11上)|第1課 (Lesson 1)
+ambition	雄心/抱負|achieve	成就/實現|goal	目標|success	成功|failure	失敗|persevere	堅持
+@高二 (11上)|第2課 (Lesson 2)
+nature	大自然|landscape	風景/地貌|wildlife	野生動物|conserve	保育|climate	氣候|threat	威脅
+@高二 (11上)|第3課 (Lesson 3)
+education	教育|knowledge	知識|skill	技能|learn	學習|curriculum	課程|wisdom	智慧
+@高二 (11上)|第4課 (Lesson 4)
+technology	科技|artificial	人造的|intelligence	智慧|automation	自動化|future	未來|digital	數位的
+@高二 (11上)|第5課 (Lesson 5)
+society	社會|structure	結構|citizen	公民|law	法律|justice	正義|fairness	公平
+@高二 (11上)|第6課 (Lesson 6)
+music	音樂|rhythm	節奏|melody	旋律|harmony	和聲|perform	表演|audience	觀眾
+@高三 (12上)|第1課 (Lesson 1)
+leadership	領導力|strategy	策略|guide	引導|decision	決定|authority	權威|inspire	鼓舞
+@高三 (12上)|第2課 (Lesson 2)
+sustainability	永續性|carbon	碳|footprint	足跡|renewable	可再生的|energy	能源|green	綠色的/環保的
+@高三 (12上)|第3課 (Lesson 3)
+psychology	心理學|emotion	情感|empathy	同理心|compassion	同情心|relationship	關係|conflict	衝突
+@高三 (12上)|第4課 (Lesson 4)
+economy	經濟|investment	投資|finance	財務|market	市場|growth	成長|poverty	貧窮
+@高三 (12上)|第5課 (Lesson 5)
+mythology	神話|legend	傳說|hero	英雄|symbolism	象徵主義|ancient	古代的|tale	故事
+@高三 (12上)|第6課 (Lesson 6)
+humanity	人性/人類|future	未來|destiny	命運|explore	探索|universe	宇宙|exist	存在
+===高中|翰林版 (Han Lin High)===
+@高一 (10上)|第1課 (Lesson 1)
+start	開始|journey	旅程|dream	夢想|effort	努力|achieve	達成|hope	希望
+@高一 (10上)|第2課 (Lesson 2)
+family	家庭|support	支持|love	愛|care	關心|together	在一起|warmth	溫暖
+@高一 (10上)|第3課 (Lesson 3)
+food	食物|flavor	風味|cuisine	料理|ingredient	食材|recipe	食譜|taste	品嚐
+@高一 (10上)|第4課 (Lesson 4)
+sport	運動|team	團隊|player	球員|compete	競爭|victory	勝利|spirit	精神
+@高一 (10上)|第5課 (Lesson 5)
+animal	動物|protect	保護|wild	野生的|care	照料|rescue	救援|safe	安全的
+@高一 (10上)|第6課 (Lesson 6)
+festival	節慶|celebration	慶祝活動|holiday	假日|fun	樂趣|joy	喜悅|gather	聚集
+@高二 (11上)|第1課 (Lesson 1)
+career	職業/生涯|profession	專業|passion	熱情|choose	選擇|path	道路|workplace	職場
+@高二 (11上)|第2課 (Lesson 2)
+environment	環境|green	環保的|clean	清潔的|save	節約|recycle	回收|earth	地球
+@高二 (11上)|第3課 (Lesson 3)
+media	媒體|news	新聞|information	資訊|social	社交的|network	網路|share	分享
+@高二 (11上)|第4課 (Lesson 4)
+culture	文化|travel	旅遊|discover	發現|difference	差異|custom	習俗|world	世界
+@高二 (11上)|第5課 (Lesson 5)
+science	科學|health	健康|medicine	醫學|cure	治癒|disease	疾病|body	身體
+@高二 (11上)|第6課 (Lesson 6)
+art	藝術|design	設計|beauty	美感|fashion	時尚|modern	現代的|classic	經典的
+@高三 (12上)|第1課 (Lesson 1)
+global	全球的|issue	議題|peace	和平|cooperation	合作|world	世界|union	聯合
+@高三 (12上)|第2課 (Lesson 2)
+technology	科技|AI	人工智慧|robot	機器人|future	未來|change	改變|smart	智慧的
+@高三 (12上)|第3課 (Lesson 3)
+history	歷史|event	事件|impact	影響|past	過去|lesson	教訓|memory	記憶
+@高三 (12上)|第4課 (Lesson 4)
+economy	經濟|trade	貿易|business	商業|company	公司|success	成功|value	價值
+@高三 (12上)|第5課 (Lesson 5)
+philosophy	哲學|thought	思想|life	生活/生命|meaning	意義|truth	真理|mind	心智
+@高三 (12上)|第6課 (Lesson 6)
+future	未來|vision	願景|hope	希望|create	創造|world	世界|lead	引領
+===高中|遠東版 (Far East)===
+@高一 (10上)|第1課 (Lesson 1)
+greeting	問候|welcome	歡迎|school	學校|student	學生|learn	學習|study	研讀
+@高一 (10上)|第2課 (Lesson 2)
+friend	朋友|share	分享|help	幫助|kind	仁慈的|smile	微笑|care	在乎
+@高一 (10上)|第3課 (Lesson 3)
+family	家庭|home	家|house	房屋|parent	父母|child	孩子|love	關愛
+@高一 (10上)|第4課 (Lesson 4)
+hobby	興趣|music	音樂|sport	運動|read	閱讀|play	遊玩|time	時間
+@高一 (10上)|第5課 (Lesson 5)
+city	城市|place	地點|map	地圖|street	街道|shop	商店|visit	拜訪
+@高一 (10上)|第6課 (Lesson 6)
+season	季節|weather	天氣|sun	太陽|rain	雨|wind	風|snow	雪
+@高二 (11上)|第1課 (Lesson 1)
+experience	經驗|trip	旅行|photo	照片|memory	回憶|wonderful	美好的|fun	樂趣
+@高二 (11上)|第2課 (Lesson 2)
+health	健康|food	食物|fruit	水果|vegetable	蔬菜|drink	飲料|body	身體
+@高二 (11上)|第3課 (Lesson 3)
+job	工作|work	工作|teacher	老師|doctor	醫生|driver	司機|cook	廚師
+@高二 (11上)|第4課 (Lesson 4)
+animal	動物|dog	狗|cat	貓|bird	鳥|zoo	動物園|nature	大自然
+@高二 (11上)|第5課 (Lesson 5)
+shop	購物|buy	購買|price	價格|money	金錢|store	商店|sale	特賣
+@高二 (11上)|第6課 (Lesson 6)
+holiday	節日|gift	禮物|party	派對|dance	跳舞|sing	唱歌|happy	快樂的
+@高三 (12上)|第1課 (Lesson 1)
+world	世界|country	國家|people	人們|culture	文化|language	語言|travel	旅行
+@高三 (12上)|第2課 (Lesson 2)
+computer	電腦|internet	網路|phone	電話|message	訊息|send	傳送|online	線上
+@高三 (12上)|第3課 (Lesson 3)
+earth	地球|tree	樹木|water	水|air	空氣|clean	乾淨的|protect	保護
+@高三 (12上)|第4課 (Lesson 4)
+life	生活|story	故事|book	書本|write	寫作|read	閱讀|know	知道
+@高三 (12上)|第5課 (Lesson 5)
+future	未來|plan	計劃|hope	希望|try	嘗試|work hard	努力|success	成功
+@高三 (12上)|第6課 (Lesson 6)
+change	改變|new	新的|different	不同的|think	思考|make	製作|do	做
+===高中|育達版 (Yu Da / 技高職校)===
+@高一 (10上)|第1課 (Lesson 1)
+office	辦公室|business	商業|work	工作|email	電子郵件|contact	聯絡|staff	員工
+@高一 (10上)|第2課 (Lesson 2)
+service	服務|customer	顧客|help	協助|satisfy	使滿意|product	產品|quality	品質
+@高一 (10上)|第3課 (Lesson 3)
+computer	電腦|system	系統|file	檔案|data	資料|software	軟體|hardware	硬體
+@高一 (10上)|第4課 (Lesson 4)
+hotel	飯店|room	房間|book	預訂|check in	辦理入住|guest	賓客|key	鑰匙
+@高一 (10上)|第5課 (Lesson 5)
+restaurant	餐廳|menu	菜單|order	點餐|dish	菜餚|chef	主廚|pay	付款
+@高一 (10上)|第6課 (Lesson 6)
+safety	安全|rule	規則|danger	危險|protect	防護|equipment	設備|caution	小心
+@高二 (11上)|第1課 (Lesson 1)
+marketing	行銷|market	市場|sell	銷售|brand	品牌|promote	推廣|ad	廣告
+@高二 (11上)|第2課 (Lesson 2)
+meeting	會議|discuss	討論|plan	計劃|report	報告|schedule	日程表|result	結果
+@高二 (11上)|第3課 (Lesson 3)
+trade	貿易|export	出口|import	進口|ship	發貨/運輸|cost	成本|price	價格
+@高二 (11上)|第4課 (Lesson 4)
+finance	財務|money	金錢|bank	銀行|account	帳戶|pay	支付|card	卡片
+@高二 (11上)|第5課 (Lesson 5)
+skill	技能|practice	練習|train	訓練|expert	專家|level	等級|improve	提升
+@高二 (11上)|第6課 (Lesson 6)
+teamwork	團隊合作|leader	領導者|member	成員|cooperate	合作|goal	目標|task	任務
+@高三 (12上)|第1課 (Lesson 1)
+interview	面試|resume	履歷|apply	應徵|job	工作|career	職涯|hire	僱用
+@高三 (12上)|第2課 (Lesson 2)
+management	管理|manager	經理|company	公司|strategy	策略|organize	組織|control	控制
+@高三 (12上)|第3課 (Lesson 3)
+communication	溝通|speak	說話|listen	傾聽|present	簡報/呈現|negotiate	談判|agree	達成協議
+@高三 (12上)|第4課 (Lesson 4)
+global	全球的|international	國際的|world	世界|business	商務|partner	夥伴|connect	連結
+@高三 (12上)|第5課 (Lesson 5)
+technology	科技|digital	數位的|online	線上的|app	應用程式|device	裝置|smart	智慧的
+@高三 (12上)|第6課 (Lesson 6)
+future	未來|trend	趨勢|success	成功|goal	目標|achieve	實現|growth	成長
+===大學|多益模組 (TOEIC)===
+@大一 (Year 1)|第1課 (Unit 1: Workplace Basics)
+applicant	應徵者|contract	合約|colleague	同事|employee	員工|department	部門|position	職位|resume	履歷
+@大一 (Year 1)|第2課 (Unit 2: Office Communication)
+announcement	公告|memorandum	備忘錄|confirm	確認|schedule	時間表/安排|meeting	會議|agenda	議程|inquiry	詢問
+@大一 (Year 1)|第3課 (Unit 3: Customer Service)
+complaint	抱怨/投訴|refund	退款|satisfaction	滿意度|inconvenience	不便|policy	政策/規定|feedback	回饋|service	服務
+@大二 (Year 2)|第1課 (Unit 1: Business Operations)
+negotiation	談判/協商|proposal	提案|strategy	策略|budget	預算|revenue	營收|expenditure	支出|transaction	交易
+@大二 (Year 2)|第2課 (Unit 2: Marketing & Sales)
+campaign	行銷活動|promotion	促銷/升遷|target	目標|distribution	分銷/分配|brand	品牌|launch	發表/推出|inventory	庫存
+@大二 (Year 2)|第3課 (Unit 3: Finance & Banking)
+investment	投資|statement	財務報表/對帳單|accountant	會計師|interest rate	利率|mortgage	房貸|audit	審計/稽核|profitability	盈利能力
+@大三 (Year 3)|第1課 (Unit 1: Global Trade & Logistics)
+shipment	貨物/運輸|customs	海關|freight	貨運|supplier	供應商|vendor	廠商|logistics	物流|tariff	關稅
+@大三 (Year 3)|第2課 (Unit 2: Corporate Governance)
+executive	高階主管|shareholder	股東|merger	合併|acquisition	收購|board	董事會|compliance	合規/順從|restructure	重組
+@大三 (Year 3)|第3課 (Unit 3: Human Resources & Law)
+compensation	補償/薪酬|personnel	人力資源/員工|termination	解僱/終止|regulation	法規|liability	法律責任|clause	條款|entitlement	權益/資格
+===大學|托福模組 (TOEFL iBT)===
+@大一 (Year 1)|第1課 (Unit 1: Academic Fundamentals)
+lecture	講座/授課|syllabus	教學大綱|assignment	作業/任務|faculty	教職員|prerequisite	先修科目|campus	校園|tuition	學費
+@大一 (Year 1)|第2課 (Unit 2: Introductory Natural Sciences)
+hypothesis	假設|experiment	實驗|observe	觀察|organism	生物體|habitat	棲息地|drought	乾旱|phenomenon	現象
+@大一 (Year 1)|第3課 (Unit 3: Introductory Social Sciences)
+civilization	文明|artifact	手工藝品/文物|migration	遷移|settlement	聚落/定居|culture	文化|community	社群|tradition	傳統
+@大二 (Year 2)|第1課 (Unit 1: Biology & Ecology)
+photosynthesis	光合作用|ecosystem	生態系統|biodiversity	生物多樣性|adaptation	適應|predator	捕食者|symbiosis	共生|evolution	進化
+@大二 (Year 2)|第2課 (Unit 2: Geology & Astronomy)
+glacier	冰河|tectonic	地殼構造的|erosion	侵蝕|asteroid	小行星|atmosphere	大氣層|crater	隕石坑/火山口|sediment	沉積物
+@大二 (Year 2)|第3課 (Unit 3: Art & Architecture)
+aesthetics	美學|exhibition	展覽|sculpture	雕塑|perspective	透視/觀點|renovation	翻新/修復|movement	流派/運動|mural	壁畫
+@大三 (Year 3)|第1課 (Unit 1: Advanced Psychology & Cognitive Science)
+cognition	認知|perception	感知|stimulus	刺激|neurology	神經學|subconscious	潛意識|behaviorism	行為主義|conditioning	制約
+@大三 (Year 3)|第2課 (Unit 2: Anthropology & History)
+indigenous	土著的/原住民的|archaeology	考古學|hierarchies	階級制度|nomadic	遊牧的|excavation	挖掘|ethnography	民族誌|sovereignty	主權
+@大三 (Year 3)|第3課 (Unit 3: Atmospheric & Planetary Science)
+precipitation	降水|solar radiation	太陽輻射|meteorology	氣象學|geothermal	地熱的|terrestrial	地球的/陸地的|greenhouse effect	溫室效應|stratosphere	平流層
+===大學|雅思模組 (IELTS Academic)===
+@大一 (Year 1)|第1課 (Unit 1: People & Society)
+demographics	人口統計數據|lifestyle	生活方式|generation	世代|urbanization	城市化|interaction	互動|neighboring	鄰近的|socialize	社交
+@大一 (Year 1)|第2課 (Unit 2: Education & Learning)
+curriculum	課程|literacy	讀寫能力|pedagogy	教學法|vocational	職業的|discipline	學科/紀律|scholarship	獎學金|qualification	資格
+@大一 (Year 1)|第3課 (Unit 3: Health & Fitness)
+well-being	健康/福祉|nutrition	營養|obesity	肥胖|epidemic	流行病|prevention	預防|treatment	治療|chronic	慢性的
+@大二 (Year 2)|第1課 (Unit 1: Environment & Climate)
+sustainability	永續性|deforestation	森林砍伐|conservation	保育|renewable	可再生的|pollution	污染|emissions	排放物|footprint	足跡
+@大二 (Year 2)|第2課 (Unit 2: Media & Technology)
+broadcasting	廣播/播送|censorship	審查制度|automation	自動化|digitalization	數位化|algorithm	演算法|exposure	暴露/關注|journalism	新聞業
+@大二 (Year 2)|第3課 (Unit 3: Transport & Travel)
+infrastructure	基礎建設|commute	通勤|congestion	擁塞|destination	目的地|hospitality	餐旅業|itinerary	行程|pedestrian	行人
+@大三 (Year 3)|第1課 (Unit 1: Economics & Globalization)
+monopoly	壟斷|inflation	通貨膨脹|subsidize	補助|disparity	差距/不平等|consumption	消費|commercialization	商業化|standardization	標準化
+@大三 (Year 3)|第2課 (Unit 2: Science & Innovation)
+breakthrough	突破|biotechnology	生物科技|genetics	基因學|implementation	實施/執行|feasibility	可行性|artificial	人造的|pioneer	先驅
+@大三 (Year 3)|第3課 (Unit 3: Law & Government)
+legislation	立法|jurisdiction	管轄權|bureaucracy	官僚機構|referendum	公民投票|enforcement	執行/實施|sanction	制裁|constitution	憲法
+===大學|全民英檢模組 (GEPT)===
+@大一 (Year 1)|第1課 (Unit 1: Everyday Life & Communication)
+apologize	道歉|congratulate	祝賀|invitation	邀請|conversation	對話|opinion	意見|suggestion	建議|attitude	態度
+@大一 (Year 1)|第2課 (Unit 2: Entertainment & Media)
+performance	表演|audience	觀眾|ticket	門票|channel	頻道|broadcast	播送|review	影評/評論|celebrity	名人
+@大一 (Year 1)|第3課 (Unit 3: Shopping & Consumerism)
+discount	折扣|receipt	收據|guarantee	保證/保固|bargain	特價商品/討價還價|purchase	購買|brand	品牌|quality	品質
+@大二 (Year 2)|第1課 (Unit 1: Health & Medicine)
+symptom	症狀|diagnosis	診斷|prescription	處方籤|physician	內科醫生|infection	感染|recovery	康復|mental health	心理健康
+@大二 (Year 2)|第2課 (Unit 2: Work & Careers)
+interview	面試|qualify	符合資格|promotion	晉升|experience	經驗|salary	薪水|profession	專業|duty	職責
+@大二 (Year 2)|第3課 (Unit 3: Environment & Nature)
+natural resources	自然資源|disaster	災害|threaten	威脅|preserve	保護/保存|wildlife	野生動植物|climate	氣候|recycle	回收
+@大三 (Year 3)|第1課 (Unit 1: Public Affairs & Politics)
+policy	政策|candidate	候選人|election	選舉|government	政府|reform	改革|controversy	爭議|diplomacy	外交
+@大三 (Year 3)|第2課 (Unit 2: Culture & Philosophy)
+heritage	文化遺產|philosophy	哲學|ethical	道德的|perspective	觀點|value	價值觀|tradition	傳統|symbolism	象徵意義
+@大三 (Year 3)|第3課 (Unit 3: Advanced Science & Technology)
+innovation	創新|research	研究|analysis	分析|theory	理論|evidence	證據|impact	影響|future	未來
+`;
 
-      // 國小 - 康軒版 / 南一版
-      { stage: "國小", grade: "3年級", edition: "康軒版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "morning", mean: "早上/早安", sentence: "Good morning, everyone!" },
-      { stage: "國小", grade: "3年級", edition: "南一版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "friend", mean: "朋友", sentence: "Tom is my best friend." },
+    // 完整收錄《單字和文法.txt》各學歷、年級、版本之文法題庫
+    const RAW_GRAMMAR_TEXT = `
+===國小|三年級 (3上)|翰林版 (Han Lin)===
+What is _______ name? My name is Dino.	your
+I _______ a student.	am
+She _______ my sister, Tina.	is
+_______ you happy? Yes, I am.	Are
+Look! It is a big _______. (狗)	dog
+My father is a _______. He works in a hospital. (醫生)	doctor
+How _______ are you? I am eight years old.	old
+This is _______ apple.	an
+_______ is that? That is a marker.	What
+Is he your brother? No, he _______.	isn't
+What color is it? It is _______. (紅色)	red
+The sky is _______. (藍色)	blue
+How _______ books do you have?	many
+I see _______ elephants. (三頭)	three
+Is this a pencil? Yes, _______ is.	it
+Count from one to _______. (五)	five
+===國小|三年級 (3上)|康軒版 (Kang Hsuan)===
+I _______ a student.	am
+What _______ your name?	is
+Is it _______ cap?	a
+_______ is he? He is my brother.	Who
+How old _______ you?	are
+Look at the _______. (狗)	dog
+What color is the grass? It's _______. (綠色)	green
+The banana is _______. (黃色)	yellow
+How many _______? (球)	balls
+I see _______ cats. (六隻)	six
+Seven and one is _______. (八)	eight
+My dad is _______. (強壯的)	strong
+===國小|三年級 (3上)|南一版 (Nan I)===
+Hello, I _______ Ben.	am
+Is it _______ marker?	a
+What is this? _______ is a chair.	It
+My mother is a _______. (老師)	teacher
+How _______ are you? I'm nine.	old
+What color is the sun? It is _______. (黃色)	yellow
+The frog is _______. (綠色)	green
+How many _______ do you see? (貓)	cats
+There are _______ desks. (四張)	four
+Nine minus four is _______. (五)	five
+===國小|四年級 (4上)|翰林版 (Han Lin)===
+What _______ is it? It is 7:00.	time
+It's time _______ breakfast.	for
+What _______ he doing? He is sleeping.	is
+They _______ playing basketball.	are
+Where _______ my keys? They are on the table.	are
+Is the cat _______ the box? Yes, it's inside.	in
+Do you want _______ juice?	some
+I want _______ apple, please.	an
+The book is _______ the desk. (在...上面)	on
+The shoes are _______ the bed. (在...下面)	under
+Are these _______ shoes?	your
+How _______ is this notebook? It's 50 dollars.	much
+===國小|四年級 (4上)|康軒版 (Kang Hsuan)===
+It is 12:00. It's time _______ lunch.	for
+What time _______ you go home?	do
+She is _______ tea right now.	drinking
+Where _______ my coat? It is in the closet.	is
+The ball is _______ the door. (在...後面)	behind
+The cat is sleeping _______ the chair. (在...下面)	under
+Put on your _______. It's cold outside. (外套)	coat
+Whose pencil is this? It's _______ pencil.	Ann's
+===國小|四年級 (4上)|南一版 (Nan I)===
+What time _______ it? It's eight o'clock.	is
+Where _______ you going?	are
+She _______ reading a book.	is
+Where _______ the dog? It's under the tree.	is
+The keys are _______ the box. (在...裡面)	in
+The ball is _______ the box and the chair. (在...中間)	between
+Would you like _______ milk?	some
+===國小|五年級 (5上)|翰林版 (Han Lin)===
+Where _______ you yesterday?	were
+She _______ at the library last night.	was
+What _______ you do last weekend?	did
+They _______ soccer two hours ago.	played
+Did you _______ TV yesterday?	watch
+Whose ruler is this? It is _______. (我的)	mine
+How _______ do you exercise? Once a week.	often
+I _______ wash my hands before eating. (總是)	always
+How do you go to school? I go _______ foot.	on
+My father goes to work _______ car.	by
+===國小|五年級 (5上)|康軒版 (Kang Hsuan)===
+Where _______ you last night? I was at home.	were
+She _______ English last night.	studied
+How _______ does he play basketball? Twice a week.	often
+How do you go to the library? I go _______ bike.	by
+She _______ a bus to school.	takes
+A horse is _______ than a dog. (較大的)	bigger
+===國小|五年級 (5上)|南一版 (Nan I)===
+Where _______ she last Monday?	was
+He _______ basketball with his friends yesterday.	played
+How _______ do you visit your grandparents?	often
+She _______ reads books before sleeping. (總是)	always
+How can I get to the zoo? You can go _______ bus.	by
+Winter is _______ than summer in Taiwan. (較冷的)	colder
+===國小|六年級 (6上)|翰林版 (Han Lin)===
+Taipei 101 is the _______ building in Taiwan. (最高的)	tallest
+Blue whales are the _______ animals in the world. (最大的)	biggest
+What are you going _______ do tomorrow?	to
+I _______ going to visit my grandmother next Sunday.	am
+We _______ protect our environment. (應該)	should
+You _______ turn off the light when you leave. (必須)	must
+Have you ever _______ to London?	been
+The boy _______ is wearing a red hat is my brother. (關代：人)	who
+===國小|六年級 (6上)|康軒版 (Kang Hsuan)===
+The cheetah is the _______ land animal. (最快的)	fastest
+We _______ going to clean the park tomorrow morning.	are
+You _______ eat more vegetables. It's good for your health. (應該)	should
+Have you ever _______ a marathon?	run
+The teacher _______ teaches English is very kind. (關代：人)	who
+===國小|六年級 (6上)|南一版 (Nan I)===
+Mount Everest is the _______ mountain in the world. (最高的)	highest
+What are you going to _______ this evening?	do
+You _______ brush your teeth twice a day. (應該)	should
+Drivers _______ stop at a red light. (必須)	must
+Has she ever _______ a horse?	ridden
+===國中|七年級 (7上)|翰林版 (Han Lin)===
+Amy and Peter _______ students in Class 701.	are
+Is that your schoolbag over there? Yes, _______ is.	it
+My father is a doctor, _______ my mother is a nurse.	and
+The cat is sleeping _______ the chair. (在...下面)	under
+Are there _______ apples on the dining table?	any
+What time _______ the English class start every morning?	does
+Listen! The birds _______ beautifully in the tree.	are singing
+My sister _______ like milk, so she drinks soy milk instead.	doesn't
+Whose ruler is this on the desk? It's _______. (我的)	mine
+How _______ notebooks do you need for school?	many
+How _______ milk is left in the refrigerator?	much
+We have an English test _______ Friday morning.	on
+===國中|七年級 (7上)|康軒版 (Kang Hsuan)===
+I _______ a student at Kang Hsuan Junior High.	am
+What _______ your sister's name?	is
+Open your _______ and take out your notebook. (包包)	bag
+Dogs can _______ very fast in the park. (跑)	run
+How many _______ are there under the bed? (盒子)	boxes
+Turn off the _______ before you leave the room. (燈)	light
+===國中|七年級 (7上)|南一版 (Nan I)===
+Hello, I _______ a new student in this class.	am
+Is that _______ eraser on your desk?	an
+Where _______ the students now? They are in the gym.	are
+I can _______ English songs very well. (唱)	sing
+My uncle _______ in a bank in Taipei.	works
+What time _______ you usually wake up?	do
+===國中|八年級 (8上)|翰林版 (Han Lin)===
+Where _______ you last night at eight o'clock?	were
+What _______ you do during the summer vacation last year?	did
+I _______ my English homework two hours ago.	finished
+He _______ to the museum with his family.	went
+How _______ do you go swimming in summer? Twice a week.	often
+She _______ goes to bed at 10:00 p.m. (通常)	usually
+Where is the bookstore? It's _______ the bank and the park.	between
+Which subject do you like _______, English or Math?	better
+An elephant is much _______ than a bear. (較大的)	bigger
+What _______ you like to eat for lunch? I'd like noodles.	would
+How much _______ a bowl of beef soup? It's $120.	is
+===國中|八年級 (8上)|康軒版 (Kang Hsuan)===
+Where _______ you last night at nine o'clock?	were
+She _______ English vocabulary for two hours last night.	studied
+How _______ does he play basketball with his friends?	often
+She _______ eats junk food because she wants to stay fit. (很少)	seldom
+What would you like _______ drink with your steak?	to
+English grammar is _______ for me than math formulas. (較容易的)	easier
+===國中|八年級 (8上)|南一版 (Nan I)===
+Where _______ she last Monday morning?	was
+They _______ to the beach to go surfing.	went
+How _______ do you visit your grandparents in Tainan?	often
+How much _______ the beef noodles at this restaurant?	are
+An airplane is much _______ than a passenger train. (較快的)	faster
+===國中|九年級 (9上)|翰林版 (Han Lin)===
+Have you ever _______ to London before?	been
+I have _______ seen a real panda in the wild. (從未)	never
+She has _______ finished her English homework. (已經)	already
+Have they eaten dinner _______? It's already 8:00 p.m.	yet
+If it rains tomorrow, we _______ stay at home and study.	will
+The boy _______ is wearing a red cap is my brother. (關代：人)	who
+The book _______ is on the teacher's desk is mine. (關代：物)	which
+He is very good _______ playing the piano.	at
+She is very interested _______ world history.	in
+Taiwan is famous _______ its night market street food.	for
+===國中|九年級 (9上)|康軒版 (Kang Hsuan)===
+Have you ever _______ a full marathon before?	run
+We have _______ seen that movie twice already.	already
+The teacher _______ teaches us English is very kind. (關代：人)	who
+The sports car _______ is parked outside belongs to him. (關代：物)	which
+My brother is very good _______ drawing comic strips.	at
+===國中|九年級 (9上)|南一版 (Nan I)===
+Has she ever _______ a horse before?	ridden
+I have _______ finished my lunch, so I am full. (已經)	already
+The man _______ is talking to our principal is my dad. (關代：人)	who
+The dog _______ has a short tail belongs to my neighbor. (關代：物)	which
+She is very good _______ solving complex math problems.	at
+===高中|高一 (10上)|龍騰版 (Lung Teng)===
+The typhoon caused severe damage to the small town, _______ many families homeless.	leaving
+It is important that every student _______ the rules carefully.	follow
+Scarcely had he stepped out of the house _______ it started to rain heavily.	when
+Not until yesterday _______ he find out the truth about the accident.	did
+The girl _______ eyes are full of tears looks very helpless.	whose
+Hard _______ he tried, he couldn't solve the complex math problem.	as
+Had I known your flight schedule earlier, I _______ have picked you up at the airport.	would
+The more you practice speaking English, the _______ fluent you will become.	more
+Only by working hard _______ you achieve your career ambitions.	can
+She devoted all her spare time to _______ underprivileged children in the community.	helping
+===高中|高一 (10上)|三民版 (San Min)===
+It is essential that every driver _______ the traffic safety rules.	obey
+Not until she arrived home _______ she realize that she had lost her phone.	did
+Scarcely had the teacher entered the classroom _______ the students stopped talking.	when
+The scientist _______ theories changed the world was born in Germany.	whose
+Tired _______ he was, he insisted on finishing the assignment before midnight.	as
+The higher you climb the mountain, the _______ the air becomes.	thinner
+She has dedicated her whole life to _______ care of stray animals.	taking
+It is high time that the government _______ measures to reduce air pollution.	took
+===高中|高一 (10上)|翰林版 (Han Lin High)===
+It is important that every student _______ the safety instructions carefully.	follow
+Not until the middle of the night _______ the storm finally subside.	did
+The author _______ latest novel became a bestseller received a prestigious award.	whose
+The more effort you put into your studies, the _______ results you will achieve.	better
+The volunteer group is dedicated to _______ clean water to rural villages.	providing
+It is high time that we _______ effective solutions to plastic pollution.	found
+===高中|高二 (11上)|龍騰版 (Lung Teng)===
+The company introduced a revolutionary product, thereby _______ its market position.	strengthening
+It is vital that the patient _______ the medicine according to the doctor's prescription.	take
+Hardly had the bell rung _______ the students rushed out of the classroom.	when
+The scientist _______ groundbreaking discovery won the Nobel Prize was praised globally.	whose
+Only by adopting sustainable practices _______ we protect our planet for future generations.	can
+The organization is committed to _______ educational resources for children in poverty.	improving
+===高中|高二 (11上)|三民版 (San Min)===
+The company launched an aggressive marketing campaign, thereby _______ its overall sales.	boosting
+Scarcely had the president finished his speech _______ the crowd burst into applause.	when
+Only by reducing carbon emissions _______ we mitigate the impact of climate change.	can
+The charity organization is dedicated to _______ free medical care to refugees.	offering
+===高中|高二 (11上)|翰林版 (Han Lin High)===
+The government introduced a new policy, thereby _______ the unemployment rate significantly.	lowering
+Hardly had the train departed _______ the power supply went out completely.	when
+Only through international cooperation _______ we successfully tackle global warming.	can
+The foundation is committed to _______ clean drinking water to remote villages.	supplying
+===高中|高三 (12上)|龍騰版 (Lung Teng)===
+Driven by curiosity, the scientist conducted numerous experiments, thereby _______ a groundbreaking theory.	establishing
+It is imperative that the government _______ immediate measures to curb rising inflation.	take
+Hardly had the news of the victory broken _______ celebration erupted across the nation.	when
+Only by fostering innovation and sustainability _______ a nation maintain long-term growth.	can
+The non-profit organization is devoted to _______ educational equality in rural areas.	promoting
+===高中|高三 (12上)|三民版 (San Min)===
+The company adopted innovative technologies, thereby _______ its production efficiency dramatically.	enhancing
+It is mandatory that every participant _______ the safety briefing before the experiment.	attend
+Only by promoting international collaboration _______ we effectively combat global pandemics.	can
+===高中|高三 (12上)|翰林版 (Han Lin High)===
+The company restructured its operations, thereby _______ its overall operating expenses.	reducing
+It is crucial that every medical staff member _______ strict hygiene protocols.	maintain
+Only through sustainable development _______ humanity ensure a prosperous future.	can
+===大學|大一 (Year 1)|多益模組 (TOEIC)===
+The research team conducted an empirical study, thereby _______ new insights into consumer behavior.	providing
+It is essential that every undergraduate student _______ academic integrity guidelines.	adhere to
+Scarcely had the lecture commenced _______ the professor was interrupted by a fire alarm.	when
+The faculty board recommended that the curriculum _______ updated to meet industry demands.	be
+Only through systematic peer review _______ scientific findings gain credibility in the field.	can
+The research institute is dedicated to _______ innovative solutions for climate resilience.	developing
+===大學|大二 (Year 2)|托福模組 (TOEFL iBT)===
+The interdisciplinary project integrated biology and computer science, thereby _______ computational genetics.	advancing
+It is imperative that every seminar participant _______ the required readings beforehand.	read
+Only by employing rigorous statistical techniques _______ researchers draw valid inferences.	can
+The research lab is fully committed to _______ renewable energy technologies for industrial use.	optimizing
+===大學|大三 (Year 3)|雅思模組 (IELTS Academic)===
+The research team adopted a qualitative approach, thereby _______ nuanced insights into human behavior.	uncovering
+It is mandatory that every candidate _______ their capstone proposal before the panel.	defend
+Only through rigorous methodology and peer evaluation _______ scientific hypotheses become established facts.	can
+The research laboratory is fully committed to _______ sustainable materials for aerospace engineering.	synthesizing
+`;
 
-      // 國中 - 翰林版
-      { stage: "國中", grade: "7年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "student", mean: "學生", sentence: "He is a hard-working student in Class 701." },
-      { stage: "國中", grade: "7年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "classmate", mean: "同班同學", sentence: "Amy and Peter are classmates." },
-      { stage: "國中", grade: "7年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文文法", word: "are", mean: "be動詞(複數)", sentence: "Amy and Peter _____ students in Class 701." },
-      { stage: "國中", grade: "7年級", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", subject: "英文單字", word: "behind", mean: "在……後面", sentence: "The cat is sleeping behind the door." },
-      { stage: "國中", grade: "8年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "vacation", mean: "假期", sentence: "Where did you go during summer vacation?" },
-      { stage: "國中", grade: "8年級", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", subject: "英文單字", word: "fever", mean: "發燒", sentence: "He took some medicine for his high fever." },
-      { stage: "國中", grade: "9年級", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "convenient", mean: "方便的", sentence: "Living near the MRT station is very convenient." },
+    // 智慧型例句產生器：確保每個單字在「學習館、拼字練習、智慧測驗」擁有完全一致的上下文例句
+    const CUSTOM_SENTENCES = {
+      "hello": "Say hello to your teacher every morning.",
+      "hi": "Hi! Nice to meet you at school.",
+      "fine": "I am fine, thank you very much.",
+      "goodbye": "Wave your hand and say goodbye to your friends.",
+      "apple": "I eat a sweet red apple every morning.",
+      "banana": "Monkeys love to eat yellow bananas.",
+      "student": "He is a hard-working student in Class 701.",
+      "teacher": "Our English teacher is very kind and friendly.",
+      "friend": "A true friend is always there to help you.",
+      "classmate": "Amy and Peter are good classmates in our school.",
+      "family": "My family enjoys going camping together on weekends.",
+      "library": "We read books quietly in the school library.",
+      "hospital": "My father works as a doctor in a big hospital.",
+      "vacation": "Where did you go during the summer vacation?",
+      "convenient": "Living near the MRT station is very convenient.",
+      "environment": "We must work together to protect our environment.",
+      "attitude": "A positive attitude is the key to achieving success.",
+      "challenge": "She is ready to face any new challenge bravely."
+    };
 
-      // 國中 - 康軒版 / 南一版
-      { stage: "國中", grade: "7年級", edition: "康軒版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "welcome", mean: "歡迎", sentence: "Welcome to our beautiful school!" },
-      { stage: "國中", grade: "7年級", edition: "南一版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "family", mean: "家庭", sentence: "My family loves camping on weekends." },
+    function buildExampleSentence(word, mean, stage) {
+      const cleanW = word.trim();
+      if (CUSTOM_SENTENCES[cleanW.toLowerCase()]) return CUSTOM_SENTENCES[cleanW.toLowerCase()];
+      if (stage === '國小') {
+        return `Let's learn how to use "${cleanW}" (${mean}) in class today.`;
+      } else if (stage === '國中') {
+        return `Please remember the key expression "${cleanW}" (${mean}) for this unit.`;
+      } else if (stage === '高中') {
+        return `Understanding the concept of "${cleanW}" (${mean}) is essential in modern society.`;
+      } else {
+        return `In professional and academic contexts, "${cleanW}" (${mean}) is frequently applied.`;
+      }
+    }
 
-      // 高中 - 龍騰版 / 三民版 / 翰林版 / 遠東版 / 育達版
-      { stage: "高中", grade: "高一", edition: "龍騰版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "attitude", mean: "態度", sentence: "A positive attitude is the key to success." },
-      { stage: "高中", grade: "高一", edition: "龍騰版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文文法", word: "follow", mean: "遵循(虛擬法)", sentence: "It is important that every student _____ the safety rules." },
-      { stage: "高中", grade: "高一", edition: "三民版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "friendship", mean: "友誼", sentence: "True friendship stands the test of time." },
-      { stage: "高中", grade: "高二", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "career", mean: "職涯/職業", sentence: "Choosing a career path requires deep reflection." },
+    // 判斷單一課別屬於哪個段考範圍
+    function getExamScopeForUnit(stage, unitStr) {
+      if (stage === '國小') {
+        if (unitStr.includes('第1課') || unitStr.includes('第2課')) return '第一次段考(期中考) U1~U2';
+        return '第二次段考(期末考) U3~U4';
+      } else if (stage === '國中') {
+        if (unitStr.includes('第1課') || unitStr.includes('第2課')) return '第一次段考 U1~U2';
+        if (unitStr.includes('第3課') || unitStr.includes('第4課')) return '第二次段考(期中考) U3~U4';
+        return '第二次段考(期末考) U5~U6';
+      } else if (stage === '高中') {
+        if (unitStr.includes('第1課') || unitStr.includes('第2課')) return '第一次段考 L1~L2';
+        if (unitStr.includes('第3課') || unitStr.includes('第4課')) return '第二次段考(期中考) L3~L4';
+        return '第二次段考(期末考) L5~L6';
+      } else {
+        if (unitStr.includes('第1課')) return '第一次段考(期中考) U1';
+        return '第二次段考(期末考) U2~U3';
+      }
+    }
 
-      // 大學 - 多益TOEIC / 托福TOEFL / 雅思IELTS / 全民英檢GEPT
-      { stage: "大學", grade: "大一", edition: "多益模組 (TOEIC)", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "applicant", mean: "應徵者", sentence: "The ideal applicant should possess good leadership skills." },
-      { stage: "大學", grade: "大一", edition: "托福模組 (TOEFL iBT)", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "hypothesis", mean: "假設", sentence: "Scientists formulated a hypothesis based on observation." },
-      { stage: "大學", grade: "大一", edition: "雅思模組 (IELTS Academic)", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "demographics", mean: "人口統計數據", sentence: "Demographics show a shift in urban living habits." },
-      { stage: "大學", grade: "大一", edition: "全民英檢模組 (GEPT)", year: "115上學年度", scope: "第一次段考 (U1~U2)", subject: "英文單字", word: "apologize", mean: "道歉", sentence: "He came to apologize for his mistakes." }
-    ];
+    const VOCAB_GRAMMAR_DB = [];
+
+    function initFullDatabase() {
+      // 1. 解析所有單字 (1,352+ 單字完整載入)
+      let currentStage = '';
+      let currentEdition = '';
+      let currentGrade = '';
+      let currentUnit = '';
+
+      RAW_VOCAB_TEXT.trim().split('\n').forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        if (line.startsWith('===') && line.endsWith('===')) {
+          const parts = line.replace(/===/g, '').split('|');
+          currentStage = parts[0].trim();
+          currentEdition = parts[1].trim();
+        } else if (line.startsWith('@')) {
+          const parts = line.substring(1).split('|');
+          currentGrade = parts[0].trim();
+          currentUnit = parts[1].trim();
+        } else {
+          const items = line.split('|');
+          items.forEach(item => {
+            const [w, m] = item.split('\t');
+            if (w && m) {
+              const word = w.trim();
+              const mean = m.trim();
+              const examScope = getExamScopeForUnit(currentStage, currentUnit);
+              VOCAB_GRAMMAR_DB.push({
+                stage: currentStage,
+                edition: currentEdition,
+                grade: currentGrade,
+                unit: currentUnit,
+                examScope: examScope,
+                year: '115上學年度',
+                subject: '英文單字',
+                word: word,
+                mean: mean,
+                sentence: buildExampleSentence(word, mean, currentStage)
+              });
+            }
+          });
+        }
+      });
+
+      // 2. 解析所有文法題庫並分配至各課與段考範圍
+      let gStage = '';
+      let gGrade = '';
+      let gEdition = '';
+      let gIdx = 0;
+
+      RAW_GRAMMAR_TEXT.trim().split('\n').forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        if (line.startsWith('===') && line.endsWith('===')) {
+          const parts = line.replace(/===/g, '').split('|');
+          gStage = parts[0].trim();
+          gGrade = parts[1].trim();
+          gEdition = parts[2].trim();
+          gIdx = 0;
+        } else {
+          const [qSentence, ans] = line.split('\t');
+          if (qSentence && ans) {
+            gIdx++;
+            let maxUnits = gStage === '國小' ? 4 : (gStage === '大學' ? 3 : 6);
+            let unitNum = ((gIdx - 1) % maxUnits) + 1;
+            let unitLabel = gStage === '高中' ? `第${unitNum}課 (Lesson ${unitNum})` : `第${unitNum}課 (Unit ${unitNum})`;
+            const examScope = getExamScopeForUnit(gStage, unitLabel);
+            VOCAB_GRAMMAR_DB.push({
+              stage: gStage,
+              edition: gEdition,
+              grade: gGrade,
+              unit: unitLabel,
+              examScope: examScope,
+              year: '115上學年度',
+              subject: '英文文法',
+              word: ans.trim(),
+              mean: `文法填空：${ans.trim()}`,
+              sentence: qSentence.trim()
+            });
+          }
+        }
+      });
+    }
+
+    // 立即初始化完整題庫
+    initFullDatabase();
 
     // ==========================================
-    // 2. 頁面切換與 UI 輔助函式
+    // 2. 頁面切換與 UI 連動選單輔助函式
     // ==========================================
     function showScreen(screenId) {
       document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
@@ -623,41 +1545,128 @@
     function speakText(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
+        const clean = text.replace(/_______/g, ' blank ').replace(/_____/g, ' blank ');
+        const utterance = new SpeechSynthesisUtterance(clean);
         utterance.lang = 'en-US';
         utterance.rate = 0.9;
         window.speechSynthesis.speak(utterance);
       }
     }
 
-    // 動態更新二級下拉選單
+    // Step 1 & Step 2 個人學歷與年級動態選單 (完全比照截圖)
+    function updateUserEduGrade() {
+      const edu = document.getElementById('q-user-edu').value;
+      const gradeSel = document.getElementById('q-user-grade');
+      if (!gradeSel) return;
+      gradeSel.innerHTML = '';
+      let opts = [];
+      if (edu === '幼稚園') opts = ['幼幼班', '小班', '中班', '大班'];
+      else if (edu === '國小') opts = ['1年級', '2年級', '3年級', '4年級', '5年級', '6年級'];
+      else if (edu === '國中') opts = ['國1', '國2', '國3'];
+      else if (edu === '高中') opts = ['高1', '高2', '高3'];
+      else if (edu === '大學') opts = ['大1', '大2', '大3', '大4'];
+      else opts = [edu];
+      opts.forEach(o => gradeSel.innerHTML += `<option value="${o}">${o}</option>`);
+    }
+
+    function getStageMeta(stage) {
+      if (stage === '國小') {
+        return {
+          grades: ['三年級 (3上)', '四年級 (4上)', '五年級 (5上)', '六年級 (6上)'],
+          editions: ['翰林版 (Han Lin)', '康軒版 (Kang Hsuan)', '南一版 (Nan I)'],
+          examScopes: ['第一次段考(期中考) U1~U2', '第二次段考(期末考) U3~U4']
+        };
+      } else if (stage === '國中') {
+        return {
+          grades: ['七年級 (7上)', '八年級 (8上)', '九年級 (9上)'],
+          editions: ['翰林版 (Han Lin)', '康軒版 (Kang Hsuan)', '南一版 (Nan I)'],
+          examScopes: ['第一次段考 U1~U2', '第二次段考(期中考) U3~U4', '第二次段考(期末考) U5~U6']
+        };
+      } else if (stage === '高中') {
+        return {
+          grades: ['高一 (10上)', '高二 (11上)', '高三 (12上)'],
+          editions: ['龍騰版 (Lung Teng)', '三民版 (San Min)', '翰林版 (Han Lin High)', '遠東版 (Far East)', '育達版 (Yu Da / 技高職校)'],
+          examScopes: ['第一次段考 L1~L2', '第二次段考(期中考) L3~L4', '第二次段考(期末考) L5~L6']
+        };
+      } else {
+        return {
+          grades: ['大一 (Year 1)', '大二 (Year 2)', '大三 (Year 3)'],
+          editions: ['多益模組 (TOEIC)', '托福模組 (TOEFL iBT)', '雅思模組 (IELTS Academic)', '全民英檢模組 (GEPT)'],
+          examScopes: ['第一次段考(期中考) U1', '第二次段考(期末考) U2~U3']
+        };
+      }
+    }
+
+    // 動態更新二級下拉選單 (包含版本、年級、以及每一課+段考範圍)
     function updateSubOptions(prefix) {
       const stage = document.getElementById(`${prefix}-stage`).value;
       const gradeSel = document.getElementById(`${prefix}-grade`);
       const editionSel = document.getElementById(`${prefix}-edition`);
 
+      const meta = getStageMeta(stage);
       gradeSel.innerHTML = '';
       editionSel.innerHTML = '';
 
-      let grades = [];
-      let editions = [];
+      meta.grades.forEach(g => gradeSel.innerHTML += `<option value="${g}">${g}</option>`);
+      meta.editions.forEach(e => editionSel.innerHTML += `<option value="${e}">${e}</option>`);
 
-      if (stage === '國小') {
-        grades = ['3年級', '4年級', '5年級', '6年級'];
-        editions = ['翰林版', '康軒版', '南一版'];
-      } else if (stage === '國中') {
-        grades = ['7年級', '8年級', '9年級'];
-        editions = ['翰林版', '康軒版', '南一版'];
-      } else if (stage === '高中') {
-        grades = ['高一', '高二', '高三'];
-        editions = ['龍騰版', '三民版', '翰林版', '遠東版', '育達版'];
-      } else if (stage === '大學') {
-        grades = ['大一', '大二', '大三'];
-        editions = ['多益模組 (TOEIC)', '托福模組 (TOEFL iBT)', '雅思模組 (IELTS Academic)', '全民英檢模組 (GEPT)'];
+      updateScopeOptions(prefix);
+    }
+
+    // 動態更新「每一課 (Unit/Lesson) + 段考範圍 + 全部範圍」
+    function updateScopeOptions(prefix) {
+      const stage = document.getElementById(`${prefix}-stage`).value;
+      const edition = document.getElementById(`${prefix}-edition`).value;
+      const grade = document.getElementById(`${prefix}-grade`).value;
+      const scopeSel = document.getElementById(`${prefix}-scope`);
+      if (!scopeSel) return;
+
+      const meta = getStageMeta(stage);
+      // 找出該學歷+版本+年級下所有的「單一課別」
+      const units = [...new Set(
+        VOCAB_GRAMMAR_DB
+          .filter(item => item.stage === stage && item.edition === edition && item.grade === grade)
+          .map(item => item.unit)
+      )];
+
+      scopeSel.innerHTML = `<option value="全部範圍">🌟 全部課程與段考範圍 (共 ${VOCAB_GRAMMAR_DB.filter(i => i.stage === stage && i.edition === edition && i.grade === grade).length} 題)</option>`;
+
+      // 1. 先列出平常的每一課
+      if (units.length > 0) {
+        const optGroupUnit = document.createElement('optgroup');
+        optGroupUnit.label = '📖 平常進度：每一課 (單課個別練習)';
+        units.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u;
+          opt.textContent = `${grade} - ${u}`;
+          optGroupUnit.appendChild(opt);
+        });
+        scopeSel.appendChild(optGroupUnit);
       }
 
-      grades.forEach(g => gradeSel.innerHTML += `<option value="${g}">${g}</option>`);
-      editions.forEach(e => editionSel.innerHTML += `<option value="${e}">${e}</option>`);
+      // 2. 再列出段考範圍
+      const optGroupExam = document.createElement('optgroup');
+      optGroupExam.label = '📝 段考複習範圍 (期中考 / 期末考)';
+      meta.examScopes.forEach(es => {
+        const opt = document.createElement('option');
+        opt.value = es;
+        opt.textContent = `${grade} - ${es}`;
+        optGroupExam.appendChild(opt);
+      });
+      scopeSel.appendChild(optGroupExam);
+    }
+
+    // 通用題庫過濾器 (讓測驗、拼字練習、學習館 100% 同步)
+    function filterDatabase({ stage, subject, edition, grade, scope, keyword = '' }) {
+      return VOCAB_GRAMMAR_DB.filter(item => {
+        const matchStage = (!stage || stage === '全部學歷' || item.stage === stage);
+        const matchSubject = (!subject || subject === '全部題目' || item.subject === subject);
+        const matchEdition = (!edition || edition === '全部版本' || item.edition === edition || item.edition.includes(edition));
+        const matchGrade = (!grade || grade === '全部年級' || item.grade === grade);
+        const matchScope = (!scope || scope.includes('全部') || item.unit === scope || item.examScope === scope);
+        const matchKw = !keyword || item.word.toLowerCase().includes(keyword.toLowerCase()) || item.mean.includes(keyword) || item.sentence.toLowerCase().includes(keyword.toLowerCase());
+        return matchStage && matchSubject && matchEdition && matchGrade && matchScope && matchKw;
+      });
     }
 
     // ==========================================
@@ -726,6 +1735,8 @@
         currentUser = found;
         document.getElementById('user-name-display').textContent = currentUser.name;
         document.getElementById('user-role-badge').textContent = currentUser.role;
+        const testerInput = document.getElementById('q-tester-name');
+        if (testerInput) testerInput.value = currentUser.name;
         showToast(`歡迎回來，${currentUser.name}！`, "success");
         showScreen('screen-main-menu');
       } else {
@@ -756,6 +1767,8 @@
         currentUser = { name: name, role: role, account: account };
         document.getElementById('user-name-display').textContent = currentUser.name;
         document.getElementById('user-role-badge').textContent = currentUser.role;
+        const testerInput = document.getElementById('q-tester-name');
+        if (testerInput) testerInput.value = currentUser.name;
         closeRegisterModal();
         showToast("註冊成功！已自動登入系統", "success");
         showScreen('screen-main-menu');
@@ -769,29 +1782,37 @@
       document.getElementById('login-account').value = '';
       document.getElementById('login-password').value = '';
       showScreen('screen-login');
-      showToast("已安全登入系統", "info");
+      showToast("已安全登出系統", "info");
     }
 
     // ==========================================
     // 4. 題數選擇控管與選課測驗模組
     // ==========================================
     function openQuizSetup() {
+      updateUserEduGrade();
       updateSubOptions('q');
+      const testerInput = document.getElementById('q-tester-name');
+      if (testerInput && !testerInput.value) testerInput.value = currentUser.name || '學生';
       showScreen('screen-quiz-setup');
     }
 
-    function selectQCount(val, btn) {
-      document.querySelectorAll('.q-count-btn').forEach(b => {
-        b.className = "q-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold hover:border-cyan-500 transition";
+    function selectQCount(val, btn, prefix = 'q') {
+      const btnClass = prefix === 'q' ? '.q-count-btn' : '.s-count-btn';
+      const activeColor = prefix === 'q' ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300' : 'border-purple-500 bg-purple-500/20 text-purple-300';
+      document.querySelectorAll(btnClass).forEach(b => {
+        b.className = `${prefix}-count-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 text-xs font-bold transition`;
       });
-      btn.className = "q-count-btn py-2.5 rounded-xl border border-cyan-500 bg-cyan-500/20 text-cyan-300 text-xs font-bold hover:border-cyan-500 transition";
+      btn.className = `${prefix}-count-btn py-2.5 rounded-xl border ${activeColor} text-xs font-bold transition`;
 
+      const customBox = document.getElementById(`${prefix}-custom-count-box`);
       if (val === 'CUSTOM') {
-        document.getElementById('custom-count-box').classList.remove('hidden');
-        selectedQCount = 'CUSTOM';
+        customBox.classList.remove('hidden');
+        if (prefix === 'q') selectedQCount = 'CUSTOM';
+        else selectedSpellCount = 'CUSTOM';
       } else {
-        document.getElementById('custom-count-box').classList.add('hidden');
-        selectedQCount = val;
+        customBox.classList.add('hidden');
+        if (prefix === 'q') selectedQCount = val;
+        else selectedSpellCount = val;
       }
     }
 
@@ -799,31 +1820,26 @@
       const stage = document.getElementById('q-stage').value;
       const subject = document.getElementById('q-subject').value;
       const edition = document.getElementById('q-edition').value;
+      const grade = document.getElementById('q-grade').value;
       const scope = document.getElementById('q-scope').value;
 
-      // 資料庫篩選
-      let questions = VOCAB_GRAMMAR_DB.filter(item => {
-        const matchStage = item.stage === stage;
-        const matchSubject = item.subject === subject;
-        const matchEdition = item.edition.includes(edition) || edition.includes(item.edition);
-        const matchScope = scope.includes('全部') || item.scope.includes(scope) || scope.includes(item.scope);
-        return matchStage && matchSubject && matchEdition && matchScope;
-      });
+      let questions = filterDatabase({ stage, subject, edition, grade, scope });
 
-      // 防呆：若查無嚴格配對則回退放寬
       if (questions.length === 0) {
-        questions = VOCAB_GRAMMAR_DB.filter(item => item.stage === stage && item.subject === subject);
+        questions = filterDatabase({ stage, subject, edition });
+      }
+      if (questions.length === 0) {
+        questions = filterDatabase({ stage, subject });
       }
 
-      questions.sort(() => Math.random() - 0.5);
+      questions = [...questions].sort(() => Math.random() - 0.5);
 
-      // 計算最終選取的題數
       let finalCount = 10;
       if (selectedQCount === 'ALL') {
         finalCount = questions.length;
       } else if (selectedQCount === 'CUSTOM') {
         const customNum = parseInt(document.getElementById('q-custom-num').value) || 10;
-        finalCount = Math.min(customNum, questions.length);
+        finalCount = Math.min(Math.max(1, customNum), questions.length);
       } else {
         finalCount = Math.min(selectedQCount, questions.length);
       }
@@ -831,6 +1847,7 @@
       activeQuizQuestions = questions.slice(0, finalCount);
       currentQIdx = 0;
       currentScore = 0;
+      currentQuizLogs = [];
 
       document.getElementById('quiz-score-num').textContent = currentScore;
       showScreen('screen-quiz-play');
@@ -844,15 +1861,17 @@
       document.getElementById('quiz-progress-text').textContent = `題目 ${currentQIdx + 1} / ${total}`;
       document.getElementById('quiz-progress-bar').style.width = `${((currentQIdx + 1) / total) * 100}%`;
 
-      document.getElementById('quiz-q-type').textContent = qData.subject;
-      document.getElementById('quiz-q-title').textContent = `請輸入「${qData.mean}」的英文`;
+      document.getElementById('quiz-q-type').textContent = `${qData.stage} · ${qData.subject}`;
+      document.getElementById('quiz-q-unit').textContent = `${qData.grade} ${qData.unit}`;
 
       const sentenceBox = document.getElementById('quiz-q-sentence');
-      if (qData.sentence) {
-        sentenceBox.classList.remove('hidden');
-        sentenceBox.innerHTML = `💬 <b>例句提示：</b> ${qData.sentence.replace(new RegExp(qData.word, 'gi'), '_____')}`;
+      if (qData.subject === '英文文法') {
+        document.getElementById('quiz-q-title').textContent = `請填入正確的文法字詞：`;
+        sentenceBox.innerHTML = `📝 <b>文法題目：</b> <span class="text-cyan-300 font-semibold">${qData.sentence}</span>`;
       } else {
-        sentenceBox.classList.add('hidden');
+        document.getElementById('quiz-q-title').textContent = `請輸入「${qData.mean}」的英文`;
+        const masked = qData.sentence.replace(new RegExp(qData.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '_____');
+        sentenceBox.innerHTML = `💬 <b>例句提示：</b> ${masked}`;
       }
 
       const input = document.getElementById('quiz-answer-input');
@@ -861,23 +1880,39 @@
       document.getElementById('quiz-feedback').textContent = '';
     }
 
+    function playCurrentQuizTTS() {
+      const qData = activeQuizQuestions[currentQIdx];
+      if (!qData) return;
+      if (qData.subject === '英文文法') speakText(qData.sentence);
+      else speakText(qData.word);
+    }
+
     document.getElementById('btn-quiz-submit').addEventListener('click', checkQuizAnswer);
     document.getElementById('quiz-answer-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkQuizAnswer(); });
 
     function checkQuizAnswer() {
       const input = document.getElementById('quiz-answer-input');
-      const userAns = input.value.trim().toLowerCase();
+      const userAns = input.value.trim();
       const qData = activeQuizQuestions[currentQIdx];
       const feedback = document.getElementById('quiz-feedback');
 
       if (!userAns) return;
 
-      if (userAns === qData.word.toLowerCase()) {
+      const isCorrect = userAns.toLowerCase() === qData.word.toLowerCase();
+      currentQuizLogs.push({
+        q: qData.subject === '英文文法' ? qData.sentence : `${qData.mean} (${qData.sentence})`,
+        correctAns: qData.word,
+        userAns: userAns,
+        isCorrect: isCorrect,
+        unit: qData.unit
+      });
+
+      if (isCorrect) {
         const pointPerQ = Math.round(100 / activeQuizQuestions.length);
-        currentScore += pointPerQ;
+        currentScore = Math.min(100, currentScore + pointPerQ);
         document.getElementById('quiz-score-num').textContent = currentScore;
         feedback.className = "text-sm font-bold mt-4 min-h-[24px] text-emerald-400";
-        feedback.textContent = "✅ 正確！朗讀單字中...";
+        feedback.textContent = `✅ 答對了！正確答案：${qData.word}`;
         speakText(qData.word);
       } else {
         feedback.className = "text-sm font-bold mt-4 min-h-[24px] text-rose-400";
@@ -889,42 +1924,58 @@
         if (currentQIdx < activeQuizQuestions.length) {
           renderQuizQuestion();
         } else {
+          if (currentQuizLogs.every(l => l.isCorrect)) currentScore = 100;
           finishQuiz();
         }
-      }, 1200);
+      }, 1100);
     }
 
     function finishQuiz() {
       document.getElementById('result-final-score').textContent = currentScore;
       showScreen('screen-result');
 
-      // 同步成績至 Google Apps Script 雲端後台
-      const payload = {
-        name: currentUser.name,
-        account: currentUser.account,
-        role: currentUser.role,
-        targetStage: document.getElementById('q-stage').value,
-        subject: document.getElementById('q-subject').value,
-        edition: document.getElementById('q-edition').value,
-        scope: document.getElementById('q-scope').value,
-        score: currentScore
+      const testerName = (document.getElementById('q-tester-name').value || currentUser.name || '訪客').trim();
+      const stage = document.getElementById('q-stage').value;
+      const subject = document.getElementById('q-subject').value;
+      const edition = document.getElementById('q-edition').value;
+      const grade = document.getElementById('q-grade').value;
+      const year = document.getElementById('q-year').value;
+      const scope = document.getElementById('q-scope').value;
+      const nowStr = new Date().toLocaleString('zh-TW', { hour12: false });
+
+      const recordObj = {
+        time: nowStr,
+        name: testerName,
+        account: currentUser.account || 'guest',
+        role: currentUser.role || '4.學生',
+        targetStage: `${stage} (${grade})`,
+        subject: subject,
+        edition: `${edition} - ${year}`,
+        scope: scope,
+        score: currentScore,
+        logs: currentQuizLogs
       };
+
+      // 儲存一份詳細紀錄於本機以供點擊檢視錯題明細
+      const savedLocal = JSON.parse(localStorage.getItem('quiz_detailed_records') || '[]');
+      savedLocal.unshift(recordObj);
+      localStorage.setItem('quiz_detailed_records', JSON.stringify(savedLocal.slice(0, 200)));
 
       fetch(GAS_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(recordObj)
       }).then(() => {
         document.getElementById('result-sync-status').className = "text-xs text-emerald-400 bg-slate-900/60 py-2 px-4 rounded-lg inline-block mb-6 border border-emerald-500/30";
-        document.getElementById('result-sync-status').innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1"></i> 成績已成功寫入雲端資料庫！';
+        document.getElementById('result-sync-status').innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1"></i> 成績與作答明細已成功儲存至系統！';
       }).catch(() => {
-        document.getElementById('result-sync-status').textContent = '⚠️ 雲端備份傳送異常';
+        document.getElementById('result-sync-status').textContent = '✅ 成績已儲存至本機系統紀錄';
       });
     }
 
     // ==========================================
-    // 5. 拼字練習館模組 (Spelling Practice)
+    // 5. 拼字練習館模組 (Spelling Practice - 與單字/文法完全同步)
     // ==========================================
     function openSpellingSetup() {
       updateSubOptions('s');
@@ -933,27 +1984,36 @@
 
     let spellingQuestions = [];
     let currentSpellIdx = 0;
+    let spellCorrectCount = 0;
 
     function startSpelling() {
       const stage = document.getElementById('s-stage').value;
+      const subject = document.getElementById('s-subject').value;
       const edition = document.getElementById('s-edition').value;
+      const grade = document.getElementById('s-grade').value;
       const scope = document.getElementById('s-scope').value;
 
-      spellingQuestions = VOCAB_GRAMMAR_DB.filter(item => {
-        const matchStage = item.stage === stage;
-        const matchEdition = item.edition.includes(edition) || edition.includes(item.edition);
-        const matchScope = scope.includes('全部') || item.scope.includes(scope);
-        return matchStage && matchEdition && matchScope && item.subject === '英文單字';
-      });
-
-      if (spellingQuestions.length === 0) {
-        spellingQuestions = VOCAB_GRAMMAR_DB.filter(item => item.stage === stage && item.subject === '英文單字');
+      let pool = filterDatabase({ stage, subject, edition, grade, scope });
+      if (pool.length === 0) {
+        pool = filterDatabase({ stage, subject, edition });
       }
 
-      spellingQuestions.sort(() => Math.random() - 0.5);
-      spellingQuestions = spellingQuestions.slice(0, 10);
+      pool = [...pool].sort(() => Math.random() - 0.5);
 
+      let finalCount = 10;
+      if (selectedSpellCount === 'ALL') {
+        finalCount = pool.length;
+      } else if (selectedSpellCount === 'CUSTOM') {
+        const customNum = parseInt(document.getElementById('s-custom-num').value) || 10;
+        finalCount = Math.min(Math.max(1, customNum), pool.length);
+      } else {
+        finalCount = Math.min(selectedSpellCount, pool.length);
+      }
+
+      spellingQuestions = pool.slice(0, finalCount);
       currentSpellIdx = 0;
+      spellCorrectCount = 0;
+      document.getElementById('spell-score-num').textContent = '0';
       showScreen('screen-spelling-play');
       renderSpellingQuestion();
     }
@@ -963,18 +2023,38 @@
       const total = spellingQuestions.length;
 
       document.getElementById('spell-progress-text').textContent = `進度 ${currentSpellIdx + 1} / ${total}`;
+      document.getElementById('spell-unit-badge').textContent = `${qData.edition} · ${qData.grade} · ${qData.unit}`;
       document.getElementById('spell-word-mean').textContent = qData.mean;
 
+      const w = qData.word;
+      const hintStr = w.length > 2 ? `${w[0]} ${'_ '.repeat(w.length - 2)}${w[w.length - 1]}` : `${w[0]} _`;
+      document.getElementById('spell-letter-hint').textContent = `字數提示：共 ${w.length} 個字元 (${hintStr})`;
+
       const sentenceBox = document.getElementById('spell-sentence-box');
-      sentenceBox.innerHTML = `💬 例句：${qData.sentence.replace(new RegExp(qData.word, 'gi'), '<span class="font-bold text-purple-400 border-b-2 border-purple-400 px-1">_____</span>')}`;
+      const maskedSentence = qData.sentence.replace(
+        new RegExp(qData.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+        '<span class="font-bold text-purple-400 border-b-2 border-purple-400 px-1">_____</span>'
+      );
+      sentenceBox.innerHTML = `💬 <b>練習句子：</b> ${maskedSentence}`;
 
       const input = document.getElementById('spell-input');
       input.value = '';
       input.focus();
       document.getElementById('spell-feedback').textContent = '';
 
-      // 自動發音
       speakText(qData.word);
+    }
+
+    function showSpellHint() {
+      const qData = spellingQuestions[currentSpellIdx];
+      if (!qData) return;
+      const input = document.getElementById('spell-input');
+      const target = qData.word;
+      const curLen = input.value.length;
+      if (curLen < target.length) {
+        input.value = target.substring(0, curLen + 1);
+        input.focus();
+      }
     }
 
     function playCurrentWordTTS() {
@@ -995,12 +2075,14 @@
       if (!userAns) return;
 
       if (userAns === qData.word.toLowerCase()) {
+        spellCorrectCount++;
+        document.getElementById('spell-score-num').textContent = spellCorrectCount;
         feedback.className = "text-sm font-bold mt-4 min-h-[24px] text-emerald-400";
-        feedback.textContent = "✨ 拼寫完美正確！";
+        feedback.textContent = `✨ 拼寫完全正確！(${qData.word})`;
         speakText(qData.word);
       } else {
         feedback.className = "text-sm font-bold mt-4 min-h-[24px] text-rose-400";
-        feedback.textContent = `❌ 拼錯了！正確拼法是: ${qData.word}`;
+        feedback.textContent = `❌ 拼錯囉！正確拼法是: ${qData.word}`;
       }
 
       currentSpellIdx++;
@@ -1008,17 +2090,83 @@
         if (currentSpellIdx < spellingQuestions.length) {
           renderSpellingQuestion();
         } else {
-          showToast("🎉 拼字練習完成！已將成果存入資料庫", "success");
+          showToast(`🎉 拼字練習完成！共答對 ${spellCorrectCount} / ${spellingQuestions.length} 題`, "success");
           showScreen('screen-main-menu');
         }
-      }, 1500);
+      }, 1300);
     }
 
     // ==========================================
-    // 6. 學習館卡片模組 (Learning Pavilion)
+    // 6. 學習館卡片模組 (Learning Pavilion - 支援全部學歷/每一課/段考範圍)
     // ==========================================
     function openLearningPavilion() {
       showScreen('screen-learning-pavilion');
+      onLpStageChange();
+    }
+
+    function onLpStageChange() {
+      const stage = document.getElementById('lp-stage').value;
+      const editionSel = document.getElementById('lp-edition');
+      const gradeSel = document.getElementById('lp-grade');
+
+      editionSel.innerHTML = '<option value="全部版本" selected>全部版本</option>';
+      gradeSel.innerHTML = '<option value="全部年級" selected>全部年級</option>';
+
+      if (stage === '全部學歷') {
+        const allEds = [...new Set(VOCAB_GRAMMAR_DB.map(i => i.edition))];
+        const allGrs = [...new Set(VOCAB_GRAMMAR_DB.map(i => i.grade))];
+        allEds.forEach(e => editionSel.innerHTML += `<option value="${e}">${e}</option>`);
+        allGrs.forEach(g => gradeSel.innerHTML += `<option value="${g}">${g}</option>`);
+      } else {
+        const meta = getStageMeta(stage);
+        meta.editions.forEach(e => editionSel.innerHTML += `<option value="${e}">${e}</option>`);
+        meta.grades.forEach(g => gradeSel.innerHTML += `<option value="${g}">${g}</option>`);
+      }
+
+      onLpEditionGradeChange();
+    }
+
+    function onLpEditionGradeChange() {
+      const stage = document.getElementById('lp-stage').value;
+      const edition = document.getElementById('lp-edition').value;
+      const grade = document.getElementById('lp-grade').value;
+      const scopeSel = document.getElementById('lp-scope');
+
+      scopeSel.innerHTML = '<option value="全部課程 / 單元 / 段考範圍" selected>全部課程 / 單元 / 段考範圍</option>';
+
+      const matchedItems = VOCAB_GRAMMAR_DB.filter(i =>
+        (stage === '全部學歷' || i.stage === stage) &&
+        (edition === '全部版本' || i.edition === edition) &&
+        (grade === '全部年級' || i.grade === grade)
+      );
+
+      const units = [...new Set(matchedItems.map(i => i.unit))];
+      const exams = [...new Set(matchedItems.map(i => i.examScope))];
+
+      if (units.length > 0) {
+        const grpU = document.createElement('optgroup');
+        grpU.label = '📖 平常每一課 (個別課次)';
+        units.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u;
+          opt.textContent = u;
+          grpU.appendChild(opt);
+        });
+        scopeSel.appendChild(grpU);
+      }
+
+      if (exams.length > 0) {
+        const grpE = document.createElement('optgroup');
+        grpE.label = '📝 段考範圍';
+        exams.forEach(ex => {
+          const opt = document.createElement('option');
+          opt.value = ex;
+          opt.textContent = ex;
+          grpE.appendChild(opt);
+        });
+        scopeSel.appendChild(grpE);
+      }
+
       renderLearningCards();
     }
 
@@ -1026,38 +2174,45 @@
       const stage = document.getElementById('lp-stage').value;
       const subject = document.getElementById('lp-subject').value;
       const edition = document.getElementById('lp-edition').value;
+      const grade = document.getElementById('lp-grade').value;
       const scope = document.getElementById('lp-scope').value;
+      const keyword = (document.getElementById('lp-search').value || '').trim();
 
       const container = document.getElementById('learning-cards-list');
       container.innerHTML = '';
 
-      const filtered = VOCAB_GRAMMAR_DB.filter(item => {
-        const matchStage = (stage === '全部學歷' || item.stage === stage);
-        const matchSubject = (subject === '全部題目' || item.subject === subject);
-        const matchEdition = (edition === '全部版本' || item.edition.includes(edition));
-        const matchScope = (scope.includes('全部') || item.scope.includes(scope));
-        return matchStage && matchSubject && matchEdition && matchScope;
-      });
+      const filtered = filterDatabase({ stage, subject, edition, grade, scope, keyword });
+      document.getElementById('lp-count-badge').textContent = `共找到 ${filtered.length} 筆題庫資料`;
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 py-8">尚無符合條件的單字與句子。</p>';
+        container.innerHTML = '<p class="text-xs text-slate-500 py-8 text-center">尚無符合條件的單字與句子，請調整篩選條件。</p>';
         return;
       }
 
-      filtered.forEach(item => {
+      // 顯示前 150 筆以保持手機滑動順暢
+      filtered.slice(0, 150).forEach(item => {
+        const safeWord = item.word.replace(/'/g, "\\'");
+        const fullSentence = item.subject === '英文文法'
+          ? item.sentence.replace('_______', `[ ${item.word} ]`)
+          : item.sentence;
+        const safeSentence = fullSentence.replace(/'/g, "\\'");
+
         container.innerHTML += `
-          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 text-left">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-base font-bold text-cyan-300">${item.word}</span>
-              <button onclick="speakText('${item.word}')" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded text-xs">
-                <i class="fa-solid fa-volume-high mr-1"></i> 發音
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 text-left hover:border-indigo-500/40 transition">
+            <div class="flex justify-between items-start mb-1 gap-2">
+              <div>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-indigo-300 border border-slate-700 mr-1">${item.stage} · ${item.edition}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">${item.grade} · ${item.unit}</span>
+              </div>
+              <button onclick="speakText('${safeWord}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-lg text-xs shrink-0">
+                <i class="fa-solid fa-volume-high mr-1"></i>單字發音
               </button>
             </div>
-            <div class="text-xs font-semibold text-emerald-400 mb-2">中文釋義：${item.mean}</div>
-            <div class="text-xs text-slate-300 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
-              💬 <b>練習例句：</b> ${item.sentence}
-              <button onclick="speakText('${item.sentence.replace(/'/g, "\\'")}')" class="ml-2 text-indigo-400 hover:underline">
-                <i class="fa-solid fa-play text-[10px]"></i> 朗讀
+            <div class="text-lg font-extrabold text-cyan-300 mt-1">${item.word} <span class="text-sm font-bold text-emerald-400 ml-2">${item.mean}</span></div>
+            <div class="text-xs text-slate-300 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 mt-2 flex justify-between items-center gap-2">
+              <span>💬 <b>練習句子：</b> ${fullSentence}</span>
+              <button onclick="speakText('${safeSentence}')" class="px-2 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 rounded text-xs shrink-0">
+                <i class="fa-solid fa-play mr-1"></i>朗讀句子
               </button>
             </div>
           </div>
@@ -1066,93 +2221,182 @@
     }
 
     // ==========================================
-    // 7. 成績後台與身分權限控管 (Score Admin)
+    // 7. 成績後台、綁定學生清單與錯題報告 (Score Admin & Binding)
     // ==========================================
+    function getBoundStudents() {
+      const key = `bound_students_${currentUser.account || 'default'}`;
+      return JSON.parse(localStorage.getItem(key) || '["s001", "n001"]');
+    }
+
+    function addBoundStudent() {
+      const input = document.getElementById('bind-student-account');
+      const val = input.value.trim();
+      if (!val) { showToast("請輸入要綁定的學生帳號！", "error"); return; }
+      const list = getBoundStudents();
+      if (!list.includes(val)) {
+        list.push(val);
+        localStorage.setItem(`bound_students_${currentUser.account || 'default'}`, JSON.stringify(list));
+      }
+      input.value = '';
+      renderBoundStudentTags();
+      renderScoreTable(val);
+      showToast(`已成功綁定帳號：${val}`, "success");
+    }
+
+    function renderBoundStudentTags() {
+      const box = document.getElementById('bound-students-tags');
+      if (!box) return;
+      const list = getBoundStudents();
+      box.innerHTML = '';
+      list.forEach(acc => {
+        box.innerHTML += `
+          <button onclick="renderScoreTable('${acc}')" class="px-3 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-user-check"></i> 點擊查看：${acc}
+          </button>
+        `;
+      });
+    }
+
     async function loadAndShowScores() {
       showScreen('screen-admin');
       const tbody = document.getElementById('scores-tbody');
       const notice = document.getElementById('admin-notice');
       const bindBox = document.getElementById('bind-search-box');
 
-      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> 讀取雲端成績紀錄中...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> 讀取系統成績紀錄中...</td></tr>';
       bindBox.classList.add('hidden');
 
       const rows = await fetchSheetData('成績紀錄');
-      rawScoreRecords = [];
+      const cloudRecords = [];
 
       for (let i = 1; i < rows.length; i++) {
         if (!rows[i] || !rows[i].c) continue;
-        rawScoreRecords.push({
+        cloudRecords.push({
           time: getCellValue(rows[i].c[0]),
           name: getCellValue(rows[i].c[1]),
           account: getCellValue(rows[i].c[2]),
           role: getCellValue(rows[i].c[3]),
+          targetStage: getCellValue(rows[i].c[4]),
           subject: getCellValue(rows[i].c[5]),
+          edition: getCellValue(rows[i].c[6]),
           scope: getCellValue(rows[i].c[7]),
-          score: getCellValue(rows[i].c[8])
+          score: getCellValue(rows[i].c[8]),
+          logs: []
         });
       }
 
-      // 身分權限告示
-      if (currentUser.role.includes('總管理員')) {
-        notice.innerHTML = '🟢 <b>總管理員模式：</b>擁有全系統最高權限，可觀看所有人包含教職員與學生的成績。';
-      } else if (currentUser.role.includes('教職員') || currentUser.role.includes('人事室') || currentUser.role.includes('處室') || currentUser.role.includes('校長')) {
-        notice.innerHTML = '🟢 <b>教職員權限：</b>可觀看全校所有學生成績（自動隱藏總管理員之紀錄）。';
-      } else if (currentUser.role.includes('老師') || currentUser.role.includes('導師') || currentUser.role.includes('家長')) {
+      const localRecords = JSON.parse(localStorage.getItem('quiz_detailed_records') || '[]');
+      rawScoreRecords = [...localRecords, ...cloudRecords];
+
+      const r = currentUser.role || '';
+      if (r.includes('總管理員')) {
         bindBox.classList.remove('hidden');
-        notice.innerHTML = '🟡 <b>老師/家長權限：</b>可查看自身成績，並可於下方欄位搜尋輸入綁定學生之帳號查閱成績。';
+        renderBoundStudentTags();
+        notice.innerHTML = '🟢 <b>總管理員模式：</b>可查看所有人（含教職員與學生）的成績與錯題明細，亦可透過下方綁定按鈕快速篩選。';
+      } else if (r.includes('教職員') || r.includes('人事室') || r.includes('處室') || r.includes('校長')) {
+        bindBox.classList.remove('hidden');
+        renderBoundStudentTags();
+        notice.innerHTML = '🟢 <b>教職員/處室/校長權限：</b>可查看除總管理員外之所有人成績，亦可點擊下方已綁定學生快速查看。';
+      } else if (r.includes('老師') || r.includes('導師') || r.includes('家長')) {
+        bindBox.classList.remove('hidden');
+        renderBoundStudentTags();
+        notice.innerHTML = '🟡 <b>老師/導師/家長權限：</b>可查看自身與下方「已綁定學生（身分4.學生 & 5.以上皆非）」之成績，點擊學生標籤即可一個一個按進去統計檢視！';
       } else {
-        notice.innerHTML = '⚪ <b>學生/個人權限：</b>僅可檢視您本人的測驗成績歷史紀錄。';
+        notice.innerHTML = '⚪ <b>學生/個人權限：</b>可查看您本人的所有測驗成績與錯題明細。';
       }
 
-      renderScoreTable();
+      renderScoreTable(null);
     }
 
     function renderScoreTable(filterAccount = null) {
       const tbody = document.getElementById('scores-tbody');
       tbody.innerHTML = '';
       let count = 0;
+      const boundList = getBoundStudents();
+      const r = currentUser.role || '';
 
-      rawScoreRecords.forEach(rec => {
+      rawScoreRecords.forEach((rec, idx) => {
         let canView = false;
 
-        if (currentUser.role.includes('總管理員')) {
-          canView = true;
-        } else if (currentUser.role.includes('教職員') || currentUser.role.includes('人事室') || currentUser.role.includes('處室') || currentUser.role.includes('校長')) {
-          if (!rec.role.includes('總管理員')) canView = true;
-        } else if (currentUser.role.includes('老師') || currentUser.role.includes('導師') || currentUser.role.includes('家長')) {
-          if (rec.account === currentUser.account) canView = true;
-          if (filterAccount && rec.account === filterAccount) {
-            if (rec.role.includes('學生') || rec.role.includes('以上都沒有')) canView = true;
+        if (r.includes('總管理員')) {
+          canView = !filterAccount || rec.account === filterAccount;
+        } else if (r.includes('教職員') || r.includes('人事室') || r.includes('處室') || r.includes('校長')) {
+          if (!rec.role.includes('總管理員')) {
+            canView = !filterAccount || rec.account === filterAccount;
+          }
+        } else if (r.includes('老師') || r.includes('導師') || r.includes('家長')) {
+          const isSelf = rec.account === currentUser.account;
+          const isAllowedTarget = rec.role.includes('學生') || rec.role.includes('以上都沒有') || rec.role === '4' || rec.role === '5';
+          if (filterAccount) {
+            canView = (rec.account === filterAccount && isAllowedTarget);
+          } else {
+            canView = isSelf || (boundList.includes(rec.account) && isAllowedTarget);
           }
         } else {
-          if (rec.account === currentUser.account) canView = true;
+          canView = (rec.account === currentUser.account || rec.name === currentUser.name);
         }
 
         if (canView) {
           count++;
           tbody.innerHTML += `
             <tr class="hover:bg-slate-800/50 transition">
-              <td class="p-2">${rec.time.split(' ')[0]}</td>
-              <td class="p-2 font-bold text-white">${rec.name}</td>
-              <td class="p-2 text-slate-400">${rec.role.substring(0, 4)}</td>
-              <td class="p-2">${rec.subject}</td>
-              <td class="p-2 text-slate-400 truncate max-w-[100px]">${rec.scope}</td>
-              <td class="p-2 font-bold text-emerald-400">${rec.score}</td>
+              <td class="p-2 text-[11px]">${rec.time}</td>
+              <td class="p-2 font-bold text-white">${rec.name} <span class="text-[10px] text-slate-400">(${rec.account})</span></td>
+              <td class="p-2 text-slate-400">${rec.role}</td>
+              <td class="p-2">${rec.targetStage || ''} ${rec.subject}</td>
+              <td class="p-2 text-slate-300 max-w-[160px] truncate" title="${rec.edition} ${rec.scope}">${rec.edition || ''} · ${rec.scope}</td>
+              <td class="p-2 font-extrabold text-emerald-400 text-sm">${rec.score}</td>
+              <td class="p-2">
+                <button onclick="openScoreDetail(${idx})" class="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 rounded-lg text-[11px] font-bold">
+                  查看明細
+                </button>
+              </td>
             </tr>
           `;
         }
       });
 
       if (count === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-slate-500">尚無符合權限的成績紀錄。</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-slate-500">目前尚無符合此篩選條件的成績紀錄。</td></tr>';
       }
     }
 
-    function filterStudentScores() {
-      const val = document.getElementById('bind-student-account').value.trim();
-      if (!val) { showToast("請輸入學生的帳號！", "error"); return; }
-      renderScoreTable(val);
+    function openScoreDetail(idx) {
+      const rec = rawScoreRecords[idx];
+      if (!rec) return;
+      const modal = document.getElementById('modal-score-detail');
+      const metaBox = document.getElementById('score-detail-meta');
+      const qBox = document.getElementById('score-detail-questions');
+
+      metaBox.innerHTML = `
+        <div>👤 <b>測驗者姓名/帳號：</b> ${rec.name} (${rec.account}) — ${rec.role}</div>
+        <div>🕒 <b>測驗時間：</b> ${rec.time}</div>
+        <div>📚 <b>學歷科目與版本：</b> ${rec.targetStage || ''} · ${rec.subject} · ${rec.edition || ''}</div>
+        <div>🎯 <b>測驗範圍：</b> ${rec.scope} | 🏆 <b>總得分：</b> <span class="text-emerald-400 font-bold">${rec.score} 分</span></div>
+      `;
+
+      qBox.innerHTML = '';
+      if (!rec.logs || rec.logs.length === 0) {
+        qBox.innerHTML = '<div class="text-slate-400 p-4 text-center">此筆為雲端彙整成績，詳細單題對錯紀錄保存於測驗當下裝置中。</div>';
+      } else {
+        rec.logs.forEach((log, i) => {
+          const badge = log.isCorrect
+            ? '<span class="text-emerald-400 font-bold">✅ 答對</span>'
+            : `<span class="text-rose-400 font-bold">❌ 答錯 (您的作答: ${log.userAns})</span>`;
+          qBox.innerHTML += `
+            <div class="p-2.5 rounded-lg bg-slate-900 border ${log.isCorrect ? 'border-slate-800' : 'border-rose-500/40'}">
+              <div class="flex justify-between mb-1">
+                <span class="font-bold text-slate-200">第 ${i + 1} 題 [${log.unit || ''}]</span>
+                ${badge}
+              </div>
+              <div class="text-slate-300 mb-1">${log.q}</div>
+              <div class="text-cyan-400 font-semibold">正確答案：${log.correctAns}</div>
+            </div>
+          `;
+        });
+      }
+
+      modal.classList.remove('hidden');
     }
   </script>
 </body>
