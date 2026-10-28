@@ -22,7 +22,6 @@
     .hidden { display: none !important; }
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px; }
     
-    /* 表格樣式 */
     .table-container { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #334155; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; white-space: nowrap; }
     th, td { padding: 10px; border-bottom: 1px solid #334155; text-align: center; }
@@ -39,7 +38,7 @@
   <!-- 1. 登入畫面 -->
   <div class="container" id="login-screen">
     <h2 class="title-highlight">英文智慧選課測驗系統</h2>
-    <p style="font-size: 13px; color: #94a3b8; text-align:center;">支援主資料庫與備用帳號庫雙重登入驗證</p>
+    <p style="font-size: 13px; color: #94a3b8; text-align:center;">會員安全登入（支援主庫與備用帳號庫驗證）</p>
     <div class="input-group">
       <label>帳號</label>
       <input type="text" id="login-account" placeholder="請輸入帳號">
@@ -53,7 +52,7 @@
     <p id="login-msg" style="color: var(--accent); text-align: center; font-weight: bold; margin-top: 15px;"></p>
   </div>
 
-  <!-- 2. 主選單 -->
+  <!-- 2. 主選單大廳 -->
   <div class="container hidden" id="main-menu">
     <div class="header">
       <div>
@@ -70,7 +69,7 @@
     </div>
   </div>
 
-  <!-- 3. 智慧選課測驗設定 (原七階段) -->
+  <!-- 3. 智慧選課測驗設定 -->
   <div class="container hidden" id="quiz-setup-screen">
     <div class="header">
       <h3 style="margin:0;" class="title-highlight">智慧選課與範圍設定</h3>
@@ -86,7 +85,7 @@
     </div>
   </div>
 
-  <!-- 4. 學習館 (全新) -->
+  <!-- 4. 學習館 -->
   <div class="container hidden" id="learning-pavilion-screen">
     <div class="header">
       <h3 style="margin:0; color: #8b5cf6;">📚 學習館</h3>
@@ -114,7 +113,7 @@
       <select><option value="全部課程 / 單元 / 段考範圍" selected>全部課程 / 單元 / 段考範圍</option><option value="第一次段考">第一次段考</option><option value="第二次段考">第二次段考</option></select>
     </div>
     
-    <button style="background: #8b5cf6; height: 50px; font-size: 18px;" onclick="alert('學習館教材準備中，即將開放！')">進入複習模式</button>
+    <button style="background: #8b5cf6; height: 50px; font-size: 18px;" onclick="alert('學習館題庫準備中，即將開放！')">進入複習模式</button>
   </div>
 
   <!-- 5. 成績紀錄與後台 -->
@@ -125,14 +124,14 @@
     </div>
     <p id="admin-notice" style="font-size: 13px; color: #94a3b8;"></p>
     
-    <!-- 老師/家長 綁定查詢區塊 -->
+    <!-- 綁定查詢區塊 (老師/家長專用) -->
     <div id="bind-search-area" class="input-group hidden" style="background: #0f172a; padding: 15px; border-radius: 8px;">
       <label style="color: #38bdf8;">🔍 綁定學生查詢 (老師/家長專用)</label>
       <div style="display: flex; gap: 10px;">
         <input type="text" id="bind-student-account" placeholder="請輸入學生或學員的帳號" style="margin-bottom: 0;">
         <button onclick="filterBoundStudent()" style="width: 100px; margin: 0;">查詢</button>
       </div>
-      <p style="font-size: 12px; color: #94a3b8; margin-top: 5px; margin-bottom: 0;">輸入帳號後可查看該學生的成績紀錄。</p>
+      <p style="font-size: 12px; color: #94a3b8; margin-top: 5px; margin-bottom: 0;">輸入帳號後即可查看該學生的成績紀錄。</p>
     </div>
 
     <div class="table-container">
@@ -172,14 +171,14 @@
 
   <script>
     // ==========================================
-    // 系統常數與 API 網址設定 (已自動填入)
+    // 系統常數設定 (已帶入您最新更新的 GAS 網址)
     // ==========================================
     const SHEET_ID = '1p9ik9A9OJ-jWoS9IbouCZ34Dns-1U7CzIqjypdEI9AE';
-    const GAS_POST_URL = 'https://script.google.com/macros/s/AKfycbxlfwiq0yQcq5gQLomaMoj1lqQFkj9DYC0h4mGw0k4OvhjoF-jxSYixZvBBS01yyw8/exec';
+    const GAS_POST_URL = 'https://script.google.com/macros/s/AKfycbzNZqatn8Zf80uyUc3_mthjsNnFmhn7vYfiYUxgMm8E_iNBDINuUR0Fb6Q5631AquU/exec';
     const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/14xaOuEybmN1Slkuxj_icSyew7sjW4rmrKn2UYURySVs/viewform';
 
     let currentUser = { name: '', role: '', account: '' };
-    let allScoresData = []; // 暫存所有成績資料供查詢過濾
+    let allScoresData = [];
 
     function showScreen(screenId) {
       document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
@@ -187,7 +186,7 @@
     }
 
     // ==========================================
-    // 核心功能：透過 Google GViz 直接讀取試算表資料
+    // GViz API 試算表讀取
     // ==========================================
     async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
@@ -208,7 +207,7 @@
     }
 
     // ==========================================
-    // 登入邏輯 (雙重資料庫驗證)
+    // 雙資料庫登入驗證
     // ==========================================
     document.getElementById('go-register-btn').addEventListener('click', () => window.open(GOOGLE_FORM_URL, '_blank'));
 
@@ -222,11 +221,10 @@
       msg.style.color = "#38bdf8";
       msg.textContent = "連線驗證中，請稍候...";
 
-      // 1. 同時讀取「主資料庫」與「備用資料庫」
       const [rowsMain, rowsBackup1, rowsBackup2] = await Promise.all([
         fetchSheetData('帳號密碼儲存庫'),
         fetchSheetData('預備&備用帳號'),
-        fetchSheetData('預備_備用帳號') // 檔案名稱防呆機制
+        fetchSheetData('預備_備用帳號')
       ]);
 
       const allRows = [...rowsMain, ...rowsBackup1, ...rowsBackup2];
@@ -266,7 +264,7 @@
     });
 
     // ==========================================
-    // 成績後台與嚴格權限控管
+    // 成績後台權限控管
     // ==========================================
     async function loadAndShowScores() {
       showScreen('admin-screen');
@@ -279,7 +277,6 @@
       const rows = await fetchSheetData('成績紀錄');
       allScoresData = [];
 
-      // 解析成績資料 (假設格式：測驗時間, 姓名, 帳號, 身分, 目標學歷, 科目, 版本, 範圍, 得分)
       for (let i = 1; i < rows.length; i++) {
         if (!rows[i].c) continue;
         allScoresData.push({
@@ -306,27 +303,25 @@
       allScoresData.forEach(data => {
         let canView = false;
         
-        // 權限邏輯判斷
         if (currentUser.role.includes('總管理員')) {
           canView = true;
           notice.textContent = "🟢 總管理員模式：可查看系統內所有成員的成績。";
         } 
         else if (currentUser.role.includes('教職員') || currentUser.role.includes('人事室') || currentUser.role.includes('處室') || currentUser.role.includes('校長')) {
           if (!data.role.includes('總管理員')) canView = true;
-          notice.textContent = "🟢 教職員模式：可查看除總管理員外之所有學生成績。";
+          notice.textContent = "🟢 教職員模式：可查看除總管理員外之所有成員成績。";
         }
         else if (currentUser.role.includes('老師') || currentUser.role.includes('導師') || currentUser.role.includes('家長')) {
           bindSearchArea.classList.remove('hidden');
           notice.textContent = "🟡 老師/家長模式：可查看自身成績，或於下方輸入帳號查詢綁定學生之成績。";
           
-          if (data.account === currentUser.account) canView = true; // 看自己
+          if (data.account === currentUser.account) canView = true;
           if (searchAccount && data.account === searchAccount) {
-            // 查詢防護：只能查學生或不符合條件者
             if (data.role.includes('學生') || data.role.includes('以上都沒有')) canView = true;
           }
         }
         else {
-          if (data.account === currentUser.account) canView = true; // 學生只能看自己
+          if (data.account === currentUser.account) canView = true;
           notice.textContent = "⚪ 學生/一般模式：僅可查看您本人的成績紀錄。";
         }
 
@@ -355,7 +350,7 @@
     }
 
     // ==========================================
-    // 測驗核心系統
+    // 測驗核心機制
     // ==========================================
     let currentQuestions = [
       {q:"蘋果", a:"apple"}, {q:"香蕉", a:"banana"}, {q:"學校", a:"school"}
