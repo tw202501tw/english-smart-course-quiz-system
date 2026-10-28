@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>英文智慧選課測驗系統</title>
   <style>
-    :root { --bg: #0f172a; --box: #1e293b; --primary: #3b82f6; --accent: #ef4444; --text: #f8fafc; --success: #10b981; }
+    :root { --bg: #0f172a; --box: #1e293b; --primary: #3b82f6; --accent: #ef4444; --text: #f8fafc; --success: #10b981; --purple: #8b5cf6; }
     body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
     .container { background: var(--box); border-radius: 15px; padding: 25px; width: 90%; max-width: 600px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     h2, h3 { text-align: center; color: white; margin-top: 0; }
@@ -19,6 +19,7 @@
     .btn-secondary { background: #475569; }
     .btn-secondary:hover { background: #64748b; }
     .btn-accent { background: var(--accent); }
+    .btn-purple { background: var(--purple); }
     .hidden { display: none !important; }
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px; }
     
@@ -31,6 +32,13 @@
     .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     .menu-btn { height: 100px; font-size: 18px; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     .menu-btn span { font-size: 24px; margin-bottom: 8px; }
+
+    /* 學習館單字與句子卡片 */
+    .word-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 12px; text-align: left; position: relative; }
+    .word-title { font-size: 20px; font-weight: bold; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
+    .word-meaning { font-size: 16px; color: #10b981; margin: 5px 0 10px 0; font-weight: bold; }
+    .word-sentence { font-size: 14px; color: #cbd5e1; background: #1e293b; padding: 10px; border-radius: 6px; border-left: 3px solid var(--purple); }
+    .tts-btn { width: auto; padding: 4px 10px; font-size: 13px; margin: 0; background: #334155; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -64,7 +72,7 @@
 
     <div class="menu-grid">
       <button class="menu-btn" onclick="showScreen('quiz-setup-screen')"><span>📝</span>智慧選課測驗</button>
-      <button class="menu-btn" style="background: #8b5cf6;" onclick="showScreen('learning-pavilion-screen')"><span>📚</span>學習館</button>
+      <button class="menu-btn btn-purple" onclick="openLearningPavilion()"><span>📚</span>學習館</button>
       <button class="menu-btn" style="background: #10b981; grid-column: span 2;" onclick="loadAndShowScores()"><span>📊</span>成績紀錄與後台</button>
     </div>
   </div>
@@ -78,42 +86,45 @@
     <div id="selection-area">
       <div class="input-group"><label>Step 1: 個人學歷</label><select id="step1-stage"><option value="國小">國小</option><option value="國中" selected>國中</option><option value="高中">高中</option></select></div>
       <div class="input-group"><label>Step 2: 測驗科目</label><select id="step4-subject"><option value="英文單字">英文單字</option><option value="英文文法">英文文法</option></select></div>
-      <div class="input-group"><label>Step 3: 版本選擇</label><select id="step5-edition"><option value="翰林版 (Han Lin)">翰林版 (Han Lin)</option><option value="康軒版 (Kang Hsuan)">康軒版 (Kang Hsuan)</option><option value="南一版 (Nan I)">南一版 (Nan I)</option></select></div>
+      <div class="input-group"><label>Step 3: 版本選擇</label><select id="step5-edition"><option value="翰林版">翰林版</option><option value="康軒版">康軒版</option><option value="南一版">南一版</option></select></div>
       <div class="input-group"><label>Step 4: 版本學年度</label><select id="step6-year"><option value="115上學年度">115上學年度</option><option value="115下學年度">115下學年度</option></select></div>
       <div class="input-group"><label>Step 5: 課程/段考範圍</label><select id="step7-scope"><option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option><option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option><option value="全部單字">全部單字</option></select></div>
       <button id="start-quiz-btn" class="btn-accent" style="height: 50px; font-size: 18px;">開始測驗</button>
     </div>
   </div>
 
-  <!-- 4. 學習館 -->
-  <div class="container hidden" id="learning-pavilion-screen">
+  <!-- 4. 學習館 (已完整開啟，自動連動單字與句子) -->
+  <div class="container hidden" id="learning-pavilion-screen" style="max-width: 700px;">
     <div class="header">
-      <h3 style="margin:0; color: #8b5cf6;">📚 學習館</h3>
+      <h3 style="margin:0; color: var(--purple);">📚 學習館 - 單字與句子複習</h3>
       <button onclick="showScreen('main-menu')" style="width: auto; padding: 5px 15px;" class="btn-secondary">返回</button>
     </div>
     
-    <div class="input-group">
-      <label>1. 要複習的學歷</label>
-      <select><option value="全部學歷" selected>全部學歷</option><option value="國小">國小</option><option value="國中">國中</option><option value="高中">高中</option></select>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="input-group">
+        <label>1. 複習學歷</label>
+        <select id="learn-stage" onchange="renderLearningContent()"><option value="全部學歷" selected>全部學歷</option><option value="國小">國小</option><option value="國中">國中</option><option value="高中">高中</option></select>
+      </div>
+      <div class="input-group">
+        <label>2. 測驗科目</label>
+        <select id="learn-subject" onchange="renderLearningContent()"><option value="英文單字" selected>英文單字</option><option value="英文文法">英文文法</option></select>
+      </div>
+      <div class="input-group">
+        <label>3. 複習版本</label>
+        <select id="learn-edition" onchange="renderLearningContent()"><option value="全部版本" selected>全部版本</option><option value="翰林版">翰林版</option><option value="康軒版">康軒版</option><option value="南一版">南一版</option></select>
+      </div>
+      <div class="input-group">
+        <label>4. 版本學年度</label>
+        <select id="learn-year" onchange="renderLearningContent()"><option value="最新的" selected>最新的</option><option value="115上學年度">115上學年度</option><option value="115下學年度">115下學年度</option></select>
+      </div>
     </div>
     <div class="input-group">
-      <label>2. 要複習的測驗題目</label>
-      <select><option value="英文單字" selected>英文單字</option><option value="英文文法">英文文法</option></select>
+      <label>5. 課程 / 單元 / 段考範圍</label>
+      <select id="learn-scope" onchange="renderLearningContent()"><option value="全部課程 / 單元 / 段考範圍" selected>全部課程 / 單元 / 段考範圍</option><option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option><option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option></select>
     </div>
-    <div class="input-group">
-      <label>3. 要複習的版本</label>
-      <select><option value="全部版本" selected>全部版本</option><option value="翰林版">翰林版</option><option value="康軒版">康軒版</option><option value="南一版">南一版</option></select>
-    </div>
-    <div class="input-group">
-      <label>4. 要複習的版本學年度</label>
-      <select><option value="最新的" selected>最新的</option><option value="115上學年度">115上學年度</option><option value="115下學年度">115下學年度</option></select>
-    </div>
-    <div class="input-group">
-      <label>5. 要複習的課程 / 單元 / 段考範圍</label>
-      <select><option value="全部課程 / 單元 / 段考範圍" selected>全部課程 / 單元 / 段考範圍</option><option value="第一次段考">第一次段考</option><option value="第二次段考">第二次段考</option></select>
-    </div>
-    
-    <button style="background: #8b5cf6; height: 50px; font-size: 18px;" onclick="alert('學習館題庫準備中，即將開放！')">進入複習模式</button>
+
+    <!-- 學習內容卡片列表 -->
+    <div id="learning-content-list" style="margin-top: 15px; max-height: 450px; overflow-y: auto;"></div>
   </div>
 
   <!-- 5. 成績紀錄與後台 -->
@@ -124,7 +135,6 @@
     </div>
     <p id="admin-notice" style="font-size: 13px; color: #94a3b8;"></p>
     
-    <!-- 綁定查詢區塊 (老師/家長專用) -->
     <div id="bind-search-area" class="input-group hidden" style="background: #0f172a; padding: 15px; border-radius: 8px;">
       <label style="color: #38bdf8;">🔍 綁定學生查詢 (老師/家長專用)</label>
       <div style="display: flex; gap: 10px;">
@@ -149,10 +159,11 @@
   <!-- 6. 測驗進行畫面 -->
   <div class="container hidden" id="quiz-screen">
     <h2 id="quiz-title" class="title-highlight">測驗進行中</h2>
-    <div style="font-size: 26px; margin: 30px 0; font-weight: bold; text-align: center; color: #fff;" id="question-text">載入中...</div>
+    <div style="font-size: 26px; margin: 20px 0; font-weight: bold; text-align: center; color: #fff;" id="question-text">載入中...</div>
     <input type="text" id="answer-input" placeholder="請輸入答案 (英文)" autocomplete="off" style="text-align: center; font-size: 18px;">
     <button id="submit-btn" class="btn-accent" style="height: 50px; font-size: 18px;">送出答案</button>
     <p id="feedback-text" style="text-align: center; font-size: 18px; font-weight: bold; min-height: 25px;"></p>
+    <p id="sentence-hint" style="font-size: 14px; color: #cbd5e1; background: #0f172a; padding: 10px; border-radius: 8px; text-align: left;"></p>
     <div style="text-align: center; background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 15px;">
       目前分數: <span id="score-display" style="color: #10b981; font-weight: bold; font-size: 24px;">0</span>
     </div>
@@ -171,7 +182,7 @@
 
   <script>
     // ==========================================
-    // 系統常數設定
+    // 系統常數與資料庫設定
     // ==========================================
     const SHEET_ID = '1p9ik9A9OJ-jWoS9IbouCZ34Dns-1U7CzIqjypdEI9AE';
     const GAS_POST_URL = 'https://script.google.com/macros/s/AKfycbzNZqatn8Zf80uyUc3_mthjsNnFmhn7vYfiYUxgMm8E_iNBDINuUR0Fb6Q5631AquU/exec';
@@ -180,13 +191,105 @@
     let currentUser = { name: '', role: '', account: '' };
     let allScoresData = [];
 
+    // ==========================================
+    // 完整練習題目、單字與句子資料庫
+    // ==========================================
+    const quizDatabase = [
+      // 國小 - 翰林版
+      { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "apple", mean: "蘋果", sentence: "I eat an apple every morning." },
+      { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "banana", mean: "香蕉", sentence: "Monkeys love to eat bananas." },
+      { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "cat", mean: "貓", sentence: "The white cat is sleeping on the chair." },
+      { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "dog", mean: "狗", sentence: "My dog likes to run around in the park." },
+      
+      // 國中 - 翰林版
+      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "student", mean: "學生", sentence: "He is a hard-working student in Class 701." },
+      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "teacher", mean: "老師", sentence: "Our English teacher is very kind and friendly." },
+      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "classmate", mean: "同班同學", sentence: "Peter and Tom are good classmates." },
+      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "friend", mean: "朋友", sentence: "A true friend is always there for you." },
+      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", word: "hungry", mean: "飢餓的", sentence: "I am very hungry; let's buy some dinner." },
+      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", word: "behind", mean: "在……後面", sentence: "The cat is hiding behind the door." },
+
+      // 國中 - 康軒版
+      { stage: "國中", subject: "英文單字", edition: "康軒版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "welcome", mean: "歡迎", sentence: "Welcome to our beautiful school campus." },
+      { stage: "國中", subject: "英文單字", edition: "康軒版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "everyone", mean: "大家", sentence: "Good morning, everyone! Have a nice day." },
+
+      // 國中 - 南一版
+      { stage: "國中", subject: "英文單字", edition: "南一版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "family", mean: "家庭", sentence: "My family enjoys camping together on weekends." },
+      
+      // 國中 - 文法類別
+      { stage: "國中", subject: "英文文法", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "be (am/is/are)", mean: "be動詞用法", sentence: "I am a student, and she is my teacher." },
+      { stage: "國中", subject: "英文文法", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "my/your/his", mean: "所有格代名詞", sentence: "This is my pencil, and that is your book." },
+
+      // 高中 - 翰林版
+      { stage: "高中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "convenient", mean: "方便的", sentence: "Living near the MRT station is very convenient." },
+      { stage: "高中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "environment", mean: "環境", sentence: "We must try our best to protect the environment." }
+    ];
+
     function showScreen(screenId) {
       document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
       document.getElementById(screenId).classList.remove('hidden');
     }
 
+    // 發音朗讀功能
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        speechSynthesis.speak(utterance);
+      }
+    }
+
     // ==========================================
-    // GViz API 試算表讀取
+    // 學習館核心：過濾並即時呈現單字與句子
+    // ==========================================
+    function openLearningPavilion() {
+      showScreen('learning-pavilion-screen');
+      renderLearningContent();
+    }
+
+    function renderLearningContent() {
+      const stage = document.getElementById('learn-stage').value;
+      const subject = document.getElementById('learn-subject').value;
+      const edition = document.getElementById('learn-edition').value;
+      const year = document.getElementById('learn-year').value;
+      const scope = document.getElementById('learn-scope').value;
+
+      const listContainer = document.getElementById('learning-content-list');
+      listContainer.innerHTML = '';
+
+      // 篩選符合條件的項目
+      const filtered = quizDatabase.filter(item => {
+        const matchStage = (stage === '全部學歷' || item.stage === stage);
+        const matchSubject = (subject === '全部題目' || item.subject === subject);
+        const matchEdition = (edition === '全部版本' || item.edition === edition);
+        const matchScope = (scope.includes('全部') || item.scope === scope);
+        return matchStage && matchSubject && matchEdition && matchScope;
+      });
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:20px;">尚無符合該條件的練習單字與句子。</p>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        listContainer.innerHTML += `
+          <div class="word-card">
+            <div class="word-title">
+              <span>${item.word}</span>
+              <button class="tts-btn" onclick="speakText('${item.word}')">🔊 發音</button>
+            </div>
+            <div class="word-meaning">釋義：${item.mean}</div>
+            <div class="word-sentence">
+              💬 <b>練習例句：</b> ${item.sentence}
+              <button class="tts-btn" style="margin-left:5px;" onclick="speakText('${item.sentence.replace(/'/g, "\\'")}')">🔊 朗讀例句</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // ==========================================
+    // GViz API 試算表讀取與登入
     // ==========================================
     async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
@@ -195,10 +298,7 @@
         const text = await response.text();
         const json = JSON.parse(text.substring(47).slice(0, -2));
         return json.table.rows || [];
-      } catch (error) {
-        console.error(`讀取 ${sheetName} 失敗:`, error);
-        return [];
-      }
+      } catch (error) { return []; }
     }
 
     function getCellValue(cell) {
@@ -206,9 +306,6 @@
       return String(cell.v).trim();
     }
 
-    // ==========================================
-    // 多資料庫與表單自動同步登入驗證
-    // ==========================================
     document.getElementById('go-register-btn').addEventListener('click', () => window.open(GOOGLE_FORM_URL, '_blank'));
 
     document.getElementById('login-btn').addEventListener('click', async () => {
@@ -221,50 +318,28 @@
       msg.style.color = "#38bdf8";
       msg.textContent = "連線驗證中，請稍候...";
 
-      // 同時讀取：1.帳號密碼儲存庫 2.預備&備用帳號 3.表單回覆 1 (自動註冊產生的分頁)
       const [rowsMain, rowsBackup1, rowsBackup2, rowsForm1, rowsForm2] = await Promise.all([
-        fetchSheetData('帳號密碼儲存庫'),
-        fetchSheetData('預備&備用帳號'),
-        fetchSheetData('預備_備用帳號'),
-        fetchSheetData('表單回覆 1'),
-        fetchSheetData('表單回覆_1')
+        fetchSheetData('帳號密碼儲存庫'), fetchSheetData('預備&備用帳號'), fetchSheetData('預備_備用帳號'),
+        fetchSheetData('表單回覆 1'), fetchSheetData('表單回覆_1')
       ]);
 
       let allUsers = [];
-
-      // 解析標準資料庫與備用帳號 (第0欄:姓名, 第1欄:身分, 第2欄:帳號, 第3欄:密碼)
       [rowsMain, rowsBackup1, rowsBackup2].forEach(rows => {
         for (let i = 1; i < rows.length; i++) {
           if (!rows[i] || !rows[i].c) continue;
-          allUsers.push({
-            name: getCellValue(rows[i].c[0]),
-            role: getCellValue(rows[i].c[1]),
-            account: getCellValue(rows[i].c[2]),
-            password: getCellValue(rows[i].c[3])
-          });
+          allUsers.push({ name: getCellValue(rows[i].c[0]), role: getCellValue(rows[i].c[1]), account: getCellValue(rows[i].c[2]), password: getCellValue(rows[i].c[3]) });
         }
       });
-
-      // 解析 Google 表單自動回覆分頁 (第0欄為時間戳記，因此：第1欄:姓名, 第2欄:身分, 第3欄:帳號, 第4欄:密碼)
       [rowsForm1, rowsForm2].forEach(rows => {
         for (let i = 1; i < rows.length; i++) {
           if (!rows[i] || !rows[i].c) continue;
-          allUsers.push({
-            name: getCellValue(rows[i].c[1]),
-            role: getCellValue(rows[i].c[2]),
-            account: getCellValue(rows[i].c[3]),
-            password: getCellValue(rows[i].c[4])
-          });
+          allUsers.push({ name: getCellValue(rows[i].c[1]), role: getCellValue(rows[i].c[2]), account: getCellValue(rows[i].c[3]), password: getCellValue(rows[i].c[4]) });
         }
       });
 
       let loggedIn = false;
       for (let user of allUsers) {
-        if (user.account === userVal && user.password === passVal) {
-          currentUser = user;
-          loggedIn = true;
-          break;
-        }
+        if (user.account === userVal && user.password === passVal) { currentUser = user; loggedIn = true; break; }
       }
 
       if (loggedIn) {
@@ -302,13 +377,8 @@
       for (let i = 1; i < rows.length; i++) {
         if (!rows[i].c) continue;
         allScoresData.push({
-          time: getCellValue(rows[i].c[0]),
-          name: getCellValue(rows[i].c[1]),
-          account: getCellValue(rows[i].c[2]),
-          role: getCellValue(rows[i].c[3]),
-          subject: getCellValue(rows[i].c[5]),
-          scope: getCellValue(rows[i].c[7]),
-          score: getCellValue(rows[i].c[8])
+          time: getCellValue(rows[i].c[0]), name: getCellValue(rows[i].c[1]), account: getCellValue(rows[i].c[2]),
+          role: getCellValue(rows[i].c[3]), subject: getCellValue(rows[i].c[5]), scope: getCellValue(rows[i].c[7]), score: getCellValue(rows[i].c[8])
         });
       }
 
@@ -324,45 +394,29 @@
 
       allScoresData.forEach(data => {
         let canView = false;
-        
         if (currentUser.role.includes('總管理員')) {
-          canView = true;
-          notice.textContent = "🟢 總管理員模式：可查看系統內所有成員的成績。";
-        } 
-        else if (currentUser.role.includes('教職員') || currentUser.role.includes('人事室') || currentUser.role.includes('處室') || currentUser.role.includes('校長')) {
-          if (!data.role.includes('總管理員')) canView = true;
-          notice.textContent = "🟢 教職員模式：可查看除總管理員外之所有成員成績。";
-        }
-        else if (currentUser.role.includes('老師') || currentUser.role.includes('導師') || currentUser.role.includes('家長')) {
-          bindSearchArea.classList.remove('hidden');
-          notice.textContent = "🟡 老師/家長模式：可查看自身成績，或於下方輸入帳號查詢綁定學生之成績。";
-          
+          canView = true; notice.textContent = "🟢 總管理員模式：可查看系統內所有成員的成績。";
+        } else if (currentUser.role.includes('教職員') || currentUser.role.includes('人事室') || currentUser.role.includes('處室') || currentUser.role.includes('校長')) {
+          if (!data.role.includes('總管理員')) canView = true; notice.textContent = "🟢 教職員模式：可查看除總管理員外之所有成員成績。";
+        } else if (currentUser.role.includes('老師') || currentUser.role.includes('導師') || currentUser.role.includes('家長')) {
+          bindSearchArea.classList.remove('hidden'); notice.textContent = "🟡 老師/家長模式：可查看自身成績，或於下方輸入帳號查詢綁定學生之成績。";
           if (data.account === currentUser.account) canView = true;
-          if (searchAccount && data.account === searchAccount) {
-            if (data.role.includes('學生') || data.role.includes('以上都沒有')) canView = true;
-          }
-        }
-        else {
-          if (data.account === currentUser.account) canView = true;
-          notice.textContent = "⚪ 學生/一般模式：僅可查看您本人的成績紀錄。";
+          if (searchAccount && data.account === searchAccount && (data.role.includes('學生') || data.role.includes('以上都沒有'))) canView = true;
+        } else {
+          if (data.account === currentUser.account) canView = true; notice.textContent = "⚪ 學生/一般模式：僅可查看您本人的成績紀錄。";
         }
 
         if (canView) {
           displayCount++;
           tbody.innerHTML += `<tr>
-            <td>${data.time.split(' ')[0]}</td>
-            <td>${data.name}</td>
-            <td>${data.role.substring(0, 4)}</td>
-            <td>${data.subject}</td>
-            <td><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${data.scope}">${data.scope}</div></td>
+            <td>${data.time.split(' ')[0]}</td><td>${data.name}</td><td>${data.role.substring(0, 4)}</td>
+            <td>${data.subject}</td><td><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${data.scope}">${data.scope}</div></td>
             <td style="color:#10b981; font-weight:bold;">${data.score}</td>
           </tr>`;
         }
       });
 
-      if (displayCount === 0) {
-        tbody.innerHTML = '<tr><td colspan="6">目前沒有可顯示的成績紀錄。</td></tr>';
-      }
+      if (displayCount === 0) tbody.innerHTML = '<tr><td colspan="6">目前沒有可顯示的成績紀錄。</td></tr>';
     }
 
     function filterBoundStudent() {
@@ -372,14 +426,24 @@
     }
 
     // ==========================================
-    // 測驗核心機制
+    // 測驗機制：使用相同單字與句子資料
     // ==========================================
-    let currentQuestions = [
-      {q:"蘋果", a:"apple"}, {q:"香蕉", a:"banana"}, {q:"學校", a:"school"}
-    ];
-    let currentQuestionIndex = 0, score = 0;
+    let currentQuestions = [], currentQuestionIndex = 0, score = 0;
 
     document.getElementById('start-quiz-btn').addEventListener('click', () => {
+      const stage = document.getElementById('step1-stage').value;
+      const subject = document.getElementById('step4-subject').value;
+      const edition = document.getElementById('step5-edition').value;
+      const scope = document.getElementById('step7-scope').value;
+
+      currentQuestions = quizDatabase.filter(item => {
+        return item.stage === stage && item.subject === subject && item.edition === edition && (scope.includes('全部') || item.scope === scope);
+      });
+
+      if(currentQuestions.length === 0) {
+        currentQuestions = quizDatabase.filter(item => item.stage === stage);
+      }
+
       currentQuestions.sort(() => Math.random() - 0.5); 
       currentQuestionIndex = 0; score = 0;
       document.getElementById('score-display').textContent = score;
@@ -389,10 +453,13 @@
 
     const answerInput = document.getElementById('answer-input');
     const feedbackText = document.getElementById('feedback-text');
+    const sentenceHint = document.getElementById('sentence-hint');
 
     function loadQuestion() {
       answerInput.value = ''; feedbackText.textContent = ''; answerInput.focus();
-      document.getElementById('question-text').textContent = `請輸入「${currentQuestions[currentQuestionIndex].q}」的英文`;
+      const qData = currentQuestions[currentQuestionIndex];
+      document.getElementById('question-text').textContent = `請輸入「${qData.mean}」的英文`;
+      sentenceHint.innerHTML = `💡 <b>例句提示：</b> ${qData.sentence.replace(new RegExp(qData.word, 'gi'), '_____')}`;
     }
 
     document.getElementById('submit-btn').addEventListener('click', checkAnswer);
@@ -403,33 +470,32 @@
       const qData = currentQuestions[currentQuestionIndex];
       const userAnswer = answerInput.value.trim().toLowerCase();
       
-      if (userAnswer === qData.a.toLowerCase()) {
+      if (userAnswer === qData.word.toLowerCase()) {
         score += 10; document.getElementById('score-display').textContent = score;
         feedbackText.style.color = "#10b981"; feedbackText.textContent = "✅ 答對了！";
+        speakText(qData.word);
       } else {
-        feedbackText.style.color = "var(--accent)"; feedbackText.textContent = `❌ 答錯了！正確答案是: ${qData.a}`;
+        feedbackText.style.color = "var(--accent)"; feedbackText.textContent = `❌ 答錯了！正確答案是: ${qData.word}`;
       }
       currentQuestionIndex++;
       setTimeout(() => {
         if (currentQuestionIndex < currentQuestions.length) loadQuestion();
         else endQuiz();
-      }, 1000);
+      }, 1200);
     }
 
     function endQuiz() {
       showScreen('result-screen');
       document.getElementById('final-score').textContent = score;
       const statusEl = document.getElementById('save-status');
-      statusEl.style.color = "#94a3b8";
-      statusEl.textContent = "正在安全寫入成績至資料庫...";
+      statusEl.style.color = "#94a3b8"; statusEl.textContent = "正在安全寫入成績至資料庫...";
 
       const payload = {
         name: currentUser.name, account: currentUser.account, role: currentUser.role,
         targetStage: document.getElementById('step1-stage').value,
         subject: document.getElementById('step4-subject').value,
         edition: document.getElementById('step5-edition').value,
-        scope: document.getElementById('step7-scope').value,
-        score: score
+        scope: document.getElementById('step7-scope').value, score: score
       };
 
       fetch(GAS_POST_URL, {
