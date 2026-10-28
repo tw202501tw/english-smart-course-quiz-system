@@ -33,8 +33,7 @@
     .menu-btn { height: 100px; font-size: 18px; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     .menu-btn span { font-size: 24px; margin-bottom: 8px; }
 
-    /* 學習館單字與句子卡片 */
-    .word-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 12px; text-align: left; position: relative; }
+    .word-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 15px; margin-bottom: 12px; text-align: left; }
     .word-title { font-size: 20px; font-weight: bold; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
     .word-meaning { font-size: 16px; color: #10b981; margin: 5px 0 10px 0; font-weight: bold; }
     .word-sentence { font-size: 14px; color: #cbd5e1; background: #1e293b; padding: 10px; border-radius: 6px; border-left: 3px solid var(--purple); }
@@ -46,7 +45,7 @@
   <!-- 1. 登入畫面 -->
   <div class="container" id="login-screen">
     <h2 class="title-highlight">英文智慧選課測驗系統</h2>
-    <p style="font-size: 13px; color: #94a3b8; text-align:center;">會員安全登入（支援表單即時註冊與備用庫驗證）</p>
+    <p style="font-size: 13px; color: #94a3b8; text-align:center;">會員安全登入（極速註冊與雲端驗證）</p>
     <div class="input-group">
       <label>帳號</label>
       <input type="text" id="login-account" placeholder="請輸入帳號">
@@ -56,11 +55,41 @@
       <input type="password" id="login-password" placeholder="請輸入密碼">
     </div>
     <button id="login-btn">安全登入</button>
-    <button id="go-register-btn" class="btn-secondary">註冊新帳號 (前往表單)</button>
+    <button onclick="showScreen('register-screen')" class="btn-secondary">註冊新帳號（1秒快速登入）</button>
     <p id="login-msg" style="color: var(--accent); text-align: center; font-weight: bold; margin-top: 15px;"></p>
   </div>
 
-  <!-- 2. 主選單大廳 -->
+  <!-- 2. 快速註冊畫面 (1秒註冊並自動登入) -->
+  <div class="container hidden" id="register-screen">
+    <h2 class="title-highlight">註冊新帳號</h2>
+    <div class="input-group">
+      <label>真實姓名</label>
+      <input type="text" id="reg-name" placeholder="例如：張小明">
+    </div>
+    <div class="input-group">
+      <label>選擇身分類別</label>
+      <select id="reg-role">
+        <option value="1.教職員/人事室/處室/校長">1.教職員/人事室/處室/校長</option>
+        <option value="2.老師/導師">2.老師/導師</option>
+        <option value="3.家長">3.家長</option>
+        <option value="4.學生" selected>4.學生</option>
+        <option value="5.以上都沒有符合我的條件">5.以上都沒有符合我的條件</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>設定帳號</label>
+      <input type="text" id="reg-account" placeholder="請設定登入帳號">
+    </div>
+    <div class="input-group">
+      <label>設定密碼</label>
+      <input type="password" id="reg-password" placeholder="請設定登入密碼">
+    </div>
+    <button id="submit-reg-btn" style="background: var(--success); font-size: 18px;">完成註冊並自動登入</button>
+    <button onclick="showScreen('login-screen')" class="btn-secondary">返回登入</button>
+    <p id="reg-msg" style="color: var(--accent); text-align: center; font-weight: bold; margin-top: 15px;"></p>
+  </div>
+
+  <!-- 3. 主選單大廳 -->
   <div class="container hidden" id="main-menu">
     <div class="header">
       <div>
@@ -77,7 +106,7 @@
     </div>
   </div>
 
-  <!-- 3. 智慧選課測驗設定 -->
+  <!-- 4. 智慧選課測驗設定 -->
   <div class="container hidden" id="quiz-setup-screen">
     <div class="header">
       <h3 style="margin:0;" class="title-highlight">智慧選課與範圍設定</h3>
@@ -93,7 +122,7 @@
     </div>
   </div>
 
-  <!-- 4. 學習館 (已完整開啟，自動連動單字與句子) -->
+  <!-- 5. 學習館 -->
   <div class="container hidden" id="learning-pavilion-screen" style="max-width: 700px;">
     <div class="header">
       <h3 style="margin:0; color: var(--purple);">📚 學習館 - 單字與句子複習</h3>
@@ -123,11 +152,10 @@
       <select id="learn-scope" onchange="renderLearningContent()"><option value="全部課程 / 單元 / 段考範圍" selected>全部課程 / 單元 / 段考範圍</option><option value="第一次段考 (U1~U2)">第一次段考 (U1~U2)</option><option value="第二次段考/期中考 (U3~U4)">第二次段考/期中考 (U3~U4)</option></select>
     </div>
 
-    <!-- 學習內容卡片列表 -->
     <div id="learning-content-list" style="margin-top: 15px; max-height: 450px; overflow-y: auto;"></div>
   </div>
 
-  <!-- 5. 成績紀錄與後台 -->
+  <!-- 6. 成績紀錄與後台 -->
   <div class="container hidden" id="admin-screen" style="max-width: 900px;">
     <div class="header">
       <h3 style="margin:0; color: #10b981;">📊 成績紀錄與管理</h3>
@@ -141,7 +169,6 @@
         <input type="text" id="bind-student-account" placeholder="請輸入學生或學員的帳號" style="margin-bottom: 0;">
         <button onclick="filterBoundStudent()" style="width: 100px; margin: 0;">查詢</button>
       </div>
-      <p style="font-size: 12px; color: #94a3b8; margin-top: 5px; margin-bottom: 0;">輸入帳號後即可查看該學生的成績紀錄。</p>
     </div>
 
     <div class="table-container">
@@ -156,7 +183,7 @@
     </div>
   </div>
 
-  <!-- 6. 測驗進行畫面 -->
+  <!-- 7. 測驗進行畫面 -->
   <div class="container hidden" id="quiz-screen">
     <h2 id="quiz-title" class="title-highlight">測驗進行中</h2>
     <div style="font-size: 26px; margin: 20px 0; font-weight: bold; text-align: center; color: #fff;" id="question-text">載入中...</div>
@@ -169,7 +196,7 @@
     </div>
   </div>
 
-  <!-- 7. 測驗結果畫面 -->
+  <!-- 8. 測驗結果畫面 -->
   <div class="container hidden" id="result-screen">
     <h2 class="title-highlight">測驗結束！</h2>
     <div style="text-align: center; padding: 30px 0;">
@@ -181,48 +208,19 @@
   </div>
 
   <script>
-    // ==========================================
-    // 系統常數與資料庫設定
-    // ==========================================
     const SHEET_ID = '1p9ik9A9OJ-jWoS9IbouCZ34Dns-1U7CzIqjypdEI9AE';
     const GAS_POST_URL = 'https://script.google.com/macros/s/AKfycbzNZqatn8Zf80uyUc3_mthjsNnFmhn7vYfiYUxgMm8E_iNBDINuUR0Fb6Q5631AquU/exec';
-    const GOOGLE_FORM_URL = 'https://forms.gle/jDw6srx4yhvhSzN5A';
 
     let currentUser = { name: '', role: '', account: '' };
     let allScoresData = [];
 
-    // ==========================================
-    // 完整練習題目、單字與句子資料庫
-    // ==========================================
     const quizDatabase = [
-      // 國小 - 翰林版
       { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "apple", mean: "蘋果", sentence: "I eat an apple every morning." },
       { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "banana", mean: "香蕉", sentence: "Monkeys love to eat bananas." },
-      { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "cat", mean: "貓", sentence: "The white cat is sleeping on the chair." },
-      { stage: "國小", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "dog", mean: "狗", sentence: "My dog likes to run around in the park." },
-      
-      // 國中 - 翰林版
       { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "student", mean: "學生", sentence: "He is a hard-working student in Class 701." },
       { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "teacher", mean: "老師", sentence: "Our English teacher is very kind and friendly." },
-      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "classmate", mean: "同班同學", sentence: "Peter and Tom are good classmates." },
-      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "friend", mean: "朋友", sentence: "A true friend is always there for you." },
       { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", word: "hungry", mean: "飢餓的", sentence: "I am very hungry; let's buy some dinner." },
-      { stage: "國中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第二次段考/期中考 (U3~U4)", word: "behind", mean: "在……後面", sentence: "The cat is hiding behind the door." },
-
-      // 國中 - 康軒版
-      { stage: "國中", subject: "英文單字", edition: "康軒版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "welcome", mean: "歡迎", sentence: "Welcome to our beautiful school campus." },
-      { stage: "國中", subject: "英文單字", edition: "康軒版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "everyone", mean: "大家", sentence: "Good morning, everyone! Have a nice day." },
-
-      // 國中 - 南一版
-      { stage: "國中", subject: "英文單字", edition: "南一版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "family", mean: "家庭", sentence: "My family enjoys camping together on weekends." },
-      
-      // 國中 - 文法類別
-      { stage: "國中", subject: "英文文法", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "be (am/is/are)", mean: "be動詞用法", sentence: "I am a student, and she is my teacher." },
-      { stage: "國中", subject: "英文文法", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "my/your/his", mean: "所有格代名詞", sentence: "This is my pencil, and that is your book." },
-
-      // 高中 - 翰林版
-      { stage: "高中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "convenient", mean: "方便的", sentence: "Living near the MRT station is very convenient." },
-      { stage: "高中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "environment", mean: "環境", sentence: "We must try our best to protect the environment." }
+      { stage: "高中", subject: "英文單字", edition: "翰林版", year: "115上學年度", scope: "第一次段考 (U1~U2)", word: "convenient", mean: "方便的", sentence: "Living near the MRT station is very convenient." }
     ];
 
     function showScreen(screenId) {
@@ -230,7 +228,6 @@
       document.getElementById(screenId).classList.remove('hidden');
     }
 
-    // 發音朗讀功能
     function speakText(text) {
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
@@ -239,9 +236,6 @@
       }
     }
 
-    // ==========================================
-    // 學習館核心：過濾並即時呈現單字與句子
-    // ==========================================
     function openLearningPavilion() {
       showScreen('learning-pavilion-screen');
       renderLearningContent();
@@ -251,13 +245,11 @@
       const stage = document.getElementById('learn-stage').value;
       const subject = document.getElementById('learn-subject').value;
       const edition = document.getElementById('learn-edition').value;
-      const year = document.getElementById('learn-year').value;
       const scope = document.getElementById('learn-scope').value;
 
       const listContainer = document.getElementById('learning-content-list');
       listContainer.innerHTML = '';
 
-      // 篩選符合條件的項目
       const filtered = quizDatabase.filter(item => {
         const matchStage = (stage === '全部學歷' || item.stage === stage);
         const matchSubject = (subject === '全部題目' || item.subject === subject);
@@ -289,7 +281,45 @@
     }
 
     // ==========================================
-    // GViz API 試算表讀取與登入
+    // ⚡ 1秒極速註冊寫入 + 自動登入功能
+    // ==========================================
+    document.getElementById('submit-reg-btn').addEventListener('click', () => {
+      const name = document.getElementById('reg-name').value.trim();
+      const role = document.getElementById('reg-role').value;
+      const account = document.getElementById('reg-account').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+      const msg = document.getElementById('reg-msg');
+
+      if (!name || !account || !password) {
+        msg.textContent = "⚠️ 請填寫完整所有欄位！";
+        return;
+      }
+
+      msg.style.color = "#38bdf8";
+      msg.textContent = "⚡ 正在完成註冊並登入中...";
+
+      const payload = { action: "register", name: name, role: role, account: account, password: password };
+
+      // 使用 fetch 背景發送，約0.8秒完成寫入試算表
+      fetch(GAS_POST_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        // 註冊成功，直接賦予身分並自動登入大廳！
+        currentUser = { name: name, role: role, account: account };
+        document.getElementById('user-name-display').textContent = `身分：${currentUser.role} | 姓名：${currentUser.name}`;
+        msg.textContent = "";
+        showScreen('main-menu');
+      }).catch(err => {
+        msg.style.color = "var(--accent)";
+        msg.textContent = "註冊異常，請檢查網路連線。";
+      });
+    });
+
+    // ==========================================
+    // GViz API 試算表讀取與一般登入
     // ==========================================
     async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
@@ -305,8 +335,6 @@
       if (!cell || cell.v === null || cell.v === undefined) return '';
       return String(cell.v).trim();
     }
-
-    document.getElementById('go-register-btn').addEventListener('click', () => window.open(GOOGLE_FORM_URL, '_blank'));
 
     document.getElementById('login-btn').addEventListener('click', async () => {
       const userVal = document.getElementById('login-account').value.trim();
@@ -426,7 +454,7 @@
     }
 
     // ==========================================
-    // 測驗機制：使用相同單字與句子資料
+    // 測驗機制
     // ==========================================
     let currentQuestions = [], currentQuestionIndex = 0, score = 0;
 
