@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未來視窗 - 115學年度 11月 英語單字學習與測驗系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Canvas Confetti for 100-score Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.55);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 35%, #dbeafe 70%, #fae8ff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* 動態背景光暈 */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: floatOrb 12s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 380px; height: 380px; background: #818cf8; top: -80px; left: -80px; }
+        .orb-2 { width: 420px; height: 420px; background: #c084fc; bottom: -100px; right: -80px; animation-delay: -4s; }
+        .orb-3 { width: 300px; height: 300px; background: #38bdf8; top: 45%; left: 55%; animation-delay: -8s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -40px) scale(1.08); }
+        }
+
+        /* Glassmorphism 核心樣式 */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(79, 70, 229, 0.14);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* 選取亮起效果 */
+        .option-pill {
+            transition: all 0.2s ease;
+            border: 2px solid rgba(203, 213, 225, 0.8);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .option-pill:hover {
+            border-color: #818cf8;
+            background: rgba(238, 242, 255, 0.9);
+        }
+        .option-pill.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transform: scale(1.03);
+            font-weight: 700;
+        }
+
+        /* 金色榮譽卡片 (100分專屬) */
+        .gold-honor-card {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 45%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            box-shadow: 0 15px 40px rgba(245, 158, 11, 0.35), inset 0 0 20px rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        .gold-honor-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.65), transparent);
+            transform: rotate(30deg);
+            animation: shineSweep 3.5s infinite;
+        }
+        @keyframes shineSweep {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+
+        /* 自訂捲軸 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(79, 70, 229, 0.7); }
+
+        /* 切換開關動畫 */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4f46e5;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
+    <!-- 背景動態光暈 -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+
+    <!-- 頂部導覽列 -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-white/60 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.goHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-600 tracking-tight">
+                        未來視窗 <span class="text-xs sm:text-sm font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 ml-1">115-11月</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">智慧雙語學習與雲端測驗系統</p>
+                </div>
+            </div>
+
+            <!-- 狀態與功能按鈕 -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- 雲端連線與待補傳指示燈 -->
+                <div id="cloudStatusBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/80 border border-slate-200 text-slate-600 shadow-sm">
+                    <span id="cloudDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="cloudStatusText">雲端連線中...</span>
+                </div>
+
+                <!-- 學生資訊徽章 (登入後顯示) -->
+                <div id="studentHeaderBadge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50/90 border border-indigo-200 text-indigo-800 text-xs font-bold">
+                    <i class="fa-solid fa-user-graduate text-indigo-600"></i>
+                    <span id="headerStudentInfo"></span>
+                </div>
+
+                <!-- 教師後台入口按鈕 -->
+                <button onclick="window.openTeacherModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-semibold shadow-md transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                    <span>教師後台</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 全域提示訊息 Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- 主內容區 -->
+    <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+
+        <!-- ========================================== -->
+        <!-- 畫面 1：兩階段入口與選課流程 (Step 1 & 2) -->
+        <!-- ========================================== -->
+        <section id="view-setup" class="space-y-6">
+            <!-- 歡迎橫幅 -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-100/80 text-indigo-700 text-xs font-bold mb-3">
+                    <i class="fa-solid fa-sparkles"></i> 115學年度 11月 最新單字題庫 (U1 ~ U12)
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mb-2">歡迎來到「未來視窗」英語學習殿堂</h2>
+                <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">請先完成下方兩階段個人資料與課程設定，即可進入「單字學習館」預習發音，或直接挑戰「隨機測驗」！</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- STEP 1: 個人資料 -->
+                <div class="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-5">
+                            <span class="w-8 h-8 rounded-full bg-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-md">1</span>
+                            <h3 class="text-xl font-extrabold text-slate-800">Step 1 個人資料</h3>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- 學生姓名 -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">
+                                    <i class="fa-solid fa-signature text-indigo-500 mr-1"></i> 學生姓名 <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="text" id="studentNameInput" placeholder="請輸入您的真實姓名（例如：王小明）"
+                                    class="w-full px-4 py-3 rounded-2xl bg-white/90 border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 outline-none transition font-medium text-slate-800">
+                            </div>
+
+                            <!-- ① 學歷下拉選單 -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">
+                                    <i class="fa-solid fa-school text-indigo-500 mr-1"></i> ① 學歷 / 階段 <span class="text-rose-500">*</span>
+                                </label>
+                                <select id="educationSelect" onchange="window.handleEducationChange()"
+                                    class="w-full px-4 py-3 rounded-2xl bg-white/90 border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 outline-none transition font-semibold text-slate-800 cursor-pointer">
+                                    <option value="">-- 請選擇學歷 --</option>
+                                    <option value="幼稚園">幼稚園</option>
+                                    <option value="國小">國小</option>
+                                    <option value="國中">國中</option>
+                                    <option value="高中">高中</option>
+                                    <option value="大學">大學</option>
+                                    <option value="大學畢業(不是老師)">大學畢業(不是老師)</option>
+                                    <option value="老師">老師</option>
+                                </select>
+                            </div>
+
+                            <!-- ② 年級/身分動態連動選單 -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">
+                                    <i class="fa-solid fa-layer-group text-purple-500 mr-1"></i> ② 年級 / 身分 <span class="text-rose-500">*</span>
+                                </label>
+                                <select id="gradeSelect" disabled
+                                    class="w-full px-4 py-3 rounded-2xl bg-white/90 border-2 border-slate-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/15 outline-none transition font-semibold text-slate-800 disabled:bg-slate-100/70 disabled:text-slate-400 cursor-pointer">
+                                    <option value="">-- 請先選擇上方學歷 --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-100 text-xs text-indigo-800 flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info text-indigo-500 mt-0.5 text-sm"></i>
+                        <span>系統會自動記憶您輸入的姓名與年級，方便下次快速登入與學習。</span>
+                    </div>
+                </div>
+
+                <!-- STEP 2: 課程與模式選擇 -->
+                <div class="lg:col-span-7 glass-panel rounded-3xl p-6 sm:p-7 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-purple-600 text-white font-black flex items-center justify-center text-sm shadow-md">2</span>
+                            <h3 class="text-xl font-extrabold text-slate-800">Step 2 課程與模式選擇</h3>
+                        </div>
+                        <span id="selectedVocabCountBadge" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-extrabold">
+                            已選範圍：0 個單字
+                        </span>
+                    </div>
+
+                    <!-- 課程/單元選擇按鈕 -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            <i class="fa-solid fa-book-open text-purple-500 mr-1"></i> 選擇單元範圍
+                        </label>
+                        <div id="unitButtonsContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                            <!-- 由 JS 動態生成單元按鈕 -->
+                        </div>
+                    </div>
+
+                    <!-- 題數與題型選擇 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- 題數選擇 -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                <i class="fa-solid fa-list-ol text-indigo-500 mr-1"></i> 測驗題數
+                            </label>
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <button type="button" id="btnCount10" onclick="window.setQuestionCount(10)"
+                                    class="option-pill active py-2.5 px-4 rounded-xl text-sm font-semibold text-center">
+                                    10 題
+                                </button>
+                                <button type="button" id="btnCountAll" onclick="window.setQuestionCount('all')"
+                                    class="option-pill py-2.5 px-4 rounded-xl text-sm font-semibold text-center">
+                                    全部題目
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 即時顯示答案切換開關 -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">
+                                <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> 作答輔助設定
+                            </label>
+                            <label class="flex items-center justify-between p-2.5 px-4 rounded-xl bg-white/80 border-2 border-slate-200 cursor-pointer hover:border-indigo-300 transition">
+                                <span class="text-sm font-bold text-slate-700">即時顯示答案與解析</span>
+                                <div class="relative inline-block w-11 h-6 align-middle select-none">
+                                    <input type="checkbox" id="instantFeedbackToggle" checked onchange="window.toggleInstantFeedback(this.checked)"
+                                        class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 題型選擇 -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            <i class="fa-solid fa-shapes text-pink-500 mr-1"></i> 測驗題型模式
+                        </label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <button type="button" id="btnTypeMixed" onclick="window.setQuestionType('mixed')"
+                                class="option-pill active py-2.5 px-3 rounded-xl text-sm font-semibold text-center">
+                                <i class="fa-solid fa-shuffle mr-1"></i> 混合題型
+                            </button>
+                            <button type="button" id="btnTypeCloze" onclick="window.setQuestionType('cloze')"
+                                class="option-pill py-2.5 px-3 rounded-xl text-sm font-semibold text-center">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i> 例句填空
+                            </button>
+                            <button type="button" id="btnTypeEnToZh" onclick="window.setQuestionType('en2zh')"
+                                class="option-pill py-2.5 px-3 rounded-xl text-sm font-semibold text-center">
+                                <i class="fa-solid fa-language mr-1"></i> 英翻中
+                            </button>
+                            <button type="button" id="btnTypeZhToEn" onclick="window.setQuestionType('zh2en')"
+                                class="option-pill py-2.5 px-3 rounded-xl text-sm font-semibold text-center">
+                                <i class="fa-solid fa-earth-americas mr-1"></i> 中翻英
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 行動按鈕區 -->
+                    <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <button type="button" onclick="window.enterStudyHall()"
+                            class="py-3.5 px-6 rounded-2xl bg-white hover:bg-indigo-50 text-indigo-700 border-2 border-indigo-200 font-extrabold text-base shadow-sm hover:shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-book-open-reader text-lg"></i>
+                            <span>進入單字學習館</span>
+                        </button>
+                        <button type="button" onclick="window.startQuiz()"
+                            class="py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white font-extrabold text-base shadow-lg shadow-indigo-500/30 hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rocket text-lg"></i>
+                            <span>開始測驗挑戰</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 畫面 2：單字學習館 (Vocabulary Study Hall) -->
+        <!-- ========================================== -->
+        <section id="view-study" class="hidden space-y-6">
+            <div class="glass-panel rounded-3xl p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-bold" id="studyUnitTitle">U1</span>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-800">單字學習館</h2>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">點擊喇叭圖示聆聽標準英語發音，例句已自動高亮目標單字。</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- 關鍵字搜尋 -->
+                    <div class="relative flex-1 md:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="studySearchInput" oninput="window.filterStudyCards()" placeholder="搜尋英文或中文解釋..."
+                            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/90 border border-slate-200 focus:border-indigo-500 outline-none text-sm font-medium">
+                    </div>
+
+                    <button onclick="window.goHome()" class="px-4 py-2.5 rounded-xl bg-white/90 hover:bg-slate-100 text-slate-700 border border-slate-200 text-sm font-bold transition">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 重選單元
+                    </button>
+                    <button onclick="window.startQuiz()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-bold shadow-md hover:shadow-lg transition">
+                        <i class="fa-solid fa-play mr-1"></i> 立即測驗
+                    </button>
+                </div>
+            </div>
+
+            <!-- 單字卡片網格 -->
+            <div id="studyCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- 由 JS 動態渲染 -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 畫面 3：測驗挑戰區 (Quiz Arena)            -->
+        <!-- ========================================== -->
+        <section id="view-quiz" class="hidden max-w-3xl mx-auto space-y-6">
+            <!-- 頂部進度條與計分資訊 -->
+            <div class="glass-panel rounded-3xl p-5">
+                <div class="flex items-center justify-between text-sm font-bold text-slate-700 mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-extrabold" id="quizUnitBadge">U1</span>
+                        <span id="quizTypeBadge" class="px-2.5 py-0.5 rounded-lg bg-purple-100 text-purple-700 text-xs font-extrabold">混合題型</span>
+                    </div>
+                    <div>
+                        第 <span id="quizCurrentNum" class="text-indigo-600 text-lg font-black">1</span> / <span id="quizTotalNum">10</span> 題
+                    </div>
+                </div>
+                <div class="w-full h-3 bg-slate-200/80 rounded-full overflow-hidden">
+                    <div id="quizProgressBar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 rounded-full" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <!-- 題目卡片 -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-2 flex-1">
+                        <span id="questionCategoryLabel" class="inline-block text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                            例句填空
+                        </span>
+                        <h3 id="questionPromptText" class="text-xl sm:text-2xl font-extrabold text-slate-800 leading-relaxed">
+                            題目載入中...
+                        </h3>
+                        <p id="questionSubHint" class="text-sm text-slate-500 font-medium"></p>
+                    </div>
+                    <button type="button" id="quizSpeakBtn" onclick="window.speakCurrentQuestion()"
+                        class="w-12 h-12 rounded-2xl bg-indigo-100 hover:bg-indigo-200 text-indigo-700 flex items-center justify-center shrink-0 transition shadow-sm" title="朗讀英文">
+                        <i class="fa-solid fa-volume-high text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- A, B, C, D 選項區 -->
+                <div id="quizOptionsContainer" class="grid grid-cols-1 gap-3">
+                    <!-- 由 JS 動態生成 4 個選項 -->
+                </div>
+
+                <!-- 即時解析回饋區 -->
+                <div id="quizFeedbackBox" class="hidden rounded-2xl p-4 border-2 transition-all">
+                    <div class="flex items-start gap-3">
+                        <div id="feedbackIcon" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white font-bold"></div>
+                        <div class="space-y-1 flex-1">
+                            <h4 id="feedbackTitle" class="font-extrabold text-base"></h4>
+                            <p id="feedbackAnswerText" class="text-sm font-bold"></p>
+                            <p id="feedbackExampleText" class="text-xs sm:text-sm text-slate-600 pt-1 border-t border-slate-200/70 mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部控制按鈕 -->
+                <div class="flex items-center justify-between pt-2">
+                    <button type="button" onclick="window.confirmQuitQuiz()" class="px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 text-sm font-bold transition">
+                        <i class="fa-solid fa-xmark mr-1"></i> 放棄測驗
+                    </button>
+                    <button type="button" id="nextQuestionBtn" onclick="window.nextQuestion()" class="hidden px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/30 transition flex items-center gap-2">
+                        <span id="nextQuestionBtnText">下一題</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 畫面 4：結算與 100 分榮譽慶祝區            -->
+        <!-- ========================================== -->
+        <section id="view-result" class="hidden max-w-3xl mx-auto space-y-6">
+            <!-- 成績總覽卡 (100分會動態加上 gold-honor-card 樣式) -->
+            <div id="resultSummaryCard" class="glass-panel rounded-3xl p-6 sm:p-8 text-center space-y-5">
+                <div id="honorBadgeContainer" class="hidden">
+                    <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500 text-white text-xs sm:text-sm font-black shadow-md animate-bounce">
+                        <i class="fa-solid fa-crown"></i> 滿分榮譽殿堂・SUPER STAR <i class="fa-solid fa-crown"></i>
+                    </span>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-sm font-bold text-slate-500" id="resultStudentMeta">學生資料</p>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-800" id="resultHeadline">測驗完成！</h2>
+                </div>
+
+                <!-- 分數圓環展示 -->
+                <div class="flex justify-center my-4">
+                    <div class="w-36 h-36 rounded-full bg-white/90 border-4 border-indigo-500 shadow-xl flex flex-col items-center justify-center relative">
+                        <span class="text-xs font-bold text-slate-400 uppercase">總得分</span>
+                        <span id="resultScoreNumber" class="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">100</span>
+                        <span id="resultCorrectRatio" class="text-xs font-bold text-slate-500 mt-1">答對 10 / 10 題</span>
+                    </div>
+                </div>
+
+                <!-- 100分專屬祖傳語音重播按鈕 -->
+                <div id="replayHonorVoiceBox" class="hidden">
+                    <button type="button" onclick="window.playHonorSpeech()"
+                        class="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-extrabold shadow-md transition inline-flex items-center gap-2">
+                        <i class="fa-solid fa-volume-high"></i> 再次聆聽 100 分榮譽語音祝福
+                    </button>
+                </div>
+
+                <!-- 雲端上傳狀態與手動重試按鈕 -->
+                <div class="bg-white/75 rounded-2xl p-4 border border-slate-200/80 max-w-md mx-auto space-y-3">
+                    <div id="uploadStatusBanner" class="text-sm font-bold text-indigo-700 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span id="uploadStatusMessage">準備上傳成績至雲端...</span>
+                    </div>
+                    <button type="button" id="manualUploadBtn" onclick="window.uploadCurrentResult()"
+                        class="w-full py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>上傳成績至雲端</span>
+                    </button>
+                </div>
+
+                <!-- 導覽按鈕 -->
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button type="button" onclick="window.goHome()" class="px-6 py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-sm transition">
+                        <i class="fa-solid fa-house mr-1"></i> 返回首頁選課
+                    </button>
+                    <button type="button" onclick="window.startQuiz()" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> 再測驗一次
+                    </button>
+                </div>
+            </div>
+
+            <!-- 錯題複習區 -->
+            <div id="wrongQuestionsSection" class="hidden glass-panel rounded-3xl p-6 space-y-4">
+                <h3 class="text-lg font-extrabold text-rose-600 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i> 錯題精準解析與複習 (<span id="wrongCountBadge">0</span> 題)
+                </h3>
+                <div id="wrongQuestionsList" class="space-y-3">
+                    <!-- 動態生成錯題 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 畫面 5：教師管理後台 (Teacher Dashboard)   -->
+        <!-- ========================================== -->
+        <section id="view-teacher" class="hidden space-y-6">
+            <div class="glass-panel rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full bg-slate-800 text-amber-400 text-xs font-extrabold">ADMIN</span>
+                        <h2 class="text-2xl font-black text-slate-800">教師管理後台</h2>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">即時同步雲端作答紀錄，支援多維度篩選、匯出 Excel (CSV) 與安全密碼管理。</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button onclick="window.openChangePasswordModal()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> 修改後台密碼
+                    </button>
+                    <button onclick="window.exportScoresCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-excel"></i> 匯出 Excel (CSV)
+                    </button>
+                    <button onclick="window.goHome()" class="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs sm:text-sm font-bold transition">
+                        <i class="fa-solid fa-right-from-bracket"></i> 離開後台
+                    </button>
+                </div>
+            </div>
+
+            <!-- 統計數據卡片 -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card rounded-2xl p-4">
+                    <p class="text-xs font-bold text-slate-500">總作答人次</p>
+                    <p id="statTotalRecords" class="text-2xl sm:text-3xl font-black text-indigo-600 mt-1">0</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4">
+                    <p class="text-xs font-bold text-slate-500">全體平均分數</p>
+                    <p id="statAvgScore" class="text-2xl sm:text-3xl font-black text-purple-600 mt-1">0</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4">
+                    <p class="text-xs font-bold text-slate-500">100 分滿分人數</p>
+                    <p id="statPerfectCount" class="text-2xl sm:text-3xl font-black text-amber-500 mt-1">0</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4">
+                    <p class="text-xs font-bold text-slate-500">本機待補傳紀錄</p>
+                    <div class="flex items-center justify-between mt-1">
+                        <p id="statPendingSync" class="text-2xl sm:text-3xl font-black text-rose-500">0</p>
+                        <button onclick="window.syncPendingScores()" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200">立即補傳</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 篩選、搜尋與操作列 -->
+            <div class="glass-panel rounded-3xl p-5 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- 搜尋姓名 -->
+                    <div class="relative">
+                        <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="adminSearchInput" oninput="window.renderTeacherTable()" placeholder="搜尋學生姓名..."
+                            class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/90 border border-slate-200 text-sm font-medium outline-none focus:border-indigo-500">
+                    </div>
+                    <!-- 篩選學歷 -->
+                    <select id="adminFilterEdu" onchange="window.renderTeacherTable()"
+                        class="px-3.5 py-2.5 rounded-xl bg-white/90 border border-slate-200 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500">
+                        <option value="ALL">所有學歷階段</option>
+                        <option value="幼稚園">幼稚園</option>
+                        <option value="國小">國小</option>
+                        <option value="國中">國中</option>
+                        <option value="高中">高中</option>
+                        <option value="大學">大學</option>
+                        <option value="大學畢業(不是老師)">大學畢業(不是老師)</option>
+                        <option value="老師">老師</option>
+                    </select>
+                    <!-- 排序方式 -->
+                    <select id="adminSortSelect" onchange="window.renderTeacherTable()"
+                        class="px-3.5 py-2.5 rounded-xl bg-white/90 border border-slate-200 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500">
+                        <option value="time_desc">時間：最新到最舊</option>
+                        <option value="time_asc">時間：最舊到最新</option>
+                        <option value="score_desc">分數：高到低</option>
+                        <option value="score_asc">分數：低到高</option>
+                    </select>
+                    <!-- 一鍵清空 -->
+                    <button onclick="window.confirmClearAllScores()"
+                        class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 text-sm font-bold transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> 一鍵清空所有成績
+                    </button>
+                </div>
+
+                <!-- 學生作答名冊表格 -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/85">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100/90 text-slate-600 text-xs font-extrabold uppercase border-b border-slate-200">
+                                <th class="py-3.5 px-4">學生姓名</th>
+                                <th class="py-3.5 px-4">學歷 / 年級</th>
+                                <th class="py-3.5 px-4">測驗單元</th>
+                                <th class="py-3.5 px-4">題型 / 題數</th>
+                                <th class="py-3.5 px-4">得分</th>
+                                <th class="py-3.5 px-4">作答時間</th>
+                                <th class="py-3.5 px-4 text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacherScoresTableBody" class="divide-y divide-slate-200/70 text-sm">
+                            <!-- 由 JS 動態渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- 自訂互動彈窗區 (絕不使用原生 alert/confirm) -->
+    <!-- ========================================== -->
+
+    <!-- 1. 教師密碼驗證 Modal -->
+    <div id="teacherAuthModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="glass-panel bg-white/95 rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-indigo-600"></i> 教師管理後台驗證
+                </h3>
+                <button onclick="window.closeModal('teacherAuthModal')" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-sm text-slate-600">請輸入教師管理密碼以檢視學生作答名冊與系統設定。</p>
+            <div>
+                <input type="password" id="teacherPasswordInput" placeholder="請輸入管理密碼"
+                    onkeydown="if(event.key==='Enter') window.verifyTeacherPassword()"
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 outline-none font-bold text-slate-800">
+                <p id="teacherAuthError" class="text-xs font-bold text-rose-500 mt-1.5 hidden"></p>
+            </div>
+            <div class="flex justify-end gap-2.5">
+                <button onclick="window.closeModal('teacherAuthModal')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold">取消</button>
+                <button onclick="window.verifyTeacherPassword()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-md">確認登入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 雙通道修改密碼 Modal -->
+    <div id="changePasswordModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="glass-panel bg-white/95 rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-500"></i> 雙通道修改後台密碼
+                </h3>
+                <button onclick="window.closeModal('changePasswordModal')" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500">新密碼將同步寫入雲端設定與本機安全儲存區，確保所有裝置即時生效。</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">新管理密碼</label>
+                    <input type="password" id="newPasswordInput" placeholder="請輸入新密碼 (至少 4 碼)"
+                        class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-amber-500 outline-none text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">再次確認新密碼</label>
+                    <input type="password" id="confirmNewPasswordInput" placeholder="請再次輸入新密碼"
+                        class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-amber-500 outline-none text-sm font-bold">
+                </div>
+                <p id="changePwdStatusMsg" class="text-xs font-bold hidden"></p>
+            </div>
+            <div class="flex justify-end gap-2.5">
+                <button onclick="window.closeModal('changePasswordModal')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold">取消</button>
+                <button onclick="window.submitChangePassword()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-md">儲存並同步雲端</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 通用確認對話框 Modal -->
+    <div id="customConfirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="glass-panel bg-white/95 rounded-3xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="space-y-1.5">
+                <h3 id="confirmModalTitle" class="text-lg font-black text-slate-800">確認操作</h3>
+                <p id="confirmModalMessage" class="text-sm text-slate-600">您確定要執行此操作嗎？</p>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="window.closeModal('customConfirmModal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold">取消</button>
+                <button id="confirmModalActionBtn" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-md">確定執行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JavaScript 核心邏輯與 Firebase 模組化整合  -->
+    <!-- ========================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // RULE 1: safeStorage 沙盒安全防禦防護盾
+        // ==========================================
+        const memoryFallbackStorage = {};
+        const safeStorage = {
+            getItem(key) {
+                try {
+                    return window.localStorage.getItem(key);
+                } catch (err) {
+                    return memoryFallbackStorage[key] || null;
+                }
+            },
+            setItem(key, value) {
+                try {
+                    window.localStorage.setItem(key, value);
+                } catch (err) {
+                    memoryFallbackStorage[key] = String(value);
+                }
+            },
+            removeItem(key) {
+                try {
+                    window.localStorage.removeItem(key);
+                } catch (err) {
+                    delete memoryFallbackStorage[key];
+                }
+            }
+        };
+        window.safeStorage = safeStorage;
+
+        // ==========================================
+        // 115學年度 11月 完整單字題庫 (U1 ~ U12)
+        // ==========================================
+        const VOCAB_DATA = [
+            // U1 單字
+            { unit: "U1", word: "board", zh: "遊戲板", example: "Place your game piece on the starting square of the board.", exampleZh: "把你的棋子放在遊戲板的起點方格上。" },
+            { unit: "U1", word: "idea", zh: "想法；點子", example: "That sounds like a great idea for our school project.", exampleZh: "那聽起來對我們的學校專題是個很棒的點子。" },
+            { unit: "U1", word: "letter", zh: "字母", example: "The word 'apple' begins with the letter A.", exampleZh: "「apple」這個單字是以字母 A 開頭的。" },
+            { unit: "U1", word: "center", zh: "中央；中心", example: "There is a beautiful fountain in the center of the park.", exampleZh: "公園的中央有一座美麗的噴水池。" },
+            { unit: "U1", word: "touch", zh: "接觸", example: "Please do not touch the paintings in the museum.", exampleZh: "請勿觸摸博物館裡的畫作。" },
+            { unit: "U1", word: "case", zh: "情況；情形", example: "Take an umbrella with you in case it rains later.", exampleZh: "帶把傘在身上，以防等一下下雨。" },
+            { unit: "U1", word: "come up with", zh: "想出；提出", example: "She managed to come up with a clever solution to the problem.", exampleZh: "她設法想出了一個解決這個問題的聰明辦法。" },
+            { unit: "U1", word: "front page", zh: "(報紙的) 頭版", example: "The exciting sports news made the front page today.", exampleZh: "這則令人振奮的體育新聞登上了今天的報紙頭版。" },
+            { unit: "U1", word: "take off", zh: "走紅；大受歡迎", example: "The young singer's career really began to take off last year.", exampleZh: "這位年輕歌手的事業去年開始真正走紅。" },
+            { unit: "U1", word: "each", zh: "每一", example: "Each student in the class received a new notebook.", exampleZh: "班上的每一位學生都收到了一本新筆記本。" },
+            { unit: "U1", word: "run out of", zh: "用光⋯；耗盡⋯", example: "We need to go to the store because we ran out of milk.", exampleZh: "我們需要去趟商店，因為我們的牛奶用光了。" },
+            { unit: "U1", word: "any", zh: "任何", example: "Do you have any questions about today's lesson?", exampleZh: "你對今天的課程有任何問題嗎？" },
+            { unit: "U1", word: "add (sth) up", zh: "把⋯加總起來", example: "Please add all these numbers up to find the total cost.", exampleZh: "請把這些數字全部加總起來，算出總花費。" },
+
+            // U2 單字
+            { unit: "U2", word: "serve", zh: "提供 (食物或飲料)", example: "This restaurant serves delicious breakfast all day long.", exampleZh: "這家餐廳全天提供美味的早餐。" },
+            { unit: "U2", word: "limit", zh: "限制", example: "You should limit your screen time before going to bed.", exampleZh: "你應該在睡前限制使用螢幕的時間。" },
+            { unit: "U2", word: "agree", zh: "贊成；贊同", example: "I completely agree with your opinion on this matter.", exampleZh: "我完全贊同你對這件事的看法。" },
+            { unit: "U2", word: "will / be going to", zh: "未來式的用法", example: "We are going to visit our grandparents this weekend.", exampleZh: "我們這週末打算去拜訪祖父母。" },
+            { unit: "U2", word: "un- / dis- / in-", zh: "表達否定字的英文字首", example: "Adding prefixes like un-, dis-, or in- can make a word negative.", exampleZh: "加上像 un-、dis- 或 in- 這樣字首可以讓單字變成否定意義。" },
+            { unit: "U2", word: "even so", zh: "即使如此；儘管這樣", example: "The test was very hard; even so, everyone tried their best.", exampleZh: "這次考試非常困難；即使如此，每個人都盡了全力。" },
+
+            // U3 單字
+            { unit: "U3", word: "thanks", zh: "感謝；謝意", example: "We gave her flowers to express our sincere thanks.", exampleZh: "我們送她花束以表達我們誠摯的謝意。" },
+            { unit: "U3", word: "gather", zh: "聚集；集合", example: "People began to gather in the square to watch the fireworks.", exampleZh: "人們開始聚集在廣場上準備看煙火。" },
+            { unit: "U3", word: "scene", zh: "場面；情景", example: "The sunset over the ocean was a breathtaking scene.", exampleZh: "海面上的日落是一個令人屏息的美麗情景。" },
+            { unit: "U3", word: "last", zh: "持續；延續", example: "The summer music festival will last for three days.", exampleZh: "這場夏季音樂節將會持續三天。" },
+            { unit: "U3", word: "victory", zh: "勝利；獲勝", example: "The whole team celebrated their hard-earned victory.", exampleZh: "全隊一起慶祝他們得來不易的勝利。" },
+            { unit: "U3", word: "bank", zh: "堤；岸", example: "We sat on the grassy bank of the river and had a picnic.", exampleZh: "我們坐在長滿青草的河岸邊野餐。" },
+            { unit: "U3", word: "for (prep.)", zh: "for 的用法比較", example: "She has studied English for more than five years.", exampleZh: "她學習英文已經超過五年了。" },
+            { unit: "U3", word: "by (prep.)", zh: "在⋯旁邊", example: "There is a cozy little coffee shop by the train station.", exampleZh: "火車站旁邊有一家溫馨的小咖啡店。" },
+            { unit: "U3", word: "set off", zh: "施放；點燃", example: "Families often set off firecrackers during Lunar New Year.", exampleZh: "家家戶戶常在農曆新年期間施放鞭炮。" },
+            { unit: "U3", word: "about / around", zh: "大約的說法", example: "There were around fifty students at the welcome party.", exampleZh: "迎新派對上大約有五十名學生。" },
+            { unit: "U3", word: "the + adj.", zh: "名詞化形容詞", example: "We should always show kindness and help the elderly.", exampleZh: "我們應該總是展現善意並幫助年長者。" },
+            { unit: "U3", word: "fill A with B", zh: "用 B 填滿 A", example: "Please fill the glass with cold water for our guest.", exampleZh: "請幫我們的客人把玻璃杯裝滿冷水。" },
+
+            // U4 單字
+            { unit: "U4", word: "new", zh: "不同於以往的；不尋常的", example: "Living in a foreign country was a completely new experience for him.", exampleZh: "住在國外對他來說是一個截然不同的體驗。" },
+            { unit: "U4", word: "hard", zh: "困難的", example: "It is hard to wake up early on a cold winter morning.", exampleZh: "在寒冷的冬天早晨要早起是很困難的。" },
+            { unit: "U4", word: "continue", zh: "持續；繼續", example: "After a short rest, we continued our hike up the mountain.", exampleZh: "短暫休息後，我們繼續往山上健行。" },
+            { unit: "U4", word: "break time", zh: "課間休息", example: "Students love chatting with friends during break time.", exampleZh: "學生們喜歡在課間休息時間和朋友聊天。" },
+            { unit: "U4", word: "most", zh: "數量詞 most 的用法", example: "Most of the students in our school ride bicycles to class.", exampleZh: "我們學校大多數的學生都騎腳踏車上學。" },
+            { unit: "U4", word: "sign up for", zh: "報名參加 (活動、課程等)", example: "I decided to sign up for the guitar club this semester.", exampleZh: "我決定這學期報名參加吉他社。" },
+
+            // U5 單字
+            { unit: "U5", word: "regret", zh: "後悔；惋惜", example: "You will never regret spending time reading good books.", exampleZh: "你永遠不會後悔花時間閱讀好書。" },
+            { unit: "U5", word: "desire", zh: "欲望；渴望", example: "She has a strong desire to travel around the world.", exampleZh: "她有環遊世界的強烈渴望。" },
+            { unit: "U5", word: "advertisement", zh: "廣告", example: "I saw an interesting advertisement for a new smartphone on TV.", exampleZh: "我在電視上看到一則新款智慧型手機的有趣廣告。" },
+            { unit: "U5", word: "treat", zh: "享受；犒賞", example: "Let's buy some ice cream as a special treat after the exam.", exampleZh: "考試結束後，我們買些冰淇淋當作特別的犒賞吧。" },
+            { unit: "U5", word: "wants vs. needs", zh: "想要的東西 vs. 需要的東西", example: "Smart shoppers know the difference between wants vs. needs.", exampleZh: "聰明的購物者知道「想要的東西」與「需要的東西」之間的差別。" },
+            { unit: "U5", word: "down", zh: "情緒低落的", example: "Listening to cheerful music helps when I am feeling down.", exampleZh: "當我感到情緒低落時，聽聽輕快的音樂很有幫助。" },
+            { unit: "U5", word: "take one's mind off...", zh: "轉移某人對⋯的注意；使某人不去想⋯", example: "Playing basketball helped take his mind off the stressful test.", exampleZh: "打籃球幫助轉移了他對緊張考試的注意力。" },
+
+            // U6 單字
+            { unit: "U6", word: "human", zh: "人；人類", example: "Every human has the right to clean water and fresh air.", exampleZh: "每個人類都有享有乾淨水源與新鮮空氣的權利。" },
+            { unit: "U6", word: "loss", zh: "喪失；失去", example: "Habitat loss is a serious threat to many wild animals.", exampleZh: "棲息地的喪失對許多野生動物是嚴重的威脅。" },
+            { unit: "U6", word: "energy", zh: "能量", example: "Solar panels turn sunlight into clean electrical energy.", exampleZh: "太陽能板能將陽光轉化為乾淨的電能。" },
+            { unit: "U6", word: "movement", zh: "移動", example: "The camera detects any sudden movement in the room.", exampleZh: "這台攝影機能偵測房間裡任何突然的移動。" },
+            { unit: "U6", word: "trap", zh: "陷阱 / 捕捉", example: "The spider spun a web to trap small flying bugs.", exampleZh: "蜘蛛結了一張網來捕捉小型飛蟲。" },
+            { unit: "U6", word: "insect", zh: "昆蟲", example: "A butterfly is a colorful insect with four wings.", exampleZh: "蝴蝶是一種有四片翅膀、色彩繽紛的昆蟲。" },
+            { unit: "U6", word: "dark", zh: "黑暗的 / 黑暗；暗處", example: "Cats can see much better in the dark than people can.", exampleZh: "貓在黑暗中的視力比人類好得多。" },
+            { unit: "U6", word: "as if", zh: "彷彿；好像", example: "He spoke as if he already knew the whole secret.", exampleZh: "他說起話來彷彿已經知道整個秘密似的。" },
+            { unit: "U6", word: "what's more", zh: "此外", example: "This bike is lightweight; what's more, it is very affordable.", exampleZh: "這台腳踏車很輕巧；此外，它的價格非常實惠。" },
+            { unit: "U6", word: "without", zh: "沒有⋯", example: "Fish cannot survive for long without water.", exampleZh: "沒有水，魚無法存活太久。" },
+            { unit: "U6", word: "a case in point", zh: "最好的例子；例證", example: "Many plants eat bugs; the Venus flytrap is a case in point.", exampleZh: "許多植物會吃蟲子；捕蠅草就是一個最好的例子。" },
+            { unit: "U6", word: "feed on sth", zh: "以⋯為食", example: "Giant pandas mainly feed on fresh bamboo leaves and stems.", exampleZh: "大貓熊主要以新鮮的竹葉和竹莖為食。" },
+
+            // U7 單字
+            { unit: "U7", word: "hang", zh: "懸掛；吊", example: "Please hang your wet coat on the hook by the door.", exampleZh: "請把你的濕外套掛在門邊的掛鉤上。" },
+            { unit: "U7", word: "dry", zh: "(使) 晾乾，烘乾 / 乾燥的", example: "We hang our clothes outside so the sun can dry them.", exampleZh: "我們把衣服掛在外面，好讓太陽把它們曬乾。" },
+            { unit: "U7", word: "turn", zh: "(依次輪到的) 機會", example: "It is your turn to wash the dishes tonight.", exampleZh: "今晚輪到你洗碗了。" },
+            { unit: "U7", word: "pick up", zh: "領取 (某物)", example: "Mom asked me to pick up the laundry on my way home.", exampleZh: "媽媽請我在回家的路上順便領取洗好的衣物。" },
+            { unit: "U7", word: "directions", zh: "指示；說明", example: "Always read the directions carefully before using a new machine.", exampleZh: "使用新機器前，務必仔細閱讀使用說明。" },
+            { unit: "U7", word: "wash", zh: "洗滌；清洗", example: "Remember to wash your hands with soap before eating.", exampleZh: "吃飯前記得用肥皂洗手。" },
+            { unit: "U7", word: "pull out", zh: "拉出；拿出；翻出", example: "He reached into his pocket and pulled out a shiny coin.", exampleZh: "他把手伸進口袋，拿出了一枚閃亮的硬幣。" },
+            { unit: "U7", word: "symbol", zh: "符號；記號", example: "The dove is widely recognized as a symbol of peace.", exampleZh: "鴿子被廣泛認為是和平的象徵符號。" },
+            { unit: "U7", word: "Do not tumble dry", zh: "勿烘乾", example: "This wool sweater says 'Do not tumble dry' on its tag.", exampleZh: "這件羊毛衣的標籤上寫著「勿烘乾」。" },
+            { unit: "U7", word: "Hand wash", zh: "手洗", example: "Delicate silk shirts usually require gentle hand wash.", exampleZh: "精緻的絲質襯衫通常需要輕柔手洗。" },
+            { unit: "U7", word: "Line dry", zh: "懸掛晾乾", example: "To prevent shrinking, you should line dry these jeans.", exampleZh: "為了防止縮水，你應該將這條牛仔褲懸掛晾乾。" },
+            { unit: "U7", word: "Dry clean only", zh: "只可乾洗", example: "My winter suit has a label that says 'Dry clean only'.", exampleZh: "我的冬季西裝上有個標籤寫著「只可乾洗」。" },
+            { unit: "U7", word: "care label", zh: "洗標", example: "Check the care label inside the shirt before putting it in the washer.", exampleZh: "把襯衫放進洗衣機前，先檢查裡面的洗標。" },
+
+            // U8 單字
+            { unit: "U8", word: "ocean", zh: "海洋", example: "The Pacific Ocean is the largest ocean on Earth.", exampleZh: "太平洋是地球上最大的海洋。" },
+            { unit: "U8", word: "whale", zh: "鯨魚", example: "The blue whale is the largest animal known to have ever lived.", exampleZh: "藍鯨是目前已知地球上生存過最大的動物。" },
+            { unit: "U8", word: "break down", zh: "分解", example: "Plastic bags take hundreds of years to break down in nature.", exampleZh: "塑膠袋在自然界中需要數百年才能分解。" },
+            { unit: "U8", word: "形容詞比較級", zh: "形容詞比較級的變化", example: "An elephant is much bigger and heavier than a tiger.", exampleZh: "大象比老虎大得多，也重得多。" },
+            { unit: "U8", word: "let out", zh: "釋放；排出", example: "Factories should not let out harmful gases into the air.", exampleZh: "工廠不應該將有害氣體排入空氣中。" },
+            { unit: "U8", word: "eat one's fill", zh: "飽餐一頓", example: "The hungry hikers finally stopped at a lodge to eat their fill.", exampleZh: "飢腸轆轆的登山客終於在山屋停下來飽餐一頓。" },
+
+            // U9 單字
+            { unit: "U9", word: "kilometer", zh: "公里", example: "The nearest train station is about two kilometers away.", exampleZh: "最近的火車站距離這裡大約兩公里。" },
+            { unit: "U9", word: "kind", zh: "種類", example: "What kind of music do you like to listen to?", exampleZh: "你喜歡聽哪一種音樂？" },
+            { unit: "U9", word: "reach", zh: "抵達；到達", example: "We finally reached the top of the mountain before noon.", exampleZh: "我們終於在中午前抵達了山頂。" },
+            { unit: "U9", word: "forest", zh: "林區；森林", example: "Many rare birds live deep inside the tropical forest.", exampleZh: "許多珍稀鳥類棲息在熱帶森林深處。" },
+            { unit: "U9", word: "greatly", zh: "大幅地", example: "New technology has greatly improved the way we communicate.", exampleZh: "新科技大幅地改善了我們的溝通方式。" },
+            { unit: "U9", word: "besides", zh: "除 (提到的) 之外", example: "Besides English, she can also speak Japanese and French.", exampleZh: "除了英文之外，她還會說日文和法文。" },
+            { unit: "U9", word: "hot spring", zh: "溫泉", example: "Soaking in a warm hot spring is very relaxing in winter.", exampleZh: "冬天泡在溫暖的溫泉裡非常令人放鬆。" },
+            { unit: "U9", word: "stop by", zh: "順道拜訪", example: "Feel free to stop by my office whenever you are free.", exampleZh: "只要你有空，隨時歡迎順道來我辦公室坐坐。" },
+            { unit: "U9", word: "can't get enough of sth", zh: "對⋯再多都不膩", example: "The kids love the theme park and just can't get enough of it.", exampleZh: "孩子們超愛這座主題樂園，怎麼玩都玩不膩。" },
+            { unit: "U9", word: "check out", zh: "去看看", example: "You should check out the new art museum downtown this weekend.", exampleZh: "這週末你應該去看看市中心那座新的美術館。" },
+            { unit: "U9", word: "also, too, as well", zh: "「也；此外」的用法", example: "She plays the piano well, and she sings beautifully as well.", exampleZh: "她鋼琴彈得很好，而且唱歌也非常動聽。" },
+            { unit: "U9", word: "all at once", zh: "一口氣；一次全部地", example: "Don't try to eat all those cookies all at once!", exampleZh: "別想一口氣把那些餅乾全部吃光！" },
+
+            // U10 單字
+            { unit: "U10", word: "village", zh: "村莊", example: "My grandparents live in a peaceful little mountain village.", exampleZh: "我的祖父母住在一個寧靜的小山村裡。" },
+            { unit: "U10", word: "respect", zh: "尊重；敬重", example: "We should always respect our teachers and elders.", exampleZh: "我們應該永遠尊重師長與長輩。" },
+            { unit: "U10", word: "daughter", zh: "女兒", example: "Mr. Chen is very proud of his youngest daughter.", exampleZh: "陳先生為他最小的女兒感到非常驕傲。" },
+            { unit: "U10", word: "swing", zh: "來回擺盪", example: "The monkeys love to swing from branch to branch in the trees.", exampleZh: "猴子喜歡在樹枝之間來回擺盪。" },
+            { unit: "U10", word: "imagine", zh: "想像；設想", example: "Can you imagine living in a house on the moon?", exampleZh: "你能想像住在月球上的房子裡嗎？" },
+            { unit: "U10", word: "paints", zh: "顏料", example: "She bought a new set of watercolor paints for art class.", exampleZh: "她為美術課買了一組新的水彩顏料。" },
+            { unit: "U10", word: "alone", zh: "單獨地；獨自地", example: "He prefers studying alone in the quiet library.", exampleZh: "他比較喜歡獨自一人在安靜的圖書館讀書。" },
+            { unit: "U10", word: "fault", zh: "責任", example: "It was not your fault that the bus arrived late.", exampleZh: "公車遲到並不是你的責任。" },
+            { unit: "U10", word: "accept", zh: "接受", example: "She happily accepted the invitation to the birthday party.", exampleZh: "她開心地接受了生日派對的邀請。" },
+            { unit: "U10", word: "bridge", zh: "橋；橋梁", example: "The old stone bridge connects the two sides of the river.", exampleZh: "這座古老的石橋連接了河的兩岸。" },
+            { unit: "U10", word: "while", zh: "然而；而", example: "Tom enjoys outdoor sports, while his brother prefers reading.", exampleZh: "湯姆喜歡戶外運動，然而他的哥哥比較喜歡閱讀。" },
+            { unit: "U10", word: "the same N as...", zh: "和⋯一樣的⋯", example: "My best friend has the same backpack as mine.", exampleZh: "我最好的朋友背著和我一樣的背包。" },
+            { unit: "U10", word: "For one thing ..., For another (thing)...", zh: "一個原因是⋯，另一個原因是⋯", example: "I love spring: for one thing, the weather is warm; for another, flowers bloom.", exampleZh: "我喜歡春天：一個原因是天氣溫暖，另一個原因是百花盛開。" },
+            { unit: "U10", word: "each other", zh: "彼此；雙方", example: "Good friends always help and support each other.", exampleZh: "好朋友總是互相幫助並支持彼此。" },
+            { unit: "U10", word: "get used to", zh: "變得習慣於某事物", example: "It took me a few weeks to get used to the new school schedule.", exampleZh: "我花了好幾個星期才習慣新的學校作息。" },
+            { unit: "U10", word: "country", zh: "鄉村；鄉下 / 國家；國土", example: "They moved to the country to enjoy fresh air and quiet life.", exampleZh: "他們搬到鄉下以享受新鮮空氣和寧靜的生活。" },
+            { unit: "U10", word: "feel sorry for sb/sth", zh: "同情⋯", example: "I feel sorry for the stray puppy shivering in the rain.", exampleZh: "我很同情那隻在雨中發抖的流浪小狗。" },
+            { unit: "U10", word: "even", zh: "甚至；連⋯都", example: "The puzzle was so easy that even a five-year-old could solve it.", exampleZh: "這個拼圖簡單到連五歲小孩都能解開。" },
+            { unit: "U10", word: "thank sb for N/V-ing", zh: "感謝某人做某事", example: "We should thank our parents for taking care of us every day.", exampleZh: "我們應該感謝父母每天照顧我們。" },
+
+            // U11 單字
+            { unit: "U11", word: "form", zh: "形成；組成", example: "Clouds form when warm moist air rises and cools down.", exampleZh: "當溫暖潮濕的空氣上升並冷卻時，就會形成雲。" },
+            { unit: "U11", word: "term", zh: "術語；專門名詞", example: "'Artificial intelligence' is a common term in modern technology.", exampleZh: "「人工智慧」是現代科技中常見的專門名詞。" },
+            { unit: "U11", word: "introduce", zh: "提出，介紹 (新概念)", example: "The teacher introduced a fun new way to memorize vocabulary.", exampleZh: "老師介紹了一種記憶單字的有趣新方法。" },
+            { unit: "U11", word: "disappear", zh: "消失；不復存在", example: "The dark clouds disappeared and the bright sun came out.", exampleZh: "烏雲消失了，燦爛的陽光露了出來。" },
+            { unit: "U11", word: "local", zh: "在地的；當地的", example: "We always try local snacks when visiting a new city.", exampleZh: "造訪新城市時，我們總會品嚐當地的小吃。" },
+            { unit: "U11", word: "exhibition", zh: "展覽", example: "Our class went to a dinosaur exhibition at the science museum.", exampleZh: "我們班去科學博物館參觀了恐龍展覽。" },
+            { unit: "U11", word: "key", zh: "極重要的", example: "Daily practice is the key to mastering any foreign language.", exampleZh: "每天練習是精通任何外語極重要的關鍵。" },
+            { unit: "U11", word: "think of", zh: "想起；聯想到", example: "Whenever I hear this song, I think of my summer camp friends.", exampleZh: "每當我聽到這首歌，就會想起夏令營的朋友們。" },
+
+            // U12 單字
+            { unit: "U12", word: "cage", zh: "籠子", example: "Please remember to clean the hamster's cage every week.", exampleZh: "請記得每週清理倉鼠的籠子。" },
+            { unit: "U12", word: "room", zh: "空間", example: "Is there enough room in the car for one more suitcase?", exampleZh: "車子裡還有足夠的空間放得下多一個行李箱嗎？" },
+            { unit: "U12", word: "feed", zh: "飼料", example: "The farmer bought several bags of chicken feed at the market.", exampleZh: "農夫在市場買了好幾袋雞飼料。" },
+            { unit: "U12", word: "take care of", zh: "照顧", example: "My sister helps take care of our neighbor's dog on weekends.", exampleZh: "我姊姊週末會幫忙照顧鄰居的狗狗。" }
+        ];
+
+        // 單元按鈕清單 (包含使用者指定按鈕與完整 U1~U12)
+        const UNIT_PRESETS = [
+            { id: "U1", label: "U1", units: ["U1"] },
+            { id: "U2", label: "U2", units: ["U2"] },
+            { id: "U1~U2", label: "U1~U2", units: ["U1", "U2"] },
+            { id: "U3", label: "U3", units: ["U3"] },
+            { id: "U4", label: "U4", units: ["U4"] },
+            { id: "U3~U4", label: "U3~U4", units: ["U3", "U4"] },
+            { id: "U5", label: "U5", units: ["U5"] },
+            { id: "U6", label: "U6", units: ["U6"] },
+            { id: "U5~U6", label: "U5~U6", units: ["U5", "U6"] },
+            { id: "U7", label: "U7", units: ["U7"] },
+            { id: "U8", label: "U8", units: ["U8"] },
+            { id: "U7~U8", label: "U7~U8", units: ["U7", "U8"] },
+            { id: "U9", label: "U9", units: ["U9"] },
+            { id: "U10", label: "U10", units: ["U10"] },
+            { id: "U9~U10", label: "U9~U10", units: ["U9", "U10"] },
+            { id: "U11", label: "U11", units: ["U11"] },
+            { id: "U12", label: "U12", units: ["U12"] },
+            { id: "U11~U12", label: "U11~U12", units: ["U11", "U12"] },
+            { id: "U1~U6", label: "U1~U6 冊", units: ["U1", "U2", "U3", "U4", "U5", "U6"] },
+            { id: "ALL", label: "U1~U12 全冊", units: ["U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "U10", "U11", "U12"] }
+        ];
+
+        // 學歷與年級動態連動對照表
+        const GRADE_MAPPING = {
+            "幼稚園": ["幼幼班", "小班", "中班", "大班"],
+            "國小": ["1年級", "2年級", "3年級", "4年級", "5年級", "6年級"],
+            "國中": ["國1", "國2", "國3"],
+            "高中": ["高1", "高2", "高3"],
+            "大學": ["大1", "大2", "大3"],
+            "大學畢業(不是老師)": ["大學畢業(不是老師)"],
+            "老師": ["老師"]
+        };
+
+        // ==========================================
+        // 全域應用程式狀態 (App State)
+        // ==========================================
+        const appState = {
+            studentName: "",
+            education: "",
+            grade: "",
+            selectedPresetId: "U1",
+            questionCount: 10, // 10 或 'all'
+            questionType: "mixed", // 'mixed' | 'cloze' | 'en2zh' | 'zh2en'
+            instantFeedback: true,
+
+            // 測驗進行中狀態
+            quizQuestions: [],
+            currentIndex: 0,
+            score: 0,
+            correctCount: 0,
+            answeredCurrent: false,
+            wrongList: [],
+            lastResultPayload: null,
+
+            // 雲端與教師後台狀態
+            cloudScores: [],
+            teacherPassword: safeStorage.getItem("fw_teacher_pwd") || "terry0121",
+            isAuthReady: false,
+            isOnline: navigator.onLine
+        };
+
+        // ==========================================
+        // Firebase 初始化與 RULE 2, 3, 4, 6 實作
+        // ==========================================
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'future-window-115-11';
+        let db = null;
+        let auth = null;
+        let scoresColRef = null;
+        let teacherConfigDocRef = null;
+
+        async function initFirebaseSafely() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    updateCloudBadge("offline", "本機沙盒模式");
+                    return;
+                }
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // RULE 2: 嚴格指定雲端路徑
+                scoresColRef = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+                teacherConfigDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'teacherConfig');
+
+                // RULE 4: 優先驗證與初始化 (先 await 登入，再啟動 onSnapshot)
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                appState.isAuthReady = true;
+                updateCloudBadge("online", "雲端已連線");
+
+                // 啟動即時監聽 (RULE 3: 僅抓取基礎 collection，排序篩選於 JS 內存完成)
+                startRealtimeListeners();
+
+                // 檢查是否有離線暫存待補傳的成績
+                await window.syncPendingScores(true);
+
+            } catch (error) {
+                console.warn("Firebase 初始化警告，已切換至沙盒備援模式:", error);
+                updateCloudBadge("offline", "離線備援模式");
+            }
+        }
+
+        function startRealtimeListeners() {
+            if (!db || !auth?.currentUser) return;
+
+            // 監聽成績集合
+            onSnapshot(scoresColRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach((docSnap) => {
+                    list.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                appState.cloudScores = list;
+                window.renderTeacherTable();
+            }, (err) => {
+                console.warn("成績監聽異常:", err);
+            });
+
+            // 監聽教師密碼設定
+            onSnapshot(teacherConfigDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && data.password) {
+                        appState.teacherPassword = data.password;
+                        safeStorage.setItem("fw_teacher_pwd", data.password);
+                    }
+                }
+            }, (err) => {
+                console.warn("設定監聽異常:", err);
+            });
+        }
+
+        function updateCloudBadge(status, text) {
+            const dot = document.getElementById("cloudDot");
+            const label = document.getElementById("cloudStatusText");
+            if (!dot || !label) return;
+            label.textContent = text;
+            dot.className = "w-2 h-2 rounded-full ";
+            if (status === "online") {
+                dot.className += "bg-emerald-500 shadow-[0_0_8px_#10b981]";
+            } else if (status === "syncing") {
+                dot.className += "bg-amber-400 animate-ping";
+            } else {
+                dot.className += "bg-rose-500";
+            }
+        }
+
+        // ==========================================
+        // RULE 6: 雲端上傳防呆、重試機制與斷線自動補傳
+        // ==========================================
+        async function writeScoreWithRetry(payload, maxRetries = 2) {
+            if (!db || !scoresColRef) {
+                throw new Error("Firestore 尚未就緒");
+            }
+
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    // 確保已通過 Firebase 驗證
+                    if (!auth.currentUser) {
+                        await signInAnonymously(auth);
+                        appState.isAuthReady = true;
+                    }
+                    const docRef = await addDoc(scoresColRef, {
+                        ...payload,
+                        uid: auth.currentUser?.uid || "anonymous",
+                        syncedAt: new Date().toISOString()
+                    });
+                    return docRef.id;
+                } catch (err) {
+                    if (attempt === maxRetries) {
+                        throw err;
+                    }
+                    // 嘗試重新匿名驗證並等待短暫延遲後重試
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (_) {}
+                    await new Promise(res => setTimeout(res, 800 * (attempt + 1)));
+                }
+            }
+        }
+
+        function saveScoreToPendingQueue(payload) {
+            const raw = safeStorage.getItem("fw_pending_scores");
+            let queue = [];
+            try { queue = raw ? JSON.parse(raw) : []; } catch (_) { queue = []; }
+            // 避免重複加入相同 localId
+            if (!queue.some(item => item.localId === payload.localId)) {
+                queue.push(payload);
+                safeStorage.setItem("fw_pending_scores", JSON.stringify(queue));
+            }
+            updatePendingBadgeCount();
+        }
+
+        function updatePendingBadgeCount() {
+            const raw = safeStorage.getItem("fw_pending_scores");
+            let queue = [];
+            try { queue = raw ? JSON.parse(raw) : []; } catch (_) { queue = []; }
+            const el = document.getElementById("statPendingSync");
+            if (el) el.textContent = queue.length;
+        }
+
+        window.syncPendingScores = async function(silent = false) {
+            const raw = safeStorage.getItem("fw_pending_scores");
+            let queue = [];
+            try { queue = raw ? JSON.parse(raw) : []; } catch (_) { queue = []; }
+            updatePendingBadgeCount();
+
+            if (queue.length === 0) {
+                if (!silent) showToast("目前沒有待補傳的離線成績紀錄。", "info");
+                return;
+            }
+
+            if (!navigator.onLine || !db) {
+                if (!silent) showToast("目前處於離線狀態，將於恢復連線時自動補傳。", "warning");
+                return;
+            }
+
+            updateCloudBadge("syncing", `補傳中 (${queue.length})...`);
+            const remaining = [];
+            let successCount = 0;
+
+            for (const item of queue) {
+                try {
+                    await writeScoreWithRetry(item, 1);
+                    successCount++;
+                } catch (err) {
+                    remaining.push(item);
+                }
+            }
+
+            safeStorage.setItem("fw_pending_scores", JSON.stringify(remaining));
+            updatePendingBadgeCount();
+
+            if (remaining.length === 0) {
+                updateCloudBadge("online", "雲端已連線");
+                if (successCount > 0) {
+                    showToast(`已自動將 ${successCount} 筆離線暫存成績補傳至雲端！☁️`, "success");
+                }
+            } else {
+                updateCloudBadge("offline", `待補傳 (${remaining.length})`);
+            }
+        };
+
+        // 監聽瀏覽器恢復連線事件，自動觸發補傳
+        window.addEventListener("online", () => {
+            appState.isOnline = true;
+            updateCloudBadge("online", "網路已恢復");
+            window.syncPendingScores(false);
+        });
+        window.addEventListener("offline", () => {
+            appState.isOnline = false;
+            updateCloudBadge("offline", "網路已中斷 (本機暫存)");
+        });
+
+        // ==========================================
+        // 音效與語音合成引擎 (Web Audio & Web Speech)
+        // ==========================================
+        let audioCtx = null;
+        function playSoundEffect(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === "suspended") {
+                    audioCtx.resume();
+                }
+
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === "correct") {
+                    // 清脆悅耳雙音
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.setValueAtTime(880, now + 0.1); // A5
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === "wrong") {
+                    // 低沉提示音
+                    osc.type = "triangle";
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(165, now + 0.25);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === "fanfare") {
+                    // 100分勝利號角和弦
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.type = "triangle";
+                        o.frequency.setValueAtTime(freq, now + idx * 0.12);
+                        g.gain.setValueAtTime(0.18, now + idx * 0.12);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.6);
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.start(now + idx * 0.12);
+                        o.stop(now + idx * 0.12 + 0.6);
+                    });
+                }
+            } catch (e) {
+                // 忽略瀏覽器音訊限制錯誤
+            }
+        }
+
+        window.speakText = function(text, lang = "en-US", rate = 0.95) {
+            try {
+                if (!("speechSynthesis" in window)) return;
+                window.speechSynthesis.cancel();
+                // 清理括號內詞性標註以利自然發音
+                const cleanText = text.replace(/\(prep\.\)/gi, "").replace(/\(sth\)/gi, "something").replace(/sb\/sth/gi, "someone or something").replace(/\//g, " or ");
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = lang;
+                utterance.rate = rate;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.warn("語音朗讀不可用:", e);
+            }
+        };
+
+        // 100分祖傳榮譽語音祝福
+        window.playHonorSpeech = function() {
+            try {
+                playSoundEffect("fanfare");
+                if (!("speechSynthesis" in window)) return;
+                window.speechSynthesis.cancel();
+                const name = appState.studentName || "同學";
+                const msg = `太神啦！恭喜 ${name} 獲得一百分滿分！實力超群，簡直是未來視窗的英語小天才，繼續保持這份榮耀吧！`;
+                const utterance = new SpeechSynthesisUtterance(msg);
+                utterance.lang = "zh-TW";
+                utterance.rate = 1.05;
+                utterance.pitch = 1.15;
+                setTimeout(() => {
+                    window.speechSynthesis.speak(utterance);
+                }, 450);
+            } catch (e) {}
+        };
+
+        // ==========================================
+        // 核心函數：highlightBlank(sentence, word)
+        // 例句挖空與粗體高亮 (防載入空白)
+        // ==========================================
+        window.highlightBlank = function(sentence, word, isClozeMode = false) {
+            if (!sentence) return "";
+            if (!word) return sentence;
+
+            // 處理特殊片語與文法標記的匹配規則
+            let searchPatterns = [];
+            const rawWord = word.trim();
+
+            if (rawWord === "for (prep.)") searchPatterns = ["for"];
+            else if (rawWord === "by (prep.)") searchPatterns = ["by"];
+            else if (rawWord === "will / be going to") searchPatterns = ["are going to", "is going to", "am going to", "will"];
+            else if (rawWord === "un- / dis- / in-") searchPatterns = ["un-, dis-, or in-", "un-", "dis-", "in-"];
+            else if (rawWord === "about / around") searchPatterns = ["around", "about"];
+            else if (rawWord === "the + adj.") searchPatterns = ["the elderly"];
+            else if (rawWord === "fill A with B") searchPatterns = ["fill the glass with"];
+            else if (rawWord === "add (sth) up") searchPatterns = ["add all these numbers up", "add up"];
+            else if (rawWord === "take one's mind off...") searchPatterns = ["take his mind off", "take one's mind off"];
+            else if (rawWord === "feed on sth") searchPatterns = ["feed on"];
+            else if (rawWord === "形容詞比較級") searchPatterns = ["bigger and heavier than"];
+            else if (rawWord === "eat one's fill") searchPatterns = ["eat their fill", "eat one's fill"];
+            else if (rawWord === "can't get enough of sth") searchPatterns = ["can't get enough of"];
+            else if (rawWord === "also, too, as well") searchPatterns = ["as well", "also", "too"];
+            else if (rawWord === "the same N as...") searchPatterns = ["the same backpack as"];
+            else if (rawWord === "For one thing ..., For another (thing)...") searchPatterns = ["for one thing", "for another"];
+            else if (rawWord === "feel sorry for sb/sth") searchPatterns = ["feel sorry for"];
+            else if (rawWord === "thank sb for N/V-ing") searchPatterns = ["thank our parents for"];
+            else {
+                // 一般單字與片語：支援常見動詞變化 (s, es, ed, ing, ran, spun 等)
+                const escaped = rawWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                searchPatterns = [escaped];
+                if (rawWord === "run out of") searchPatterns.unshift("ran out of");
+                if (rawWord === "hang") searchPatterns.unshift("hung");
+                if (rawWord === "swing") searchPatterns.unshift("swung");
+                if (rawWord === "think of") searchPatterns.unshift("thought of");
+                if (rawWord === "pull out") searchPatterns.unshift("pulled out");
+                if (rawWord === "sign up for") searchPatterns.unshift("signed up for");
+                if (rawWord === "take off") searchPatterns.unshift("took off");
+                if (rawWord === "come up with") searchPatterns.unshift("came up with");
+                if (rawWord === "break down") searchPatterns.unshift("broke down");
+                if (rawWord === "let out") searchPatterns.unshift("letting out");
+                if (rawWord === "disappear") searchPatterns.unshift("disappeared");
+                if (rawWord === "introduce") searchPatterns.unshift("introduced");
+                if (rawWord === "accept") searchPatterns.unshift("accepted");
+                if (rawWord === "continue") searchPatterns.unshift("continued");
+                if (rawWord === "serve") searchPatterns.unshift("serves", "served");
+                if (rawWord === "reach") searchPatterns.unshift("reached");
+                if (rawWord === "form") searchPatterns.unshift("forms", "formed");
+            }
+
+            let result = sentence;
+            let matched = false;
+
+            for (const pat of searchPatterns) {
+                // 避免重複替換 HTML 標籤
+                const regex = new RegExp(`(${pat}(?:s|es|ed|ing)?)`, "i");
+                if (regex.test(result)) {
+                    result = result.replace(regex, (match) => {
+                        if (isClozeMode) {
+                            return `<span class="inline-block px-3 py-0.5 mx-1 border-b-2 border-indigo-600 text-indigo-700 font-black bg-indigo-50/90 rounded">________</span>`;
+                        } else {
+                            return `<strong class="px-1.5 py-0.5 rounded bg-indigo-100/90 text-indigo-800 font-extrabold border-b-2 border-indigo-400">${match}</strong>`;
+                        }
+                    });
+                    matched = true;
+                    break;
+                }
+            }
+
+            // 防呆保證：若未能精準比對到字尾變化，在填空模式下於句末補上提示空格，絕不回傳空白
+            if (!matched && isClozeMode) {
+                result += ` <span class="inline-block px-3 py-0.5 mx-1 border-b-2 border-indigo-600 text-indigo-700 font-black bg-indigo-50/90 rounded">[ ________ ]</span>`;
+            }
+
+            return result;
+        };
+
+        // ==========================================
+        // 兩階段選課與互動控制 (掛載至 window)
+        // ==========================================
+        function initSetupUI() {
+            // 載入記憶的學生資料
+            const savedName = safeStorage.getItem("fw_student_name") || "";
+            const savedEdu = safeStorage.getItem("fw_student_edu") || "";
+            const savedGrade = safeStorage.getItem("fw_student_grade") || "";
+
+            if (savedName) document.getElementById("studentNameInput").value = savedName;
+            if (savedEdu) {
+                document.getElementById("educationSelect").value = savedEdu;
+                window.handleEducationChange(savedGrade);
+            }
+
+            // 渲染單元按鈕
+            const container = document.getElementById("unitButtonsContainer");
+            container.innerHTML = UNIT_PRESETS.map(preset => `
+                <button type="button" id="unitBtn_${preset.id}" onclick="window.selectUnitPreset('${preset.id}')"
+                    class="option-pill py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-center truncate ${preset.id === appState.selectedPresetId ? 'active' : ''}">
+                    ${preset.label}
+                </button>
+            `).join("");
+
+            updateSelectedVocabBadge();
+        }
+
+        window.handleEducationChange = function(preselectGrade = "") {
+            const eduSelect = document.getElementById("educationSelect");
+            const gradeSelect = document.getElementById("gradeSelect");
+            const edu = eduSelect.value;
+
+            appState.education = edu;
+            gradeSelect.innerHTML = "";
+
+            if (!edu || !GRADE_MAPPING[edu]) {
+                gradeSelect.disabled = true;
+                gradeSelect.innerHTML = `<option value="">-- 請先選擇上方學歷 --</option>`;
+                appState.grade = "";
+                return;
+            }
+
+            gradeSelect.disabled = false;
+            const options = GRADE_MAPPING[edu];
+            if (options.length > 1) {
+                gradeSelect.innerHTML = `<option value="">-- 請選擇年級 --</option>` +
+                    options.map(g => `<option value="${g}">${g}</option>`).join("");
+            } else {
+                // 單一選項 (如大學畢業(不是老師)、老師) 自動選取
+                gradeSelect.innerHTML = options.map(g => `<option value="${g}">${g}</option>`).join("");
+            }
+
+            if (preselectGrade && options.includes(preselectGrade)) {
+                gradeSelect.value = preselectGrade;
+            } else if (options.length === 1) {
+                gradeSelect.value = options[0];
+            }
+            appState.grade = gradeSelect.value;
+        };
+
+        window.selectUnitPreset = function(presetId) {
+            appState.selectedPresetId = presetId;
+            UNIT_PRESETS.forEach(p => {
+                const btn = document.getElementById(`unitBtn_${p.id}`);
+                if (btn) {
+                    if (p.id === presetId) btn.classList.add("active");
+                    else btn.classList.remove("active");
+                }
+            });
+            updateSelectedVocabBadge();
+        };
+
+        function getSelectedVocabList() {
+            const preset = UNIT_PRESETS.find(p => p.id === appState.selectedPresetId) || UNIT_PRESETS[0];
+            return VOCAB_DATA.filter(item => preset.units.includes(item.unit));
+        }
+
+        function updateSelectedVocabBadge() {
+            const list = getSelectedVocabList();
+            const badge = document.getElementById("selectedVocabCountBadge");
+            if (badge) {
+                badge.textContent = `已選範圍：${list.length} 個單字`;
+            }
+        }
+
+        // RULE 5: 全域掛載設定函數
+        window.setQuestionCount = function(count) {
+            appState.questionCount = count;
+            document.getElementById("btnCount10").classList.toggle("active", count === 10);
+            document.getElementById("btnCountAll").classList.toggle("active", count === "all");
+        };
+
+        window.setQuestionType = function(type) {
+            appState.questionType = type;
+            document.getElementById("btnTypeMixed").classList.toggle("active", type === "mixed");
+            document.getElementById("btnTypeCloze").classList.toggle("active", type === "cloze");
+            document.getElementById("btnTypeEnToZh").classList.toggle("active", type === "en2zh");
+            document.getElementById("btnTypeZhToEn").classList.toggle("active", type === "zh2en");
+        };
+
+        window.toggleInstantFeedback = function(checked) {
+            appState.instantFeedback = Boolean(checked);
+        };
+
+        function validateStep1Profile() {
+            const nameInput = document.getElementById("studentNameInput").value.trim();
+            const eduInput = document.getElementById("educationSelect").value;
+            const gradeInput = document.getElementById("gradeSelect").value;
+
+            if (!nameInput) {
+                showToast("請先在 Step 1 輸入「學生姓名」喔！", "error");
+                document.getElementById("studentNameInput").focus();
+                return false;
+            }
+            if (!eduInput) {
+                showToast("請先在 Step 1 選擇「學歷 / 階段」！", "error");
+                document.getElementById("educationSelect").focus();
+                return false;
+            }
+            if (!gradeInput) {
+                showToast("請先在 Step 1 選擇「年級 / 身分」！", "error");
+                document.getElementById("gradeSelect").focus();
+                return false;
+            }
+
+            appState.studentName = nameInput;
+            appState.education = eduInput;
+            appState.grade = gradeInput;
+
+            // 存入 safeStorage 方便下次帶入
+            safeStorage.setItem("fw_student_name", nameInput);
+            safeStorage.setItem("fw_student_edu", eduInput);
+            safeStorage.setItem("fw_student_grade", gradeInput);
+
+            // 更新頂部學生徽章
+            const headerBadge = document.getElementById("studentHeaderBadge");
+            const headerInfo = document.getElementById("headerStudentInfo");
+            headerBadge.classList.remove("hidden");
+            headerBadge.classList.add("flex");
+            headerInfo.textContent = `${nameInput} (${eduInput}・${gradeInput})`;
+
+            return true;
+        }
+
+        function switchView(viewId) {
+            ["view-setup", "view-study", "view-quiz", "view-result", "view-teacher"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === viewId) el.classList.remove("hidden");
+                    else el.classList.add("hidden");
+                }
+            });
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        window.goHome = function() {
+            switchView("view-setup");
+        };
+
+        // ==========================================
+        // 單字學習館邏輯 (Study Hall)
+        // ==========================================
+        window.enterStudyHall = function() {
+            if (!validateStep1Profile()) return;
+
+            const preset = UNIT_PRESETS.find(p => p.id === appState.selectedPresetId) || UNIT_PRESETS[0];
+            document.getElementById("studyUnitTitle").textContent = preset.label;
+            document.getElementById("studySearchInput").value = "";
+
+            window.filterStudyCards();
+            switchView("view-study");
+        };
+
+        window.filterStudyCards = function() {
+            const keyword = document.getElementById("studySearchInput").value.trim().toLowerCase();
+            const list = getSelectedVocabList().filter(item => {
+                if (!keyword) return true;
+                return item.word.toLowerCase().includes(keyword) ||
+                       item.zh.toLowerCase().includes(keyword) ||
+                       item.example.toLowerCase().includes(keyword);
+            });
+
+            const grid = document.getElementById("studyCardsGrid");
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full glass-panel rounded-3xl p-10 text-center text-slate-500 font-bold">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-400"></i>
+                        <p>找不到符合「${keyword}」的單字，請嘗試其他關鍵字。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = list.map((item, idx) => {
+                const highlightedSentence = window.highlightBlank(item.example, item.word, false);
+                const safeWordAttr = item.word.replace(/'/g, "\\'");
+                const safeExAttr = item.example.replace(/'/g, "\\'");
+                return `
+                <div class="glass-card rounded-3xl p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-extrabold">${item.unit}</span>
+                            <button type="button" onclick="window.speakText('${safeWordAttr}')"
+                                class="w-9 h-9 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white flex items-center justify-center transition shadow-sm" title="朗讀單字">
+                                <i class="fa-solid fa-volume-high text-sm"></i>
+                            </button>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 tracking-tight">${item.word}</h3>
+                        <p class="text-base font-bold text-purple-700 mt-1">${item.zh}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="text-sm text-slate-700 leading-relaxed">${highlightedSentence}</p>
+                            <button type="button" onclick="window.speakText('${safeExAttr}')"
+                                class="text-slate-400 hover:text-indigo-600 shrink-0 mt-0.5 transition" title="朗讀例句">
+                                <i class="fa-solid fa-circle-play text-base"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium">${item.exampleZh}</p>
+                    </div>
+                </div>
+                `;
+            }).join("");
+        };
+
+        // ==========================================
+        // 測驗挑戰區邏輯 (Quiz Arena)
+        // ==========================================
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        window.startQuiz = function() {
+            if (!validateStep1Profile()) return;
+
+            const pool = getSelectedVocabList();
+            if (pool.length === 0) {
+                showToast("請至少選擇一個有效的課程單元！", "error");
+                return;
+            }
+
+            // 徹底隨機打亂題目順序
+            let shuffledPool = shuffleArray(pool);
+            if (appState.questionCount === 10 && shuffledPool.length > 10) {
+                shuffledPool = shuffledPool.slice(0, 10);
+            }
+
+            const modes = ["cloze", "en2zh", "zh2en"];
+
+            // 為每一題建立題型與徹底隨機打亂的 A, B, C, D 選項
+            appState.quizQuestions = shuffledPool.map((item) => {
+                const mode = appState.questionType === "mixed"
+                    ? modes[Math.floor(Math.random() * modes.length)]
+                    : appState.questionType;
+
+                // 從全庫挑選 3 個干擾項
+                const distractorsPool = shuffleArray(VOCAB_DATA.filter(v => v.word !== item.word));
+                const distractors = distractorsPool.slice(0, 3);
+
+                let rawOptions = [];
+                let correctAnswerText = "";
+                let promptHtml = "";
+                let subHint = "";
+                let speakTarget = item.word;
+                let categoryLabel = "";
+
+                if (mode === "cloze") {
+                    categoryLabel = "例句填空測驗";
+                    promptHtml = window.highlightBlank(item.example, item.word, true);
+                    subHint = `中文提示：${item.exampleZh}`;
+                    speakTarget = item.example;
+                    correctAnswerText = item.word;
+                    rawOptions = [item.word, ...distractors.map(d => d.word)];
+                } else if (mode === "en2zh") {
+                    categoryLabel = "英翻中測驗";
+                    promptHtml = `<span class="text-2xl sm:text-3xl font-black text-indigo-700">${item.word}</span>`;
+                    subHint = "請選出最符合此英文單字或片語的中文解釋：";
+                    speakTarget = item.word;
+                    correctAnswerText = item.zh;
+                    rawOptions = [item.zh, ...distractors.map(d => d.zh)];
+                } else {
+                    categoryLabel = "中翻英測驗";
+                    promptHtml = `<span class="text-2xl sm:text-3xl font-black text-purple-700">${item.zh}</span>`;
+                    subHint = "請選出對應的英文單字或片語：";
+                    speakTarget = item.word;
+                    correctAnswerText = item.word;
+                    rawOptions = [item.word, ...distractors.map(d => d.word)];
+                }
+
+                // 徹底打亂選項陣列
+                const shuffledOptions = shuffleArray(rawOptions);
+
+                return {
+                    vocab: item,
+                    mode,
+                    categoryLabel,
+                    promptHtml,
+                    subHint,
+                    speakTarget,
+                    correctAnswerText,
+                    options: shuffledOptions
+                };
+            });
+
+            appState.currentIndex = 0;
+            appState.correctCount = 0;
+            appState.score = 0;
+            appState.wrongList = [];
+            appState.answeredCurrent = false;
+
+            const preset = UNIT_PRESETS.find(p => p.id === appState.selectedPresetId) || UNIT_PRESETS[0];
+            const typeNames = { mixed: "混合題型", cloze: "例句填空", en2zh: "英翻中", zh2en: "中翻英" };
+            document.getElementById("quizUnitBadge").textContent = preset.label;
+            document.getElementById("quizTypeBadge").textContent = typeNames[appState.questionType] || "混合題型";
+            document.getElementById("quizTotalNum").textContent = appState.quizQuestions.length;
+
+            switchView("view-quiz");
+            renderCurrentQuestion();
+        };
+
+        function renderCurrentQuestion() {
+            const q = appState.quizQuestions[appState.currentIndex];
+            const total = appState.quizQuestions.length;
+            appState.answeredCurrent = false;
+
+            document.getElementById("quizCurrentNum").textContent = appState.currentIndex + 1;
+            const percent = Math.round(((appState.currentIndex + 1) / total) * 100);
+            document.getElementById("quizProgressBar").style.width = `${percent}%`;
+
+            document.getElementById("questionCategoryLabel").textContent = q.categoryLabel;
+            document.getElementById("questionPromptText").innerHTML = q.promptHtml;
+            document.getElementById("questionSubHint").textContent = q.subHint;
+
+            // 隱藏回饋區與下一題按鈕
+            const feedbackBox = document.getElementById("quizFeedbackBox");
+            feedbackBox.classList.add("hidden");
+            const nextBtn = document.getElementById("nextQuestionBtn");
+            nextBtn.classList.add("hidden");
+            document.getElementById("nextQuestionBtnText").textContent =
+                appState.currentIndex === total - 1 ? "查看結算成績" : "下一題";
+
+            const letters = ["A", "B", "C", "D"];
+            const optionsContainer = document.getElementById("quizOptionsContainer");
+            optionsContainer.innerHTML = q.options.map((optText, idx) => {
+                const escapedOpt = optText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                return `
+                <button type="button" id="optBtn_${idx}" onclick="window.selectQuizOption(${idx})"
+                    class="w-full text-left p-4 rounded-2xl bg-white/90 hover:bg-indigo-50/90 border-2 border-slate-200 hover:border-indigo-400 transition flex items-center gap-3.5 group shadow-sm">
+                    <span class="w-9 h-9 rounded-xl bg-slate-100 group-hover:bg-indigo-600 group-hover:text-white text-slate-700 font-black flex items-center justify-center shrink-0 transition">
+                        ${letters[idx]}
+                    </span>
+                    <span class="text-base sm:text-lg font-bold text-slate-800">${optText}</span>
+                </button>
+                `;
+            }).join("");
+
+            // 若為英翻中，自動朗讀單字輔助聽力
+            if (q.mode === "en2zh") {
+                window.speakText(q.speakTarget);
+            }
+        }
+
+        window.speakCurrentQuestion = function() {
+            const q = appState.quizQuestions[appState.currentIndex];
+            if (q) window.speakText(q.speakTarget);
+        };
+
+        window.selectQuizOption = function(selectedIndex) {
+            if (appState.answeredCurrent) return;
+            appState.answeredCurrent = true;
+
+            const q = appState.quizQuestions[appState.currentIndex];
+            const chosenText = q.options[selectedIndex];
+            const isCorrect = chosenText === q.correctAnswerText;
+
+            if (isCorrect) {
+                appState.correctCount++;
+                playSoundEffect("correct");
+            } else {
+                playSoundEffect("wrong");
+                appState.wrongList.push({
+                    word: q.vocab.word,
+                    zh: q.vocab.zh,
+                    userAnswer: chosenText,
+                    correctAnswer: q.correctAnswerText,
+                    example: q.vocab.example,
+                    exampleZh: q.vocab.exampleZh
+                });
+            }
+
+            // 鎖定所有按鈕並標示正誤顏色
+            q.options.forEach((optText, idx) => {
+                const btn = document.getElementById(`optBtn_${idx}`);
+                btn.disabled = true;
+                btn.classList.remove("hover:bg-indigo-50/90", "hover:border-indigo-400");
+
+                if (appState.instantFeedback) {
+                    if (optText === q.correctAnswerText) {
+                        btn.classList.remove("bg-white/90", "border-slate-200");
+                        btn.classList.add("bg-emerald-50", "border-emerald-500", "ring-2", "ring-emerald-500/20");
+                        btn.querySelector("span:first-child").className = "w-9 h-9 rounded-xl bg-emerald-500 text-white font-black flex items-center justify-center shrink-0";
+                    } else if (idx === selectedIndex && !isCorrect) {
+                        btn.classList.remove("bg-white/90", "border-slate-200");
+                        btn.classList.add("bg-rose-50", "border-rose-500");
+                        btn.querySelector("span:first-child").className = "w-9 h-9 rounded-xl bg-rose-500 text-white font-black flex items-center justify-center shrink-0";
+                    }
+                } else if (idx === selectedIndex) {
+                    btn.classList.add("bg-indigo-50", "border-indigo-500");
+                }
+            });
+
+            // 顯示即時解析回饋 (若開啟即時顯示答案，或答錯時強制顯示解析以利學習)
+            const feedbackBox = document.getElementById("quizFeedbackBox");
+            const feedbackIcon = document.getElementById("feedbackIcon");
+            const feedbackTitle = document.getElementById("feedbackTitle");
+            const feedbackAnswerText = document.getElementById("feedbackAnswerText");
+            const feedbackExampleText = document.getElementById("feedbackExampleText");
+
+            if (appState.instantFeedback) {
+                feedbackBox.classList.remove("hidden", "bg-emerald-50/90", "border-emerald-300", "bg-rose-50/90", "border-rose-300");
+                if (isCorrect) {
+                    feedbackBox.classList.add("bg-emerald-50/90", "border-emerald-300");
+                    feedbackIcon.className = "w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 mt-0.5 text-white";
+                    feedbackIcon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                    feedbackTitle.textContent = "太棒了！回答正確！";
+                    feedbackTitle.className = "font-extrabold text-base text-emerald-800";
+                } else {
+                    feedbackBox.classList.add("bg-rose-50/90", "border-rose-300");
+                    feedbackIcon.className = "w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center shrink-0 mt-0.5 text-white";
+                    feedbackIcon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                    feedbackTitle.textContent = "哎呀，答錯囉！請看正確解析：";
+                    feedbackTitle.className = "font-extrabold text-base text-rose-800";
+                }
+                feedbackAnswerText.innerHTML = `正確答案：<span class="underline">${q.correctAnswerText}</span>（${q.vocab.word}：${q.vocab.zh}）`;
+                feedbackExampleText.innerHTML = `例句：${window.highlightBlank(q.vocab.example, q.vocab.word, false)}<br><span class="text-slate-500">${q.vocab.exampleZh}</span>`;
+            }
+
+            // 朗讀單字強化記憶
+            window.speakText(q.vocab.word);
+
+            // 顯示下一題按鈕
+            document.getElementById("nextQuestionBtn").classList.remove("hidden");
+        };
+
+        window.nextQuestion = function() {
+            if (appState.currentIndex < appState.quizQuestions.length - 1) {
+                appState.currentIndex++;
+                renderCurrentQuestion();
+            } else {
+                finishQuizAndShowResult();
+            }
+        };
+
+        window.confirmQuitQuiz = function() {
+            openConfirmModal(
+                "放棄目前測驗？",
+                "現在離開將不會計算本次測驗成績，確定要返回選課首頁嗎？",
+                () => {
+                    closeModal("customConfirmModal");
+                    window.goHome();
+                }
+            );
+        };
+
+        // ==========================================
+        // 結算與 100 分榮譽語音慶祝邏輯
+        // ==========================================
+        async function finishQuizAndShowResult() {
+            const total = appState.quizQuestions.length;
+            const finalScore = Math.round((appState.correctCount / total) * 100);
+            appState.score = finalScore;
+
+            const preset = UNIT_PRESETS.find(p => p.id === appState.selectedPresetId) || UNIT_PRESETS[0];
+            const typeNames = { mixed: "混合題型", cloze: "例句填空", en2zh: "英翻中", zh2en: "中翻英" };
+
+            // 準備成績 Payload
+            const resultPayload = {
+                localId: `rec_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                studentName: appState.studentName,
+                education: appState.education,
+                grade: appState.grade,
+                unit: preset.label,
+                questionType: typeNames[appState.questionType] || "混合題型",
+                totalQuestions: total,
+                correctCount: appState.correctCount,
+                score: finalScore,
+                timestamp: Date.now(),
+                dateStr: new Date().toLocaleString("zh-TW", { hour12: false })
+            };
+            appState.lastResultPayload = resultPayload;
+
+            // 更新結算畫面 UI
+            document.getElementById("resultStudentMeta").textContent = `${appState.studentName} ｜ ${appState.education}・${appState.grade} ｜ 範圍：${preset.label}`;
+            document.getElementById("resultScoreNumber").textContent = finalScore;
+            document.getElementById("resultCorrectRatio").textContent = `答對 ${appState.correctCount} / ${total} 題`;
+
+            const summaryCard = document.getElementById("resultSummaryCard");
+            const honorBadge = document.getElementById("honorBadgeContainer");
+            const replayVoiceBox = document.getElementById("replayHonorVoiceBox");
+            const headline = document.getElementById("resultHeadline");
+
+            if (finalScore === 100) {
+                summaryCard.classList.add("gold-honor-card");
+                honorBadge.classList.remove("hidden");
+                replayVoiceBox.classList.remove("hidden");
+                headline.textContent = "完美滿分！榮耀殿堂達成！";
+                // 觸發彩帶特效與祖傳榮譽語音
+                try {
+                    if (typeof confetti === "function") {
+                        confetti({ particleCount: 130, spread: 80, origin: { y: 0.6 } });
+                    }
+                } catch (_) {}
+                window.playHonorSpeech();
+            } else {
+                summaryCard.classList.remove("gold-honor-card");
+                honorBadge.classList.add("hidden");
+                replayVoiceBox.classList.add("hidden");
+                headline.textContent = finalScore >= 80 ? "表現非常優秀！繼續加油！" : "測驗完成！看看錯題解析吧！";
+            }
+
+            // 渲染錯題列表
+            const wrongSection = document.getElementById("wrongQuestionsSection");
+            const wrongListEl = document.getElementById("wrongQuestionsList");
+            if (appState.wrongList.length > 0) {
+                wrongSection.classList.remove("hidden");
+                document.getElementById("wrongCountBadge").textContent = appState.wrongList.length;
+                wrongListEl.innerHTML = appState.wrongList.map((w, i) => `
+                    <div class="p-4 rounded-2xl bg-white/90 border border-rose-200 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-black text-slate-800 text-base">${i + 1}. ${w.word} <span class="text-purple-700 font-bold text-sm">(${w.zh})</span></span>
+                            <button onclick="window.speakText('${w.word.replace(/'/g, "\\'")}')" class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+                        <div class="text-xs sm:text-sm flex flex-wrap gap-x-4 gap-y-1">
+                            <span class="text-rose-600 font-bold"><i class="fa-solid fa-xmark mr-1"></i>您的作答：${w.userAnswer}</span>
+                            <span class="text-emerald-600 font-bold"><i class="fa-solid fa-check mr-1"></i>正確答案：${w.correctAnswer}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 pt-1">${window.highlightBlank(w.example, w.word, false)} — ${w.exampleZh}</p>
+                    </div>
+                `).join("");
+            } else {
+                wrongSection.classList.add("hidden");
+            }
+
+            switchView("view-result");
+
+            // 自動觸發成績上傳至雲端 (含防呆重試與斷線本機暫存)
+            await window.uploadCurrentResult();
+        }
+
+        // RULE 6: 成績上傳至雲端按鈕與自動重連防呆機制
+        window.uploadCurrentResult = async function() {
+            const payload = appState.lastResultPayload;
+            if (!payload) return;
+
+            const statusMsg = document.getElementById("uploadStatusMessage");
+            const statusBanner = document.getElementById("uploadStatusBanner");
+            const uploadBtn = document.getElementById("manualUploadBtn");
+
+            uploadBtn.disabled = true;
+            uploadBtn.classList.add("opacity-70", "cursor-not-allowed");
+            statusBanner.className = "text-sm font-bold text-indigo-700 flex items-center justify-center gap-2";
+            statusMsg.textContent = "上傳中... 正在同步至教師雲端資料庫";
+
+            try {
+                if (!navigator.onLine) {
+                    throw new Error("目前無網路連線");
+                }
+                await writeScoreWithRetry(payload, 2);
+
+                // 上傳成功
+                statusBanner.className = "text-sm font-extrabold text-emerald-600 flex items-center justify-center gap-2";
+                statusMsg.textContent = "上傳成功 ☁️ 成績已安全送達教師後台！";
+                uploadBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>已完成雲端上傳</span>`;
+                showToast("成績已成功上傳至雲端！☁️", "success");
+            } catch (err) {
+                // 上傳失敗或離線：自動暫存至 safeStorage 並提示
+                saveScoreToPendingQueue(payload);
+                statusBanner.className = "text-sm font-bold text-amber-600 flex items-center justify-center gap-2";
+                statusMsg.textContent = "上傳失敗，已存至本機並嘗試重連";
+                uploadBtn.disabled = false;
+                uploadBtn.classList.remove("opacity-70", "cursor-not-allowed");
+                uploadBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> <span>重新嘗試上傳至雲端</span>`;
+                showToast("連線不穩，成績已安全暫存於本機，將於連線恢復後自動補傳。", "warning");
+            }
+        };
+
+        // ==========================================
+        // 教師管理後台與雙通道密碼修改
+        // ==========================================
+        window.openTeacherModal = function() {
+            document.getElementById("teacherPasswordInput").value = "";
+            document.getElementById("teacherAuthError").classList.add("hidden");
+            openModal("teacherAuthModal");
+            setTimeout(() => document.getElementById("teacherPasswordInput").focus(), 100);
+        };
+
+        window.verifyTeacherPassword = function() {
+            const inputPwd = document.getElementById("teacherPasswordInput").value.trim();
+            const currentPwd = appState.teacherPassword || safeStorage.getItem("fw_teacher_pwd") || "terry0121";
+
+            if (inputPwd === currentPwd || inputPwd === "terry0121" && !safeStorage.getItem("fw_teacher_pwd_changed")) {
+                closeModal("teacherAuthModal");
+                updatePendingBadgeCount();
+                window.renderTeacherTable();
+                switchView("view-teacher");
+                showToast("歡迎進入教師管理後台！", "success");
+            } else {
+                const errEl = document.getElementById("teacherAuthError");
+                errEl.textContent = "密碼錯誤，請重新確認後再試！";
+                errEl.classList.remove("hidden");
+            }
+        };
+
+        window.openChangePasswordModal = function() {
+            document.getElementById("newPasswordInput").value = "";
+            document.getElementById("confirmNewPasswordInput").value = "";
+            document.getElementById("changePwdStatusMsg").classList.add("hidden");
+            openModal("changePasswordModal");
+        };
+
+        // RULE 5 & RULE 6: 雙通道密碼修改 (同步寫入 Firestore 與 safeStorage，含驗證重試)
+        window.submitChangePassword = async function() {
+            const newPwd = document.getElementById("newPasswordInput").value.trim();
+            const confirmPwd = document.getElementById("confirmNewPasswordInput").value.trim();
+            const msgEl = document.getElementById("changePwdStatusMsg");
+
+            if (newPwd.length < 4) {
+                msgEl.textContent = "新密碼長度至少需要 4 個字元！";
+                msgEl.className = "text-xs font-bold text-rose-500 block";
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                msgEl.textContent = "兩次輸入的密碼不一致，請重新確認！";
+                msgEl.className = "text-xs font-bold text-rose-500 block";
+                return;
+            }
+
+            // 通道 1：立即寫入本機 safeStorage
+            appState.teacherPassword = newPwd;
+            safeStorage.setItem("fw_teacher_pwd", newPwd);
+            safeStorage.setItem("fw_teacher_pwd_changed", "true");
+
+            msgEl.textContent = "正在同步更新雲端密碼...";
+            msgEl.className = "text-xs font-bold text-indigo-600 block";
+
+            // 通道 2：寫入 Firestore 雲端設定 (含自動重連重試)
+            try {
+                if (db && teacherConfigDocRef) {
+                    if (!auth.currentUser) {
+                        await signInAnonymously(auth);
+                    }
+                    await setDoc(teacherConfigDocRef, {
+                        password: newPwd,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                }
+                closeModal("changePasswordModal");
+                showToast("後台密碼已透過雙通道更新並同步至雲端！🔐", "success");
+            } catch (err) {
+                closeModal("changePasswordModal");
+                showToast("本機密碼已更新，但雲端同步延遲，將於連線正常時自動套用。", "warning");
+            }
+        };
+
+        // RULE 3: 所有篩選與排序皆在前端 JS 內存完成
+        window.renderTeacherTable = function() {
+            const searchKw = (document.getElementById("adminSearchInput")?.value || "").trim().toLowerCase();
+            const filterEdu = document.getElementById("adminFilterEdu")?.value || "ALL";
+            const sortMode = document.getElementById("adminSortSelect")?.value || "time_desc";
+
+            // 合併雲端紀錄與尚未補傳的本機暫存紀錄，確保教師視角完整不漏接
+            const pendingRaw = safeStorage.getItem("fw_pending_scores");
+            let pendingList = [];
+            try { pendingList = pendingRaw ? JSON.parse(pendingRaw) : []; } catch (_) {}
+
+            const combined = [
+                ...appState.cloudScores.map(s => ({ ...s, isPending: false })),
+                ...pendingList.map(p => ({ ...p, id: p.localId, isPending: true }))
+            ];
+
+            // 內存篩選
+            const filtered = combined.filter(rec => {
+                const matchName = !searchKw || (rec.studentName || "").toLowerCase().includes(searchKw);
+                const matchEdu = filterEdu === "ALL" || rec.education === filterEdu;
+                return matchName && matchEdu;
+            });
+
+            // 內存排序
+            filtered.sort((a, b) => {
+                const tA = Number(a.timestamp) || 0;
+                const tB = Number(b.timestamp) || 0;
+                const sA = Number(a.score) || 0;
+                const sB = Number(b.score) || 0;
+
+                if (sortMode === "time_desc") return tB - tA;
+                if (sortMode === "time_asc") return tA - tB;
+                if (sortMode === "score_desc") return sB - sA;
+                if (sortMode === "score_asc") return sA - sB;
+                return tB - tA;
+            });
+
+            // 更新頂部統計卡片
+            document.getElementById("statTotalRecords").textContent = filtered.length;
+            const avg = filtered.length > 0
+                ? Math.round(filtered.reduce((acc, cur) => acc + (Number(cur.score) || 0), 0) / filtered.length)
+                : 0;
+            document.getElementById("statAvgScore").textContent = avg;
+            const perfect = filtered.filter(r => Number(r.score) === 100).length;
+            document.getElementById("statPerfectCount").textContent = perfect;
+
+            const tbody = document.getElementById("teacherScoresTableBody");
+            if (!tbody) return;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-10 text-center text-slate-400 font-bold">
+                            目前沒有符合條件的學生作答紀錄
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(rec => {
+                const is100 = Number(rec.score) === 100;
+                const scoreBadge = is100
+                    ? `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-black border border-amber-300"><i class="fa-solid fa-crown mr-1"></i>100 分</span>`
+                    : `<span class="font-extrabold ${Number(rec.score) >= 60 ? 'text-indigo-600' : 'text-rose-600'}">${rec.score} 分</span>`;
+
+                const pendingTag = rec.isPending
+                    ? `<span class="ml-1.5 px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold">待補傳</span>`
+                    : "";
+
+                return `
+                <tr class="hover:bg-indigo-50/40 transition">
+                    <td class="py-3.5 px-4 font-extrabold text-slate-800">${rec.studentName || "未具名"}${pendingTag}</td>
+                    <td class="py-3.5 px-4 text-slate-600 font-medium">${rec.education || "-"}・${rec.grade || "-"}</td>
+                    <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs">${rec.unit || "-"}</span></td>
+                    <td class="py-3.5 px-4 text-xs text-slate-500 font-semibold">${rec.questionType || "-"} (${rec.correctCount || 0}/${rec.totalQuestions || 0})</td>
+                    <td class="py-3.5 px-4">${scoreBadge}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-500">${rec.dateStr || "-"}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <button onclick="window.deleteSingleScore('${rec.id}', ${Boolean(rec.isPending)})"
+                            class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-xs font-bold transition" title="刪除此筆紀錄">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join("");
+        };
+
+        window.deleteSingleScore = function(docId, isPending) {
+            openConfirmModal(
+                "刪除單筆作答紀錄",
+                "確定要永久刪除此筆學生成績嗎？刪除後將無法復原。",
+                async () => {
+                    closeModal("customConfirmModal");
+                    try {
+                        if (isPending) {
+                            const raw = safeStorage.getItem("fw_pending_scores");
+                            let q = raw ? JSON.parse(raw) : [];
+                            q = q.filter(item => item.localId !== docId);
+                            safeStorage.setItem("fw_pending_scores", JSON.stringify(q));
+                            updatePendingBadgeCount();
+                            window.renderTeacherTable();
+                        } else if (db) {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', docId));
+                        }
+                        showToast("已成功刪除該筆成績紀錄。", "success");
+                    } catch (err) {
+                        showToast("刪除失敗，請確認網路連線後再試。", "error");
+                    }
+                }
+            );
+        };
+
+        window.confirmClearAllScores = function() {
+            openConfirmModal(
+                "⚠️ 一鍵清空所有成績",
+                "此操作將會刪除雲端與本機的所有學生作答紀錄！您確定要全部清空嗎？",
+                async () => {
+                    closeModal("customConfirmModal");
+                    try {
+                        // 清空本機待補傳
+                        safeStorage.removeItem("fw_pending_scores");
+                        updatePendingBadgeCount();
+
+                        // 逐筆刪除雲端集合文件
+                        if (db && appState.cloudScores.length > 0) {
+                            const deletePromises = appState.cloudScores.map(rec =>
+                                deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', rec.id))
+                            );
+                            await Promise.all(deletePromises);
+                        }
+                        window.renderTeacherTable();
+                        showToast("已清空所有學生作答紀錄！", "success");
+                    } catch (err) {
+                        showToast("清空過程發生部分錯誤，請稍後再試。", "error");
+                    }
+                }
+            );
+        };
+
+        // 匯出 UTF-8 BOM Excel (CSV)
+        window.exportScoresCSV = function() {
+            const headers = ["學生姓名", "學歷", "年級/身分", "測驗單元", "測驗題型", "答對題數", "總題數", "總得分", "作答時間"];
+            const rows = appState.cloudScores.map(r => [
+                `"${(r.studentName || "").replace(/"/g, '""')}"`,
+                `"${(r.education || "").replace(/"/g, '""')}"`,
+                `"${(r.grade || "").replace(/"/g, '""')}"`,
+                `"${(r.unit || "").replace(/"/g, '""')}"`,
+                `"${(r.questionType || "").replace(/"/g, '""')}"`,
+                r.correctCount || 0,
+                r.totalQuestions || 0,
+                r.score || 0,
+                `"${(r.dateStr || "").replace(/"/g, '""')}"`
+            ]);
+
+            // 加入 \uFEFF UTF-8 BOM 確保 Excel 開啟中文絕不亂碼
+            const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const dateTag = new Date().toISOString().slice(0, 10);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `未來視窗_115-11月_學生成績冊_${dateTag}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast("已成功匯出 UTF-8 BOM Excel (CSV) 檔案！", "success");
+        };
+
+        // ==========================================
+        // Modal 與 Toast 互動通知工具
+        // ==========================================
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove("hidden");
+                el.classList.add("flex");
+            }
+        }
+        window.closeModal = function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add("hidden");
+                el.classList.remove("flex");
+            }
+        };
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById("confirmModalTitle").textContent = title;
+            document.getElementById("confirmModalMessage").textContent = message;
+            const actionBtn = document.getElementById("confirmModalActionBtn");
+            actionBtn.onclick = onConfirm;
+            openModal("customConfirmModal");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+
+            const styles = {
+                success: "bg-emerald-600 text-white border-emerald-400",
+                error: "bg-rose-600 text-white border-rose-400",
+                warning: "bg-amber-500 text-white border-amber-300",
+                info: "bg-slate-800 text-white border-slate-600"
+            };
+            const icons = {
+                success: "fa-circle-check",
+                error: "fa-circle-exclamation",
+                warning: "fa-triangle-exclamation",
+                info: "fa-circle-info"
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-xs sm:text-sm font-bold transition-all duration-300 transform translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-base"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            });
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // ==========================================
+        // 啟動應用程式
+        // ==========================================
+        window.addEventListener("DOMContentLoaded", () => {
+            initSetupUI();
+            initFirebaseSafely();
+        });
+    </script>
+</body>
+</html>
