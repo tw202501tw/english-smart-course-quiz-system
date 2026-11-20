@@ -51,13 +51,45 @@
 </head>
 <body class="p-2 sm:p-4 w-full max-w-5xl mx-auto">
 
-    <!-- 自訂彈出視窗 -->
+    <!-- 自訂提示彈出視窗 -->
     <div id="modalContainer" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
         <div class="glass-panel rounded-2xl p-6 max-w-sm w-full border border-purple-500/30 text-center space-y-4">
             <h3 id="modalTitle" class="text-xl font-bold text-purple-300">系統提示</h3>
             <p id="modalMessage" class="text-gray-200 text-sm whitespace-pre-line"></p>
             <div id="modalButtons" class="flex justify-center gap-3 pt-2">
                 <button onclick="closeModal()" class="glass-btn px-6 py-2 rounded-xl text-sm font-semibold">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 舊帳號密碼不符規定：強制修改密碼鎖定視窗 -->
+    <div id="forcePasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-panel rounded-3xl p-6 max-w-md w-full border border-amber-400/50 space-y-4">
+            <div class="text-center space-y-2">
+                <div class="inline-block p-3 rounded-full bg-amber-500/20 text-amber-300 text-2xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-amber-300">安全升級：請強制更新密碼</h3>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    偵測到您目前的密碼不符合最新安全規範！<br>
+                    為保障您的帳號安全，請立即設定新密碼才能進入系統：<br>
+                    <span class="text-purple-300 font-bold">必須 8 個字元以上，且包含至少 1 個大寫英文、1 個小寫英文與 1 個數字</span>
+                </p>
+            </div>
+            <div class="space-y-3 pt-2">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">輸入符合規則的新密碼</label>
+                    <input type="password" id="forceNewPwdInput" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：Abc12345">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">再次確認新密碼</label>
+                    <input type="password" id="forceConfirmPwdInput" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請再次輸入新密碼">
+                </div>
+                <p id="forcePwdErrorText" class="text-xs text-rose-400 font-semibold hidden"></p>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="cancelForcePassword()" class="glass-btn flex-1 py-2.5 rounded-xl text-xs text-gray-300">取消並返回登入</button>
+                    <button onclick="submitForcePassword()" class="glass-btn flex-1 py-2.5 rounded-xl text-xs font-bold text-amber-200 border-amber-400/50">確認修改並登入</button>
+                </div>
             </div>
         </div>
     </div>
@@ -107,10 +139,15 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-1">密碼</label>
-                    <input type="password" id="authPassword" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="請輸入密碼">
+                    <input type="password" id="authPassword" required class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="至少8碼，含大寫、小寫英文與數字">
                 </div>
 
                 <div id="registerFields" class="space-y-4 hidden">
+                    <div class="p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-xs text-indigo-200 space-y-1">
+                        <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i>註冊規範提醒：</p>
+                        <p>• 帳號不可與現有會員重複。</p>
+                        <p>• 密碼需 <b>8 個字元以上</b>，並包含 <b>1個大寫、1個小寫、1個數字</b>。</p>
+                    </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 mb-1">真實姓名</label>
                         <input type="text" id="authRealName" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm" placeholder="例如：張小明">
@@ -352,7 +389,8 @@
 
             <div class="space-y-3">
                 <h3 class="text-sm font-bold text-indigo-300">修改個人密碼</h3>
-                <input type="password" id="newPasswordInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入新密碼">
+                <p class="text-[11px] text-gray-400">須 8 個字元以上，包含至少 1 大寫、1 小寫、1 數字</p>
+                <input type="password" id="newPasswordInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm" placeholder="輸入符合規範的新密碼">
                 <button onclick="handleChangePassword()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-indigo-200">確認修改密碼</button>
             </div>
 
@@ -368,6 +406,7 @@
     <!-- 腳本與題庫邏輯引擎 -->
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbznLRoC47PyClwov_SN6A8s_oYMRmwyIDRsQjpxFHIJnzM3GtydNMo9feIFk30YKbE/exec";
+        const SCORE_SHEET_NAME = "測驗成績庫";
 
         const ROLES = {
             ADMIN: "admin",
@@ -377,6 +416,13 @@
             STUDENT: "4.學生",
             OTHER: "5.以上都沒有符合我的條件"
         };
+
+        // 密碼強度驗證：至少8碼，且包含至少1大寫、1小寫、1數字
+        function isPasswordValid(pwd) {
+            if (!pwd || typeof pwd !== "string") return false;
+            if (pwd.length < 8) return false;
+            return /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[0-9]/.test(pwd);
+        }
 
         function isRoleStaff(r) { return r === ROLES.STAFF || String(r).startsWith("1"); }
         function isRoleTeacherOrParent(r) { return r === ROLES.TEACHER || r === ROLES.PARENT || String(r).startsWith("2") || String(r).startsWith("3"); }
@@ -549,6 +595,7 @@
         const STORAGE_CURRENT_USER = "EN_QUIZ_LOGGED_USER";
 
         let currentUser = null;
+        let pendingForceUser = null;
         let currentQuizQuestions = [];
         let currentQuestionIdx = 0;
         let currentQuizScore = 0;
@@ -569,6 +616,7 @@
         async function callGAS(action, payload = {}) {
             try {
                 payload.action = action;
+                payload.scoreSheet = SCORE_SHEET_NAME;
                 const response = await fetch(GAS_API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -582,7 +630,7 @@
 
         async function syncFromGAS(silent = false) {
             try {
-                const res = await fetch(`${GAS_API_URL}?action=getAllData`);
+                const res = await fetch(`${GAS_API_URL}?action=getAllData&scoreSheet=${encodeURIComponent(SCORE_SHEET_NAME)}`);
                 const data = await res.json();
                 if (data.status === "success") {
                     if (data.users) safeStorageSet(STORAGE_USERS_KEY, data.users);
@@ -627,17 +675,28 @@
                 return;
             }
 
-            // 登入前靜默同步最新雲端會員庫
+            // 同步最新雲端會員庫檢查重複帳號與密碼
             await syncFromGAS(true);
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
 
             if (isRegisterTab) {
-                if (users.find(x => x.username === u)) return showModal("此帳號已被註冊！");
+                // 檢查帳號不可重複（不分大小寫）
+                if (users.find(x => x.username.toLowerCase() === u.toLowerCase())) {
+                    return showModal("此帳號已被註冊，不可建立重複帳號！");
+                }
+                // 強制驗證密碼強度
+                if (!isPasswordValid(p)) {
+                    return showModal("密碼不符合安全規定！\n\n密碼必須包含：\n1. 8 個字元以上（含 8 碼）\n2. 至少 1 個英文字母大寫 (A-Z)\n3. 至少 1 個英文字母小寫 (a-z)\n4. 至少 1 個數字 (0-9)");
+                }
+
                 const rName = document.getElementById('authRealName').value.trim() || u;
                 const role = document.getElementById('authRole').value;
                 const newUser = { username: u, password: p, realName: rName, role: role, boundUsers: [] };
 
-                await callGAS("register", newUser);
+                const res = await callGAS("register", newUser);
+                if (res && res.status === "error") {
+                    return showModal(res.message);
+                }
 
                 users.push(newUser);
                 safeStorageSet(STORAGE_USERS_KEY, users);
@@ -647,9 +706,65 @@
             } else {
                 const found = users.find(x => x.username === u && x.password === p);
                 if (!found) return showModal("帳號或密碼錯誤！");
+
+                // 檢查既有舊帳號密碼是否符合新規則，若不符則強制彈出修改密碼視窗
+                if (!isPasswordValid(found.password)) {
+                    pendingForceUser = found;
+                    document.getElementById('forceNewPwdInput').value = "";
+                    document.getElementById('forceConfirmPwdInput').value = "";
+                    document.getElementById('forcePwdErrorText').classList.add('hidden');
+                    document.getElementById('forcePasswordModal').classList.remove('hidden');
+                    return;
+                }
+
                 currentUser = found;
                 loginSuccess();
             }
+        }
+
+        function cancelForcePassword() {
+            pendingForceUser = null;
+            document.getElementById('forcePasswordModal').classList.add('hidden');
+        }
+
+        async function submitForcePassword() {
+            if (!pendingForceUser) return;
+            const newPwd = document.getElementById('forceNewPwdInput').value.trim();
+            const confirmPwd = document.getElementById('forceConfirmPwdInput').value.trim();
+            const errEl = document.getElementById('forcePwdErrorText');
+
+            if (!isPasswordValid(newPwd)) {
+                errEl.innerText = "密碼不符規範！需 8 碼以上，含至少 1 大寫、1 小寫、1 數字。";
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                errEl.innerText = "兩次輸入的新密碼不一致！";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            errEl.classList.add('hidden');
+            const res = await callGAS("updatePassword", { username: pendingForceUser.username, newPassword: newPwd });
+            if (res && res.status === "error") {
+                errEl.innerText = res.message;
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            let users = safeStorageGet(STORAGE_USERS_KEY, []);
+            const idx = users.findIndex(x => x.username === pendingForceUser.username);
+            if (idx !== -1) {
+                users[idx].password = newPwd;
+                safeStorageSet(STORAGE_USERS_KEY, users);
+            }
+            pendingForceUser.password = newPwd;
+            currentUser = pendingForceUser;
+            pendingForceUser = null;
+
+            document.getElementById('forcePasswordModal').classList.add('hidden');
+            showModal("密碼已成功更新並同步至雲端，歡迎登入！");
+            loginSuccess();
         }
 
         function updateHeaderBadge() {
@@ -1108,13 +1223,17 @@
 
         async function handleChangePassword() {
             const pwd = document.getElementById('newPasswordInput').value.trim();
-            if (!pwd) return showModal("請輸入新密碼！");
+            if (!isPasswordValid(pwd)) {
+                return showModal("新密碼不符合安全規定！\n\n必須 8 個字元以上，且包含至少 1 個大寫英文、1 個小寫英文及 1 個數字。");
+            }
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
             const idx = users.findIndex(x => x.username === currentUser.username);
             if (idx !== -1) {
                 users[idx].password = pwd;
                 safeStorageSet(STORAGE_USERS_KEY, users);
-                await callGAS("updatePassword", { username: currentUser.username, newPassword: pwd });
+                const res = await callGAS("updatePassword", { username: currentUser.username, newPassword: pwd });
+                if (res && res.status === "error") return showModal(res.message);
+                document.getElementById('newPasswordInput').value = "";
                 showModal("密碼修改成功，已同步至 Google 試算表！");
             }
         }
@@ -1132,8 +1251,20 @@
         window.onload = function() {
             syncFromGAS(true);
             const saved = safeStorageGet(STORAGE_CURRENT_USER, null);
-            if (saved) { currentUser = saved; loginSuccess(); }
-            else { showSection('auth'); }
+            if (saved) {
+                // 若重新整理頁面時，已登入的帳號密碼不符新規則，同樣攔截強制要求修改
+                if (saved.role !== ROLES.ADMIN && !isPasswordValid(saved.password)) {
+                    pendingForceUser = saved;
+                    safeStorageSet(STORAGE_CURRENT_USER, null);
+                    showSection('auth');
+                    document.getElementById('forcePasswordModal').classList.remove('hidden');
+                    return;
+                }
+                currentUser = saved;
+                loginSuccess();
+            } else {
+                showSection('auth');
+            }
         };
     </script>
 </body>
