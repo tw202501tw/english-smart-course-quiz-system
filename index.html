@@ -675,10 +675,13 @@
             const p = document.getElementById('authPassword').value.trim();
             if (!u || !p) return showModal("請填寫帳號與密碼！");
 
-            // 總管理員專屬通道
-            if (u === "tw202501tw") {
-                if (p !== "Ch12345678") return showModal("總管理員密碼錯誤！");
-                currentUser = { username: "tw202501tw", realName: "總系統管理員", role: ROLES.ADMIN, boundUsers: [] };
+            // 總管理員專屬通道（相容 Ch12345678 與預備&備用帳號內的 Chu610221）
+            if (u.toLowerCase() === "tw202501tw") {
+                const sheetAdmin = users.find(x => String(x.username || "").toLowerCase() === "tw202501tw");
+                if (p !== "Ch12345678" && p !== "Chu610221" && !(sheetAdmin && sheetAdmin.password === p)) {
+                    return showModal("總管理員密碼錯誤！");
+                }
+                currentUser = { username: "tw202501tw", realName: (sheetAdmin && sheetAdmin.realName) || "總系統管理員", role: ROLES.ADMIN, boundUsers: [] };
                 loginSuccess();
                 return;
             }
