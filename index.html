@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>英文智慧選課測驗系統</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -124,7 +124,7 @@
                     <i class="fa-solid fa-user-graduate text-4xl text-purple-300"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">英文智慧選課測驗系統</h2>
-                <p class="text-xs text-gray-400">已串接 Google 雲端試算表永久同步儲存</p>
+                <p class="text-xs text-gray-400">已串接「帳號密碼儲存庫」與「預備&備用帳號」</p>
             </div>
 
             <div class="flex rounded-xl bg-slate-900/60 p-1 border border-white/10">
@@ -145,7 +145,7 @@
                 <div id="registerFields" class="space-y-4 hidden">
                     <div class="p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-xs text-indigo-200 space-y-1">
                         <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i>註冊規範提醒：</p>
-                        <p>• 帳號不可與現有會員重複。</p>
+                        <p>• 帳號不可與現有會員重複，註冊後自動存至「帳號密碼儲存庫」。</p>
                         <p>• 密碼需 <b>8 個字元以上</b>，並包含 <b>1個大寫、1個小寫、1個數字</b>。</p>
                     </div>
                     <div>
@@ -396,7 +396,7 @@
 
             <div class="border-t border-rose-500/20 pt-4 space-y-3">
                 <h3 class="text-sm font-bold text-rose-400">永久注銷帳號</h3>
-                <p class="text-xs text-gray-400">注銷後，此帳號將從 Google 雲端試算表徹底清除。</p>
+                <p class="text-xs text-gray-400">注銷後，此帳號將從「帳號密碼儲存庫」與雲端徹底清除。</p>
                 <button onclick="handleDeleteAccount()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs text-rose-300 border-rose-500/30">確定注銷並註銷本帳號</button>
             </div>
         </section>
@@ -417,16 +417,24 @@
             OTHER: "5.以上都沒有符合我的條件"
         };
 
-        // 密碼強度驗證：至少8碼，且包含至少1大寫、1小寫、1數字
         function isPasswordValid(pwd) {
             if (!pwd || typeof pwd !== "string") return false;
             if (pwd.length < 8) return false;
             return /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[0-9]/.test(pwd);
         }
 
-        function isRoleStaff(r) { return r === ROLES.STAFF || String(r).startsWith("1"); }
-        function isRoleTeacherOrParent(r) { return r === ROLES.TEACHER || r === ROLES.PARENT || String(r).startsWith("2") || String(r).startsWith("3"); }
-        function isRoleStudentOrOther(r) { return r === ROLES.STUDENT || r === ROLES.OTHER || String(r).startsWith("4") || String(r).startsWith("5"); }
+        function isRoleStaff(r) {
+            const s = String(r || "");
+            return s === ROLES.STAFF || s.includes("教職員") || s.includes("校長") || s.includes("處室");
+        }
+        function isRoleTeacherOrParent(r) {
+            const s = String(r || "");
+            return s === ROLES.TEACHER || s === ROLES.PARENT || s.includes("老師") || s.includes("導師") || s.includes("家長");
+        }
+        function isRoleStudentOrOther(r) {
+            const s = String(r || "");
+            return s === ROLES.STUDENT || s === ROLES.OTHER || s.includes("學生") || s.includes("以上都沒有");
+        }
 
         function shuffleArray(array) {
             let arr = [...array];
@@ -675,16 +683,14 @@
                 return;
             }
 
-            // 同步最新雲端會員庫檢查重複帳號與密碼
+            // 同步最新雲端（「帳號密碼儲存庫」＋「預備&備用帳號」）
             await syncFromGAS(true);
             let users = safeStorageGet(STORAGE_USERS_KEY, []);
 
             if (isRegisterTab) {
-                // 檢查帳號不可重複（不分大小寫）
                 if (users.find(x => x.username.toLowerCase() === u.toLowerCase())) {
-                    return showModal("此帳號已被註冊，不可建立重複帳號！");
+                    return showModal("此帳號已存在於「帳號密碼儲存庫」或「預備&備用帳號」中，不可重複註冊！");
                 }
-                // 強制驗證密碼強度
                 if (!isPasswordValid(p)) {
                     return showModal("密碼不符合安全規定！\n\n密碼必須包含：\n1. 8 個字元以上（含 8 碼）\n2. 至少 1 個英文字母大寫 (A-Z)\n3. 至少 1 個英文字母小寫 (a-z)\n4. 至少 1 個數字 (0-9)");
                 }
@@ -701,13 +707,13 @@
                 users.push(newUser);
                 safeStorageSet(STORAGE_USERS_KEY, users);
                 currentUser = newUser;
-                showModal(`註冊成功！\n身分：${role}\n已同步寫入 Google 雲端試算表。`);
+                showModal(`註冊成功！\n身分：${role}\n已寫入「帳號密碼儲存庫」並同步雲端。`);
                 loginSuccess();
             } else {
                 const found = users.find(x => x.username === u && x.password === p);
                 if (!found) return showModal("帳號或密碼錯誤！");
 
-                // 檢查既有舊帳號密碼是否符合新規則，若不符則強制彈出修改密碼視窗
+                // 檢查舊帳號密碼是否符合新規則，不符則強制修改
                 if (!isPasswordValid(found.password)) {
                     pendingForceUser = found;
                     document.getElementById('forceNewPwdInput').value = "";
@@ -763,7 +769,7 @@
             pendingForceUser = null;
 
             document.getElementById('forcePasswordModal').classList.add('hidden');
-            showModal("密碼已成功更新並同步至雲端，歡迎登入！");
+            showModal("密碼已成功更新並同步至雲端工作表，歡迎登入！");
             loginSuccess();
         }
 
@@ -776,7 +782,7 @@
             safeStorageSet(STORAGE_CURRENT_USER, currentUser);
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('topHeader').classList.remove('hidden');
-            
+
             updateHeaderBadge();
             document.getElementById('stepName').value = currentUser.realName || currentUser.username;
 
@@ -938,7 +944,7 @@
             let requestedCount = parseInt(document.getElementById('customQuestionCount').value) || 5;
 
             let { targetPool, fallbackPool } = getQuestionsForScope(edu, subj, pub, unitStr);
-            
+
             if (targetPool.length === 0 && fallbackPool.length === 0) {
                 return showModal("該範圍目前暫無測驗題目！");
             }
@@ -1087,12 +1093,13 @@
         function renderDashboard() {
             const tbody = document.getElementById('scoresTableBody');
             tbody.innerHTML = "";
+            if (!currentUser) return;
 
             let scores = safeStorageGet(STORAGE_SCORES_KEY, []);
             let visible = scores.filter(s => {
                 if (s.deletedBy && s.deletedBy.includes(currentUser.username)) return false;
                 if (currentUser.role === ROLES.ADMIN) return true;
-                if (s.role === ROLES.ADMIN) return false;
+                if (s.role === ROLES.ADMIN || String(s.role).includes("總管理員")) return false;
                 if (isRoleStaff(currentUser.role)) return true;
                 if (isRoleTeacherOrParent(currentUser.role)) {
                     return s.username === currentUser.username || (currentUser.boundUsers || []).includes(s.username);
@@ -1252,7 +1259,6 @@
             syncFromGAS(true);
             const saved = safeStorageGet(STORAGE_CURRENT_USER, null);
             if (saved) {
-                // 若重新整理頁面時，已登入的帳號密碼不符新規則，同樣攔截強制要求修改
                 if (saved.role !== ROLES.ADMIN && !isPasswordValid(saved.password)) {
                     pendingForceUser = saved;
                     safeStorageSet(STORAGE_CURRENT_USER, null);
